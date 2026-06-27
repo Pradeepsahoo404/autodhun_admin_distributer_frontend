@@ -34,6 +34,7 @@ export function ManualClaimingFormFields({
           id={`${idPrefix}${name}`}
           label={label}
           placeholder={placeholder}
+          required
           error={errors[name]?.message ? String(errors[name]?.message) : undefined}
           {...register(name)}
         />

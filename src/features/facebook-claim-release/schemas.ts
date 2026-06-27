@@ -1,36 +1,21 @@
 import { z } from 'zod';
 import type { FieldErrors } from 'react-hook-form';
 import { toast } from 'sonner';
+import { requiredIsrcField, requiredTextField, requiredUrlField } from '@/lib/validation/fields';
 
 export const LABEL_NAMES_MUST_MATCH_MESSAGE =
   'Sender and receiver label names must always be the same';
 
 const normalizeLabel = (value: string) => value.trim().toLowerCase();
 
-const labelField = (label: string) =>
-  z
-    .string()
-    .trim()
-    .min(1, `${label} is required`)
-    .max(200, `${label} must be at most 200 characters`);
-
 const claimReleaseFieldsSchema = z.object({
-  senderLabelName: labelField('Sender label name'),
-  receiverLabelName: labelField('Receiver label name'),
-  facebookPageLink: z
-    .string()
-    .trim()
-    .url('Enter a valid Facebook page link')
-    .max(500)
-    .refine((url) => /facebook\.com|fb\.com/i.test(url), 'Enter a valid Facebook page link'),
-  isrcCode: z
-    .string()
-    .trim()
-    .min(1, 'ISRC code is required')
-    .max(20, 'ISRC code must be at most 20 characters'),
+  senderLabelName: requiredTextField('Sender label name'),
+  receiverLabelName: requiredTextField('Receiver label name'),
+  facebookPageLink: requiredUrlField('Facebook page link'),
+  isrcCode: requiredIsrcField(),
 });
 
-export const facebookClaimReleaseFormSchema = claimReleaseFieldsSchema.superRefine((data, ctx) => {
+export const claimReleaseFormSchema = claimReleaseFieldsSchema.superRefine((data, ctx) => {
   if (normalizeLabel(data.senderLabelName) !== normalizeLabel(data.receiverLabelName)) {
     ctx.addIssue({
       code: z.ZodIssueCode.custom,
@@ -45,9 +30,12 @@ export const facebookClaimReleaseFormSchema = claimReleaseFieldsSchema.superRefi
   }
 });
 
-export type FacebookClaimReleaseFormData = z.infer<typeof claimReleaseFieldsSchema>;
+export const facebookClaimReleaseFormSchema = claimReleaseFormSchema;
 
-export function onFacebookClaimReleaseFormInvalid(errors: FieldErrors<FacebookClaimReleaseFormData>) {
+export type ClaimReleaseFormData = z.infer<typeof claimReleaseFieldsSchema>;
+export type FacebookClaimReleaseFormData = ClaimReleaseFormData;
+
+export function onClaimReleaseFormInvalid(errors: FieldErrors<ClaimReleaseFormData>) {
   if (
     errors.senderLabelName?.message === LABEL_NAMES_MUST_MATCH_MESSAGE ||
     errors.receiverLabelName?.message === LABEL_NAMES_MUST_MATCH_MESSAGE
@@ -61,3 +49,5 @@ export function onFacebookClaimReleaseFormInvalid(errors: FieldErrors<FacebookCl
     toast.error(String(firstError.message));
   }
 }
+
+export const onFacebookClaimReleaseFormInvalid = onClaimReleaseFormInvalid;

@@ -1,14 +1,15 @@
 import { z } from 'zod';
+import { optionalRoleDescription, requiredRoleName } from '@/lib/validation/fields';
 
 export const createRoleSchema = z.object({
-  name: z.string().trim().min(2, 'Role name is required').max(50),
-  description: z.string().trim().max(255).optional().or(z.literal('')),
+  name: requiredRoleName(),
+  description: optionalRoleDescription(),
   status: z.enum(['active', 'inactive']).default('active'),
 });
 
 export const editRoleSchema = z.object({
-  name: z.string().trim().min(2, 'Role name is required').max(50),
-  description: z.string().trim().max(255).optional().or(z.literal('')),
+  name: requiredRoleName(),
+  description: optionalRoleDescription(),
 });
 
 export type CreateRoleFormData = z.infer<typeof createRoleSchema>;

@@ -1,18 +1,11 @@
 import { z } from 'zod';
 import type { FieldErrors } from 'react-hook-form';
 import { toast } from 'sonner';
+import { requiredIsrcField, requiredTextField } from '@/lib/validation/fields';
 
 export const contentIdFormSchema = z.object({
-  labelName: z
-    .string()
-    .trim()
-    .min(1, 'Label name is required')
-    .max(200, 'Label name must be at most 200 characters'),
-  isrcCode: z
-    .string()
-    .trim()
-    .min(1, 'ISRC is required')
-    .max(20, 'ISRC must be at most 20 characters'),
+  labelName: requiredTextField('Label name'),
+  isrcCode: requiredIsrcField(),
 });
 
 export type ContentIdFormData = z.infer<typeof contentIdFormSchema>;

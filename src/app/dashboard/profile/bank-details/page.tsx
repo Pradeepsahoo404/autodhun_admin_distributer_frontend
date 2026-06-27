@@ -82,6 +82,7 @@ export default function BankDetailsPage() {
             autoComplete="organization"
             autoCapitalize="words"
             className="sm:col-span-2"
+            required
             error={errors.bankName?.message}
             onKeyDown={(event) => {
               if (event.key.length === 1 && /\d/.test(event.key)) {
@@ -95,12 +96,14 @@ export default function BankDetailsPage() {
             placeholder="Enter your account number"
             inputMode="numeric"
             className="sm:col-span-2"
+            required
             error={errors.accountNumber?.message}
             {...register('accountNumber')}
           />
           <ProfileInputField
             label="IFSC code"
             placeholder="e.g. SBIN0001234"
+            required
             error={errors.ifscCode?.message}
             {...register('ifscCode')}
           />

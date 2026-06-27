@@ -72,6 +72,7 @@ export function CreateRoleDialog({ open, onClose }: CreateRoleDialogProps) {
           id="role-name"
           label="Role name"
           placeholder="e.g. Content Manager"
+          required
           error={errors.name?.message}
           {...register('name')}
         />

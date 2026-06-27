@@ -63,6 +63,7 @@ export function GeneralProfileForm() {
           <ProfileInputField
             label="First name"
             autoComplete="given-name"
+            required
             error={errors.firstName?.message}
             {...register('firstName')}
           />
@@ -77,12 +78,14 @@ export function GeneralProfileForm() {
             label="Postal address"
             placeholder="Street, city, ZIP"
             className="sm:col-span-2"
+            required
             error={errors.postalAddress?.message}
             {...register('postalAddress')}
           />
-          <ProfileInputField label="State" error={errors.state?.message} {...register('state')} />
+          <ProfileInputField label="State" required error={errors.state?.message} {...register('state')} />
           <ProfileInputField
             label="Country / Region"
+            required
             error={errors.countryRegion?.message}
             {...register('countryRegion')}
           />
@@ -90,10 +93,11 @@ export function GeneralProfileForm() {
             label="Phone number"
             type="tel"
             autoComplete="tel"
+            required
             error={errors.phoneNumber?.message}
             {...register('phoneNumber')}
           />
-          <ProfileInputField label="Label name" error={errors.labelName?.message} {...register('labelName')} />
+          <ProfileInputField label="Label name" required error={errors.labelName?.message} {...register('labelName')} />
         </div>
       </ProfileSectionCard>
 

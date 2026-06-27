@@ -1,27 +1,11 @@
 import { z } from 'zod';
 import { passwordSchema } from '@/features/auth/schemas';
-
-const nameField = (label: string) =>
-  z
-    .string()
-    .trim()
-    .min(1, `${label} is required`)
-    .max(50, `${label} must be at most 50 characters`);
-
-const optionalNameField = (label: string) =>
-  z
-    .string()
-    .trim()
-    .max(50, `${label} must be at most 50 characters`)
-    .optional()
-    .or(z.literal(''));
-
-const requiredText = (label: string, max: number) =>
-  z
-    .string()
-    .trim()
-    .min(1, `${label} is required`)
-    .max(max, `${label} must be at most ${max} characters`);
+import {
+  optionalNameField,
+  requiredAddressField,
+  requiredNameField,
+  requiredTextField,
+} from '@/lib/validation/fields';
 
 const optionalCode = (pattern: RegExp, message: string) =>
   z
@@ -32,17 +16,17 @@ const optionalCode = (pattern: RegExp, message: string) =>
     .or(z.literal(''));
 
 export const generalProfileSchema = z.object({
-  firstName: nameField('First name'),
+  firstName: requiredNameField('First name'),
   lastName: optionalNameField('Last name'),
-  postalAddress: requiredText('Postal address', 300),
-  state: requiredText('State', 100),
-  countryRegion: requiredText('Country / Region', 100),
+  postalAddress: requiredAddressField('Postal address', 300),
+  state: requiredTextField('State', 100),
+  countryRegion: requiredTextField('Country / Region', 100),
   phoneNumber: z
     .string()
     .trim()
     .min(1, 'Phone number is required')
     .regex(/^\+?[0-9]{10,15}$/, 'Enter a valid phone number'),
-  labelName: requiredText('Label name', 120),
+  labelName: requiredTextField('Label name', 120),
 });
 
 const bankNameField = z

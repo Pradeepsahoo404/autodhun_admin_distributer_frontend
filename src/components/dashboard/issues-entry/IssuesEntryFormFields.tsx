@@ -1,7 +1,7 @@
 'use client';
 
 import { UseFormRegister, FieldErrors } from 'react-hook-form';
-import { ProfileInputField } from '@/components/dashboard/profile/ProfileField';
+import { FormFieldLabel, ProfileInputField } from '@/components/dashboard/profile/ProfileField';
 import { TableSelectField } from '@/components/common/TableSelectField';
 import { ISSUES_ENTRY_ASSET_TYPES } from '@/constants/issuesEntry';
 import type { IssuesEntryFormData } from '@/features/issues-entry/schemas';
@@ -46,6 +46,7 @@ export function IssuesEntryFormFields({
         id={`${idPrefix}otherParty`}
         label="Other party"
         placeholder="Other party name"
+        required
         error={errors.otherParty?.message ? String(errors.otherParty.message) : undefined}
         {...register('otherParty')}
       />
@@ -54,6 +55,7 @@ export function IssuesEntryFormFields({
         id={`${idPrefix}assetName`}
         label="Asset name"
         placeholder="Asset name"
+        required
         error={errors.assetName?.message ? String(errors.assetName.message) : undefined}
         {...register('assetName')}
       />
@@ -62,6 +64,7 @@ export function IssuesEntryFormFields({
         id={`${idPrefix}isrcCode`}
         label="ISRC"
         placeholder="ISRC code"
+        required
         error={errors.isrcCode?.message ? String(errors.isrcCode.message) : undefined}
         {...register('isrcCode')}
       />
@@ -70,6 +73,7 @@ export function IssuesEntryFormFields({
         id={`${idPrefix}overlappingAssetName`}
         label="Overlapping asset name"
         placeholder="Overlapping asset name"
+        required
         error={
           errors.overlappingAssetName?.message
             ? String(errors.overlappingAssetName.message)
@@ -82,12 +86,13 @@ export function IssuesEntryFormFields({
         id={`${idPrefix}labelName`}
         label="Label"
         placeholder="Label name"
+        required
         error={errors.labelName?.message ? String(errors.labelName.message) : undefined}
         {...register('labelName')}
       />
 
       <div className="min-w-0 space-y-2">
-        <label className="text-[13px] font-medium text-neutral-400">Asset type</label>
+        <FormFieldLabel label="Asset type" required />
         <TableSelectField
           value={assetType}
           onChange={(value) => onAssetTypeChange?.(value)}
@@ -106,7 +111,7 @@ export function IssuesEntryFormFields({
 
       {showAdminSelect ? (
         <div className="min-w-0 space-y-2 md:col-span-3">
-          <label className="text-[13px] font-medium text-neutral-400">Assign to admin</label>
+          <FormFieldLabel label="Assign to admin" required />
           <div className="max-w-md">
             <TableSelectField
               value={assignedTo}

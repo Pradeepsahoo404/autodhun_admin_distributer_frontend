@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { requiredNameField, optionalNameField } from '@/lib/validation/fields';
 
 export const passwordSchema = z
   .string()
@@ -10,8 +11,8 @@ export const passwordSchema = z
 
 export const registerSchema = z
   .object({
-    firstName: z.string().min(1, 'First name is required'),
-    lastName: z.string().optional().default(''),
+    firstName: requiredNameField('First name'),
+    lastName: optionalNameField('Last name'),
     email: z.string().email('Enter a valid email'),
     password: passwordSchema,
     confirmPassword: z.string(),

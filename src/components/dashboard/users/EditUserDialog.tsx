@@ -108,6 +108,7 @@ export function EditUserDialog({ open, user, onClose }: EditUserDialogProps) {
               <ProfileInputField
                 id="edit-firstName"
                 label="First name"
+                required
                 error={errors.firstName?.message}
                 {...register('firstName')}
               />

@@ -30,6 +30,7 @@ export function ClaimReleaseFormFields({ register, errors, idPrefix = '' }: Clai
           id={`${idPrefix}${name}`}
           label={label}
           placeholder={placeholder}
+          required
           error={errors[name]?.message ? String(errors[name]?.message) : undefined}
           {...register(name)}
         />

@@ -1,18 +1,11 @@
 import { z } from 'zod';
 import type { FieldErrors } from 'react-hook-form';
 import { toast } from 'sonner';
+import { requiredTextField, requiredUrlField } from '@/lib/validation/fields';
 
 export const allowlistFormSchema = z.object({
-  labelName: z
-    .string()
-    .trim()
-    .min(1, 'Label name is required')
-    .max(200, 'Label name must be at most 200 characters'),
-  channelLink: z
-    .string()
-    .trim()
-    .url('Enter a valid channel link')
-    .max(500),
+  labelName: requiredTextField('Label name'),
+  channelLink: requiredUrlField('Channel link'),
 });
 
 export type AllowlistFormData = z.infer<typeof allowlistFormSchema>;

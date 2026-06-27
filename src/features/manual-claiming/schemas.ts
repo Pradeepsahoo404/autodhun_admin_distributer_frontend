@@ -1,27 +1,13 @@
 import { z } from 'zod';
 import type { FieldErrors } from 'react-hook-form';
 import { toast } from 'sonner';
-
-const linkField = (label: string) =>
-  z
-    .string()
-    .trim()
-    .url(`Enter a valid ${label}`)
-    .max(500);
+import { requiredIsrcField, requiredTextField, requiredUrlField } from '@/lib/validation/fields';
 
 export const manualClaimingFormSchema = z.object({
-  labelName: z
-    .string()
-    .trim()
-    .min(1, 'Label name is required')
-    .max(200, 'Label name must be at most 200 characters'),
-  originalSongLink: linkField('original song link'),
-  isrcCode: z
-    .string()
-    .trim()
-    .min(1, 'ISRC code is required')
-    .max(20, 'ISRC code must be at most 20 characters'),
-  songLink: linkField('song link'),
+  labelName: requiredTextField('Label name'),
+  originalSongLink: requiredUrlField('Original song link'),
+  isrcCode: requiredIsrcField(),
+  songLink: requiredUrlField('Song link'),
 });
 
 export type ManualClaimingFormData = z.infer<typeof manualClaimingFormSchema>;

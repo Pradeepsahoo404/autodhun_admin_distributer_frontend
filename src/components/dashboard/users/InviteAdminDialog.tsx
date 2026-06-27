@@ -69,6 +69,7 @@ export function InviteAdminDialog({ open, onClose }: InviteAdminDialogProps) {
             id="invite-firstName"
             label="First name"
             placeholder="John"
+            required
             error={errors.firstName?.message}
             {...register('firstName')}
           />
@@ -85,6 +86,7 @@ export function InviteAdminDialog({ open, onClose }: InviteAdminDialogProps) {
           label="Email"
           type="email"
           placeholder="admin@company.com"
+          required
           error={errors.email?.message}
           {...register('email')}
         />

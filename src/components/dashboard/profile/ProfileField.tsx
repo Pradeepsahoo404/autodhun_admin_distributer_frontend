@@ -20,20 +20,43 @@ export function ProfileField({ label, value, className }: ProfileFieldProps) {
   );
 }
 
+interface FormFieldLabelProps {
+  label: string;
+  htmlFor?: string;
+  required?: boolean;
+  className?: string;
+}
+
+/** Shared label for form fields with optional required asterisk. */
+export function FormFieldLabel({ label, htmlFor, required, className }: FormFieldLabelProps) {
+  return (
+    <label htmlFor={htmlFor} className={cn('text-[13px] font-medium text-neutral-400', className)}>
+      {label}
+      {required ? <span className="ml-0.5 text-red-500">*</span> : null}
+    </label>
+  );
+}
+
 interface ProfileTextareaFieldProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
   label: string;
   error?: string;
+  required?: boolean;
 }
 
 /** Multi-line profile field styled for account settings cards. */
-export function ProfileTextareaField({ label, error, className, id, ...props }: ProfileTextareaFieldProps) {
+export function ProfileTextareaField({
+  label,
+  error,
+  required,
+  className,
+  id,
+  ...props
+}: ProfileTextareaFieldProps) {
   const fieldId = id ?? label.toLowerCase().replace(/\s+/g, '-');
 
   return (
     <div className={cn('space-y-2', className)}>
-      <label htmlFor={fieldId} className="text-[13px] font-medium text-neutral-400">
-        {label}
-      </label>
+      <FormFieldLabel label={label} htmlFor={fieldId} required={required} />
       <textarea
         id={fieldId}
         rows={3}
@@ -52,6 +75,7 @@ export function ProfileTextareaField({ label, error, className, id, ...props }: 
 interface ProfileInputFieldProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label: string;
   error?: string;
+  required?: boolean;
 }
 
 const profileInputClass = (error?: string) =>
@@ -63,15 +87,13 @@ const profileInputClass = (error?: string) =>
 
 /** Editable profile field styled for the account settings cards. Password fields include show/hide toggle. */
 export const ProfileInputField = forwardRef<HTMLInputElement, ProfileInputFieldProps>(
-  ({ label, error, className, id, type, ...props }, ref) => {
+  ({ label, error, required, className, id, type, ...props }, ref) => {
     const fieldId = id ?? label.toLowerCase().replace(/\s+/g, '-');
     const inputClassName = profileInputClass(error);
 
     return (
       <div className={cn('space-y-2', className)}>
-        <label htmlFor={fieldId} className="text-[13px] font-medium text-neutral-400">
-          {label}
-        </label>
+        <FormFieldLabel label={label} htmlFor={fieldId} required={required} />
         {type === 'password' ? (
           <PasswordInput id={fieldId} ref={ref} inputClassName={inputClassName} {...props} />
         ) : (

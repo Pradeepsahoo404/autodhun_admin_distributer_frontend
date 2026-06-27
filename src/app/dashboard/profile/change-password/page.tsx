@@ -60,6 +60,7 @@ export default function ChangePasswordPage() {
             type="password"
             placeholder="Enter your current password"
             autoComplete="current-password"
+            required
             error={errors.currentPassword?.message}
             {...register('currentPassword')}
           />
@@ -68,6 +69,7 @@ export default function ChangePasswordPage() {
             type="password"
             placeholder="At least 8 characters with uppercase, number & symbol"
             autoComplete="new-password"
+            required
             error={errors.newPassword?.message}
             {...register('newPassword')}
           />
@@ -76,6 +78,7 @@ export default function ChangePasswordPage() {
             type="password"
             placeholder="Re-enter your new password"
             autoComplete="new-password"
+            required
             error={errors.confirmPassword?.message}
             {...register('confirmPassword')}
           />

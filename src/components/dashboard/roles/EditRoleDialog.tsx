@@ -85,6 +85,7 @@ export function EditRoleDialog({ open, role, onClose }: EditRoleDialogProps) {
           id="edit-role-name"
           label="Role name"
           disabled={isSystemRole}
+          required={!isSystemRole}
           error={errors.name?.message}
           {...register('name')}
         />

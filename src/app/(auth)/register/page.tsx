@@ -86,7 +86,7 @@ export default function RegisterPage() {
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-3 text-left">
                 <div className="grid grid-cols-2 gap-x-3 gap-y-3">
                   <AuthField label="First Name" error={errors.firstName?.message} {...fieldProps} {...register('firstName')} />
-                  <AuthField label="Last Name" error={errors.lastName?.message} {...fieldProps} {...register('lastName')} />
+                  <AuthField label="Last Name" required={false} error={errors.lastName?.message} {...fieldProps} {...register('lastName')} />
                   <div className="col-span-2">
                     <AuthField
                       label="Email"
