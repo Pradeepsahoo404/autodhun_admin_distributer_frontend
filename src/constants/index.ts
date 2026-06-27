@@ -28,6 +28,8 @@ export const ROUTES = {
 
   PROFILE_FORGOT_PASSWORD: '/dashboard/profile/forgot-password',
 
+  PROFILE_CRONJOB_SETTINGS: '/dashboard/profile/cronjob-settings',
+
 } as const;
 
 
@@ -55,6 +57,12 @@ export const ROLES = {
   ADMIN: 'admin',
 
 } as const;
+
+
+
+export const ACCOUNT_INACTIVE_MESSAGE =
+
+  'Your account is inactive. To make it active, please contact the Owner.';
 
 
 

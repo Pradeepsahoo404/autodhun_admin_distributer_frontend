@@ -5,16 +5,16 @@ import { usePathname } from 'next/navigation';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
-import { ChevronDown, ChevronRight, Info, LogOut, Zap, Crown } from 'lucide-react';
+import { ChevronDown, ChevronRight, LogOut, Zap, Crown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAppDispatch, useAppSelector } from '@/hooks/useAppStore';
-import { useGetSidebarQuery, useGetDashboardQuery, useLogoutMutation } from '@/store/api';
+import { useGetSidebarQuery, useLogoutMutation } from '@/store/api';
 import { setSidebarModules } from '@/store/slices/permissionSlice';
 import { logout } from '@/store/slices/authSlice';
 import { getModuleIcon } from '@/utils/icons';
 import { buildModuleTree, isModuleBranchOpen, isNavItemActive, type ModuleNavNode } from '@/utils/moduleTree';
 import { SidebarLogo } from './SidebarLogo';
-import { EditableProfileAvatar } from './EditableProfileAvatar';
+// import { EditableProfileAvatar } from './EditableProfileAvatar';
 import { ROUTES, DASHBOARD_SIDEBAR_WIDTH, HEADER_ONLY_MODULE_SLUGS } from '@/constants';
 
 interface SidebarProps {
@@ -23,23 +23,23 @@ interface SidebarProps {
   onMobileClose: () => void;
 }
 
-const formatRole = (role?: string): string =>
-  role
-    ? role
-        .split('-')
-        .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-        .join(' ')
-    : '';
+// const formatRole = (role?: string): string =>
+//   role
+//     ? role
+//         .split('-')
+//         .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+//         .join(' ')
+//     : '';
 
 export function Sidebar({ desktopOpen, mobileOpen, onMobileClose }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
   const dispatch = useAppDispatch();
-  const { user } = useAppSelector((s) => s.auth);
+  // const { user } = useAppSelector((s) => s.auth);
   const { sidebarModules } = useAppSelector((s) => s.permission);
 
   const { data: sidebarData, isSuccess } = useGetSidebarQuery();
-  const { data: dashboardData } = useGetDashboardQuery();
+  // const { data: dashboardData } = useGetDashboardQuery();
   const [logoutApi] = useLogoutMutation();
 
   useEffect(() => {
@@ -54,10 +54,10 @@ export function Sidebar({ desktopOpen, mobileOpen, onMobileClose }: SidebarProps
   const mainModules = buildModuleTree(navModules.filter((m) => m.group !== 'management'));
   const managementModules = buildModuleTree(navModules.filter((m) => m.group === 'management'));
 
-  const earnings = dashboardData?.data.earnings ?? 0;
-  const currency = dashboardData?.data.currency === 'INR' ? '₹' : '$';
-  const roleLabel = formatRole(user?.role);
-  const showRole = roleLabel && roleLabel !== (user?.name ?? 'User');
+  // const earnings = dashboardData?.data.earnings ?? 0;
+  // const currency = dashboardData?.data.currency === 'INR' ? '₹' : '$';
+  // const roleLabel = formatRole(user?.role);
+  // const showRole = roleLabel && roleLabel !== (user?.name ?? 'User');
 
   const handleLogout = async () => {
     try {
@@ -92,6 +92,7 @@ export function Sidebar({ desktopOpen, mobileOpen, onMobileClose }: SidebarProps
         </div>
 
         <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
+          {/* Profile card — hidden for all roles (restore by uncommenting block below)
           <div className="px-3">
             <div className="relative overflow-hidden rounded-2xl border border-white/[0.06] bg-gradient-to-b from-[#1a1a1a] to-[#101010] px-3 py-5 text-center shadow-[inset_0_1px_0_rgba(255,255,255,0.04),0_12px_40px_rgba(0,0,0,0.35)]">
               <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-brand-lime/[0.07] via-transparent to-brand-purple/[0.1]" />
@@ -102,7 +103,9 @@ export function Sidebar({ desktopOpen, mobileOpen, onMobileClose }: SidebarProps
               </div>
             </div>
           </div>
+          */}
 
+          {/* Earnings — hidden for all roles (restore by uncommenting block below)
           <div className="px-3 pt-4">
             <p className="px-1 pb-2 text-[10px] font-semibold tracking-[0.14em] text-neutral-600">EARNINGS</p>
             <div className="flex items-center justify-between rounded-xl border border-white/[0.06] bg-gradient-to-r from-[#161616] to-[#121212] px-3 py-2.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]">
@@ -118,8 +121,10 @@ export function Sidebar({ desktopOpen, mobileOpen, onMobileClose }: SidebarProps
               <Info className="h-3.5 w-3.5 text-neutral-600" />
             </div>
           </div>
+          */}
 
-          <nav className="mt-4 space-y-0.5 px-3 pb-3">
+          <nav className="mt-3 space-y-0.5 px-3 pb-3 pt-3">
+            <p className="px-2 pb-2 text-[11px] font-semibold tracking-[0.14em] text-neutral-600">DASHBOARD</p>
             {mainModules.map((mod) => (
               <NavBranch key={mod.slug} node={mod} pathname={pathname} onMobileClose={onMobileClose} depth={0} />
             ))}
@@ -133,20 +138,20 @@ export function Sidebar({ desktopOpen, mobileOpen, onMobileClose }: SidebarProps
               </>
             )}
           </nav>
+        </div>
 
-          <div className="px-3 pb-3">
-            <div className="rounded-xl border border-brand-lime/20 bg-gradient-to-br from-brand-lime/10 to-transparent p-3">
-              <div className="mb-1.5 flex items-center gap-2">
-                <Crown className="h-3.5 w-3.5 text-brand-lime" />
-                <span className="text-[13px] font-semibold text-white">Upgrade to Pro</span>
-              </div>
-              <p className="mb-2.5 text-[11px] leading-relaxed text-neutral-500">
-                Unlock playlist pitching, publishing and more.
-              </p>
-              <button className="w-full rounded-lg bg-brand-lime py-2 text-[12px] font-semibold text-black transition-colors hover:bg-brand-lime-dark">
-                Upgrade Now
-              </button>
+        <div className="shrink-0 px-3 pb-3">
+          <div className="rounded-xl border border-brand-lime/20 bg-gradient-to-br from-brand-lime/10 to-transparent p-3">
+            <div className="mb-1.5 flex items-center gap-2">
+              <Crown className="h-3.5 w-3.5 text-brand-lime" />
+              <span className="text-[13px] font-semibold text-white">Upgrade to Pro</span>
             </div>
+            <p className="mb-2.5 text-[11px] leading-relaxed text-neutral-500">
+              Unlock playlist pitching, publishing and more.
+            </p>
+            <button className="w-full rounded-lg bg-brand-lime py-2 text-[12px] font-semibold text-black transition-colors hover:bg-brand-lime-dark">
+              Upgrade Now
+            </button>
           </div>
         </div>
 

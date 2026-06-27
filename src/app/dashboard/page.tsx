@@ -4,7 +4,6 @@ import { useGetDashboardQuery } from '@/store/api';
 import { DashboardCardGrid } from '@/components/dashboard/DashboardCardGrid';
 import { QuickActions } from '@/components/dashboard/QuickActions';
 import { DASHBOARD_PAGE } from '@/constants';
-import { DashboardPageHeader } from '@/components/dashboard/DashboardPageHeader';
 
 export default function DashboardPage() {
   const { data, isLoading } = useGetDashboardQuery(undefined, { refetchOnMountOrArgChange: true });
@@ -19,8 +18,6 @@ export default function DashboardPage() {
 
   return (
     <div className={DASHBOARD_PAGE}>
-      <DashboardPageHeader title="Dashboard" />
-
       {isLoading ? (
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
           <div className="h-[400px] animate-pulse rounded-2xl border border-[#222222] bg-[#111111] bg-[radial-gradient(ellipse_at_top_right,rgba(163,255,18,0.1),transparent_60%)] xl:row-span-2" />

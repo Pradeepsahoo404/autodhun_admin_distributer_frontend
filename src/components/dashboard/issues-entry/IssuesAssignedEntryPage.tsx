@@ -5,7 +5,6 @@ import { toast } from 'sonner';
 import { Plus } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Switch } from '@/components/ui/switch';
 import { useAppSelector } from '@/hooks/useAppStore';
 import { getApiErrorMessage } from '@/services/apiClient';
 import { DASHBOARD_PAGE, ROLES } from '@/constants';
@@ -44,6 +43,7 @@ import { CreateIssuesEntryDialog } from '@/components/dashboard/issues-entry/Cre
 import { EditIssuesEntryDialog } from '@/components/dashboard/issues-entry/EditIssuesEntryDialog';
 import { DeleteIssuesEntryDialog } from '@/components/dashboard/issues-entry/DeleteIssuesEntryDialog';
 import { IssuesOwnershipControl } from '@/components/dashboard/issues-entry/IssuesOwnershipControl';
+import { IssuesStatusToggle } from '@/components/dashboard/issues-entry/IssuesStatusToggle';
 import { formatDateTime } from '@/lib/formatDateTime';
 import { useLegalEntryHighlight, legalEntryRowClass } from '@/hooks/useLegalEntryHighlight';
 import { cn } from '@/lib/utils';
@@ -312,17 +312,14 @@ export function IssuesAssignedEntryPage({ config }: IssuesAssignedEntryPageProps
                         ) : null}
                         <td className={dashboardTableCellStatus}>
                           {isSuperAdmin ? (
-                            <div className="flex items-center gap-2">
-                              <Switch
-                                checked={item.status === 'active'}
-                                disabled={statusUpdatingId !== null}
-                                onCheckedChange={(checked) => void handleStatusToggle(item, checked)}
-                                aria-label={`Toggle status for ${item.assetName}`}
-                              />
-                              <span className="text-xs text-neutral-500">
-                                {getIssuesEntryStatusLabel(item.status)}
-                              </span>
-                            </div>
+                            <IssuesStatusToggle
+                              checked={item.status === 'active'}
+                              loading={statusUpdatingId === item._id}
+                              disabled={statusUpdatingId !== null && statusUpdatingId !== item._id}
+                              statusLabel={getIssuesEntryStatusLabel(item.status)}
+                              onCheckedChange={(checked) => void handleStatusToggle(item, checked)}
+                              ariaLabel={`Toggle status for ${item.assetName}`}
+                            />
                           ) : (
                             <span
                               className={cn(

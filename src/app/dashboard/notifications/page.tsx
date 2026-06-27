@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Bell, Calendar, CheckCheck, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -20,7 +20,7 @@ import { formatRelativeTime, formatShortDate } from '@/lib/formatDateTime';
 import { cn } from '@/lib/utils';
 import type { Notification, PaginatedMeta } from '@/types';
 
-const DEFAULT_PAGE_LIMIT = 15;
+const DEFAULT_PAGE_LIMIT = 10;
 
 function statusBadgeClass(status: string): string {
   if (status === 'active') return 'border-green-500/25 bg-green-500/10 text-green-400';
@@ -150,10 +150,25 @@ export default function NotificationsPage() {
   const [markAllRead, { isLoading: isMarkingAll }] = useMarkAllNotificationsReadMutation();
 
   const notifications = data?.data ?? [];
+  const apiMeta = data?.meta as PaginatedMeta | undefined;
+  const total = apiMeta?.total ?? 0;
+  const totalPages = total > 0 ? Math.max(1, Math.ceil(total / limit)) : 1;
+
   const meta = useMemo(
-    () => (data?.meta as PaginatedMeta | undefined) ?? { total: 0, page: 1, limit, totalPages: 1 },
-    [data?.meta, limit],
+    (): PaginatedMeta => ({
+      total,
+      page: Math.min(page, totalPages),
+      limit,
+      totalPages,
+    }),
+    [total, page, limit, totalPages],
   );
+
+  useEffect(() => {
+    if (page > totalPages) {
+      setPage(totalPages);
+    }
+  }, [page, totalPages]);
 
   const handleOpen = async (item: Notification) => {
     setOpeningId(item._id);

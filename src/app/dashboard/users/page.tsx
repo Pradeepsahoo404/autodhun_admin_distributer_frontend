@@ -39,14 +39,16 @@ import {
 } from '@/components/common/dashboardTableStyles';
 import { InviteAdminDialog } from '@/components/dashboard/users/InviteAdminDialog';
 import { EditUserDialog } from '@/components/dashboard/users/EditUserDialog';
+import { ViewUserDialog } from '@/components/dashboard/users/ViewUserDialog';
 import { DeleteUserDialog } from '@/components/dashboard/users/DeleteUserDialog';
+import { AdminStatsCards } from '@/components/dashboard/users/AdminStatsCards';
 import { cn } from '@/lib/utils';
 import type { PaginatedMeta, User } from '@/types';
 
 const DEFAULT_PAGE_LIMIT = 10;
 
-const STATUS_FILTER_OPTIONS = [
-  { value: 'all', label: 'All statuses' },
+const ACCESS_FILTER_OPTIONS = [
+  { value: 'all', label: 'All access' },
   { value: 'active', label: 'Active' },
   { value: 'inactive', label: 'Inactive' },
 ] as const;
@@ -69,6 +71,7 @@ export default function UsersPage() {
   const [resendingInviteId, setResendingInviteId] = useState<string | null>(null);
 
   const [inviteOpen, setInviteOpen] = useState(false);
+  const [viewUser, setViewUser] = useState<User | null>(null);
   const [editUser, setEditUser] = useState<User | null>(null);
   const [deleteUser, setDeleteUser] = useState<User | null>(null);
 
@@ -103,7 +106,7 @@ export default function UsersPage() {
     setStatusUpdatingId(user._id);
     try {
       await updateUser({ id: user._id, body: { status: nextStatus } }).unwrap();
-      toast.success(`User ${checked ? 'activated' : 'deactivated'}`);
+      toast.success(checked ? 'Admin access enabled' : 'Admin deactivated and signed out if online');
     } catch (error) {
       toast.error(getApiErrorMessage(error));
     } finally {
@@ -157,6 +160,8 @@ export default function UsersPage() {
         }
       />
 
+      {isSuperAdmin ? <AdminStatsCards /> : null}
+
       <Card className={legalModuleCardClass}>
         <CardHeader className={legalModuleCardHeaderClass}>
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
@@ -173,8 +178,8 @@ export default function UsersPage() {
                   setStatusFilter(value as 'all' | 'active' | 'inactive');
                   setPage(1);
                 }}
-                options={[...STATUS_FILTER_OPTIONS]}
-                aria-label="Filter by status"
+                options={[...ACCESS_FILTER_OPTIONS]}
+                aria-label="Filter by account access"
               />
             </div>
           </div>
@@ -194,7 +199,7 @@ export default function UsersPage() {
                       <th>Name</th>
                       <th>Email</th>
                       <th>Role</th>
-                      <th>Status</th>
+                      <th>Account access</th>
                       <th className={dashboardTableHeadCellActions}>Actions</th>
                     </tr>
                   </thead>
@@ -222,9 +227,9 @@ export default function UsersPage() {
                                 ) : (
                                   <Switch
                                     checked={isActive}
-                                    disabled={statusUpdatingId !== null}
+                                    disabled={statusUpdatingId !== null || isSelf}
                                     onCheckedChange={(checked) => void handleStatusToggle(user, checked)}
-                                    aria-label={`Toggle status for ${user.name}`}
+                                    aria-label={`Toggle account access for ${user.name}`}
                                   />
                                 )}
                               </div>
@@ -234,8 +239,10 @@ export default function UsersPage() {
                           </td>
                           <td className={dashboardTableCellActions}>
                             <TableRowActions
+                              canView={canUpdate}
                               canEdit={canUpdate}
                               canDelete={canDelete && !isSelf}
+                              onView={() => setViewUser(user)}
                               onEdit={() => setEditUser(user)}
                               onDelete={() => setDeleteUser(user)}
                               leadingActions={
@@ -271,13 +278,13 @@ export default function UsersPage() {
             meta={meta}
             onPageChange={setPage}
             onLimitChange={handleLimitChange}
-            className="mt-5"
           />
           {isFetching && !isLoading ? <p className="mt-2 text-center text-xs text-neutral-600">Updating...</p> : null}
         </CardContent>
       </Card>
 
       <InviteAdminDialog open={inviteOpen} onClose={() => setInviteOpen(false)} />
+      <ViewUserDialog open={Boolean(viewUser)} user={viewUser} onClose={() => setViewUser(null)} />
       <EditUserDialog open={Boolean(editUser)} user={editUser} onClose={() => setEditUser(null)} />
       <DeleteUserDialog
         open={Boolean(deleteUser)}

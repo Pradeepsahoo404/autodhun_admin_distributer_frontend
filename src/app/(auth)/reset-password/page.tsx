@@ -7,7 +7,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
 import { AuthLayout } from '@/components/auth/AuthLayout';
-import { AuthHeading } from '@/components/auth/AuthHeading';
+import { AuthCard } from '@/components/auth/AuthCard';
 import { AuthField } from '@/components/auth/AuthField';
 import { AuthButton } from '@/components/auth/AuthButton';
 import { AuthGuard } from '@/components/auth/AuthGuard';
@@ -94,16 +94,16 @@ export default function ResetPasswordPage() {
   return (
     <AuthGuard requireAuth={false}>
       <AuthLayout>
-        <div className="w-full space-y-8 text-center">
-          <div className="w-full px-1">
-            <AuthHeading className="sm:text-[34px]">Reset your password</AuthHeading>
-            <p className="mt-3 text-[16px] text-neutral-500">
+        <AuthCard
+          title="Reset your password"
+          subtitle={
+            <>
               Enter the 6-digit code sent to{' '}
               <span className="font-medium text-neutral-300">{email}</span> and choose a new password.
-            </p>
-          </div>
-
-          <div className="mx-auto w-full max-w-[420px] space-y-6 text-left">
+            </>
+          }
+        >
+          <div className="space-y-6 text-left">
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
               <input type="hidden" {...register('email')} />
 
@@ -122,6 +122,7 @@ export default function ResetPasswordPage() {
                 label="New password"
                 type="password"
                 autoComplete="new-password"
+                placeholder="Enter new password"
                 error={errors.newPassword?.message}
                 {...register('newPassword')}
               />
@@ -129,6 +130,7 @@ export default function ResetPasswordPage() {
                 label="Confirm new password"
                 type="password"
                 autoComplete="new-password"
+                placeholder="Confirm new password"
                 error={errors.confirmPassword?.message}
                 {...register('confirmPassword')}
               />
@@ -159,7 +161,7 @@ export default function ResetPasswordPage() {
               </Link>
             </p>
           </div>
-        </div>
+        </AuthCard>
       </AuthLayout>
     </AuthGuard>
   );

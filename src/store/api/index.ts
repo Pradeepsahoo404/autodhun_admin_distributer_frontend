@@ -20,6 +20,7 @@ import './issues/ownershipTransfersApi';
 import './issues/potentialClaimsApi';
 import './issues/disputedClaimsApi';
 import './issues/appealedClaimsApi';
+import './cronjobSettingsApi';
 
 export { authApi } from './authApi';
 export {
@@ -46,6 +47,8 @@ export { useGetDashboardQuery } from './dashboardApi';
 
 export {
   useGetUsersQuery,
+  useGetUserByIdQuery,
+  useGetAdminCreationStatsQuery,
   useCreateUserMutation,
   useInviteAdminMutation,
   useResendInviteMutation,
@@ -215,3 +218,9 @@ export {
   useDeleteAppealedClaimMutation,
   useExportAppealedClaimsMutation,
 } from './issues/appealedClaimsApi';
+
+export {
+  useGetCronjobSettingsQuery,
+  useUpdateCronjobSettingsMutation,
+  useRunCronjobNowMutation,
+} from './cronjobSettingsApi';

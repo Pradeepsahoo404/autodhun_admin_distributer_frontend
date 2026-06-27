@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { toast } from 'sonner';
 import { AuthLayout } from '@/components/auth/AuthLayout';
-import { AuthHeading } from '@/components/auth/AuthHeading';
+import { AuthCard } from '@/components/auth/AuthCard';
 import { OtpInput } from '@/components/auth/OtpInput';
 import { AuthButton } from '@/components/auth/AuthButton';
 import { AuthGuard } from '@/components/auth/AuthGuard';
@@ -87,16 +87,16 @@ export default function VerifyLoginOtpPage() {
   return (
     <AuthGuard requireAuth={false}>
       <AuthLayout>
-        <div className="w-full space-y-8 text-center">
-          <div className="w-full px-1">
-            <AuthHeading className="sm:text-[34px]">Verify your email with a code</AuthHeading>
-            <p className="mt-3 text-center text-[16px] text-neutral-500">
+        <AuthCard
+          title="Verify your email"
+          subtitle={
+            <>
               Enter the 6 digit code we just sent to{' '}
               <span className="font-medium text-neutral-300">{email}</span>
-            </p>
-          </div>
-
-          <div className="mx-auto w-full max-w-[420px] space-y-8 text-left">
+            </>
+          }
+        >
+          <div className="space-y-6 text-left">
             <OtpInput value={otp} onChange={setOtp} onComplete={handleVerify} error={error} disabled={isLoading} />
 
             <p className="text-center text-[14px] text-neutral-500">
@@ -124,7 +124,7 @@ export default function VerifyLoginOtpPage() {
               </Link>
             </p>
           </div>
-        </div>
+        </AuthCard>
       </AuthLayout>
     </AuthGuard>
   );

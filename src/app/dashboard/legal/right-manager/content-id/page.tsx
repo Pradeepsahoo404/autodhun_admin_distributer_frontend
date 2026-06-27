@@ -327,7 +327,6 @@ export default function ContentIdPage() {
             meta={meta}
             onPageChange={setPage}
             onLimitChange={handleLimitChange}
-            className="mt-5"
           />
           {isFetching && !isLoading ? (
             <p className="mt-2 text-center text-xs text-neutral-600">Updating...</p>

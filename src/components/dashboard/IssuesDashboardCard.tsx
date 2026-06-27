@@ -31,7 +31,7 @@ const BADGE_NEW =
   'rounded-md bg-brand-lime/20 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-brand-lime';
 
 const CARD_SHELL = cn(
-  'font-sans flex h-auto w-full shrink-0 flex-col self-start overflow-hidden rounded-2xl border transition-all duration-200',
+  'font-sans flex w-full flex-col overflow-hidden rounded-2xl border transition-all duration-200',
   'border-[#222222] bg-[#111111] bg-[radial-gradient(ellipse_at_top_left,rgba(163,255,18,0.12),transparent_55%)] hover:border-brand-lime/25',
 );
 
@@ -47,9 +47,16 @@ interface IssuesDashboardCardProps {
   card: DashboardCard;
   analytics: IssuesAnalytics;
   ctaAllowed: boolean;
+  /** Fill the tall hero column on the dashboard grid. */
+  fillHeight?: boolean;
 }
 
-export function IssuesDashboardCard({ card, analytics, ctaAllowed }: IssuesDashboardCardProps) {
+export function IssuesDashboardCard({
+  card,
+  analytics,
+  ctaAllowed,
+  fillHeight,
+}: IssuesDashboardCardProps) {
   const [period, setPeriod] = useState<PeriodDays>(7);
   const { summary, modules, dailyTrend7, dailyTrend30, scopeLabel } = analytics;
 
@@ -67,7 +74,12 @@ export function IssuesDashboardCard({ card, analytics, ctaAllowed }: IssuesDashb
   );
 
   return (
-    <article className={CARD_SHELL}>
+    <article
+      className={cn(
+        CARD_SHELL,
+        fillHeight ? 'h-full min-h-0' : 'h-auto shrink-0 self-start',
+      )}
+    >
       <header className="border-b border-[#1f1f1f] px-4 py-3 sm:px-5">
         <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
           {card.badge ? <span className={BADGE_NEW}>{card.badge}</span> : <span aria-hidden />}

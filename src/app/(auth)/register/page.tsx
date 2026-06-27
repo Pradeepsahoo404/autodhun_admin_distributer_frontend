@@ -7,7 +7,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
 import { AuthLayout } from '@/components/auth/AuthLayout';
-import { AuthHeading } from '@/components/auth/AuthHeading';
+import { AuthCard } from '@/components/auth/AuthCard';
 import { AuthField } from '@/components/auth/AuthField';
 import { AuthButton } from '@/components/auth/AuthButton';
 import { SocialButton } from '@/components/auth/SocialButton';
@@ -21,6 +21,8 @@ import { useGoogleSignIn } from '@/hooks/useGoogleSignIn';
 import { useTermsAcceptance } from '@/hooks/useTermsAcceptance';
 import { ROUTES, OTP_PURPOSE } from '@/constants';
 import { getApiErrorMessage } from '@/services/apiClient';
+
+const fieldProps = { fieldSize: 'compact' as const };
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -69,49 +71,81 @@ export default function RegisterPage() {
 
   return (
     <AuthGuard requireAuth={false}>
-      <AuthLayout>
-        <div className="w-full space-y-8 text-center">
-          <div className="w-full px-1">
-            <AuthHeading>Let&apos;s get to know each other!</AuthHeading>
-            <p className="mt-3 text-[16px] leading-relaxed text-neutral-500">
-              {showEmailForm
-                ? 'Verify your email to protect your account. We\'ll send you a one-time code.'
-                : 'Select a sign up method to continue'}
-            </p>
-          </div>
-
-          <div className="mx-auto w-full max-w-[420px] space-y-4">
+      <AuthLayout wide={showEmailForm}>
+        <AuthCard
+          compact={showEmailForm}
+          title={showEmailForm ? 'Create your account' : undefined}
+          subtitle={
+            showEmailForm
+              ? "We'll send a one-time code to verify your email."
+              : 'Select a sign up method to continue'
+          }
+        >
+          <div className={showEmailForm ? 'space-y-3' : 'space-y-4'}>
             {showEmailForm ? (
-              <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 text-left">
-                <div className="grid grid-cols-2 gap-3">
-                  <AuthField label="First Name" error={errors.firstName?.message} {...register('firstName')} />
-                  <AuthField label="Last Name" error={errors.lastName?.message} {...register('lastName')} />
+              <form onSubmit={handleSubmit(onSubmit)} className="space-y-3 text-left">
+                <div className="grid grid-cols-2 gap-x-3 gap-y-3">
+                  <AuthField label="First Name" error={errors.firstName?.message} {...fieldProps} {...register('firstName')} />
+                  <AuthField label="Last Name" error={errors.lastName?.message} {...fieldProps} {...register('lastName')} />
+                  <div className="col-span-2">
+                    <AuthField
+                      label="Email"
+                      type="email"
+                      autoComplete="email"
+                      placeholder="Enter your email"
+                      error={errors.email?.message}
+                      {...fieldProps}
+                      {...register('email')}
+                    />
+                  </div>
+                  <AuthField
+                    label="Password"
+                    type="password"
+                    autoComplete="new-password"
+                    placeholder="Enter password"
+                    error={errors.password?.message}
+                    {...fieldProps}
+                    {...register('password')}
+                  />
+                  <AuthField
+                    label="Confirm Password"
+                    type="password"
+                    autoComplete="new-password"
+                    placeholder="Confirm password"
+                    error={errors.confirmPassword?.message}
+                    {...fieldProps}
+                    {...register('confirmPassword')}
+                  />
                 </div>
-                <AuthField label="Email" type="email" autoComplete="email" error={errors.email?.message} {...register('email')} />
-                <AuthField
-                  label="Password"
-                  type="password"
-                  autoComplete="new-password"
-                  error={errors.password?.message}
-                  {...register('password')}
+
+                <AuthTermsCheckbox
+                  variant="register"
+                  checked={checked}
+                  onChange={handleChange}
+                  error={termsError}
+                  loading={saving}
+                  compact
                 />
-                <AuthField
-                  label="Confirm Password"
-                  type="password"
-                  autoComplete="new-password"
-                  error={errors.confirmPassword?.message}
-                  {...register('confirmPassword')}
-                />
-                <AuthButton type="submit" loading={isLoading}>
+
+                <AuthButton type="submit" loading={isLoading} size="compact">
                   Send Verification Code
                 </AuthButton>
-                <button
-                  type="button"
-                  onClick={() => setShowEmailForm(false)}
-                  className="w-full text-center text-[14px] font-medium text-neutral-500 hover:text-neutral-300"
-                >
-                  Back to sign up methods
-                </button>
+
+                <div className="space-y-1 pt-0.5 text-center">
+                  <button
+                    type="button"
+                    onClick={() => setShowEmailForm(false)}
+                    className="block w-full text-[13px] font-medium text-neutral-500 hover:text-neutral-300"
+                  >
+                    Back to sign up methods
+                  </button>
+                  <p className="text-[13px] text-neutral-500">
+                    Already have an account?{' '}
+                    <Link href={ROUTES.LOGIN} className="font-medium text-brand-lime hover:underline">
+                      Sign in
+                    </Link>
+                  </p>
+                </div>
               </form>
             ) : (
               <>
@@ -128,25 +162,25 @@ export default function RegisterPage() {
                 <SocialButton provider="google" onClick={handleGoogleSignIn} loading={googleLoading}>
                   Continue with Google
                 </SocialButton>
+
+                <p className="pt-1 text-center text-[14px] text-neutral-500">
+                  Already have an account?{' '}
+                  <Link href={ROUTES.LOGIN} className="font-medium text-brand-lime hover:underline">
+                    Sign in
+                  </Link>
+                </p>
+
+                <AuthTermsCheckbox
+                  variant="register"
+                  checked={checked}
+                  onChange={handleChange}
+                  error={termsError}
+                  loading={saving}
+                />
               </>
             )}
-
-            <p className="pt-2 text-[14px] text-neutral-500">
-              Already have an account?{' '}
-              <Link href={ROUTES.LOGIN} className="font-medium text-brand-lime hover:underline">
-                Sign in
-              </Link>
-            </p>
-
-            <AuthTermsCheckbox
-              variant="register"
-              checked={checked}
-              onChange={handleChange}
-              error={termsError}
-              loading={saving}
-            />
           </div>
-        </div>
+        </AuthCard>
       </AuthLayout>
     </AuthGuard>
   );

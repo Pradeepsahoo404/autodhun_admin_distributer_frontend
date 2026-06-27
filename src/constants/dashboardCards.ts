@@ -11,13 +11,13 @@ export interface DashboardCardLayout {
 
 /** Studio-style placement per card key (frontend-only; no API change required). */
 export const DASHBOARD_CARD_LAYOUT: Record<string, DashboardCardLayout> = {
-  'release-music': { slot: 'hero', order: 1 },
-  analytics: { slot: 'stat', order: 2 },
+  issues: { slot: 'hero', order: 1 },
+  'release-music': { slot: 'stat', order: 2 },
   'content-delivery': { slot: 'media', order: 3 },
-  'total-earnings': { slot: 'compact', order: 4 },
-  channels: { slot: 'list', order: 5 },
+  channels: { slot: 'list', order: 4 },
+  'total-earnings': { slot: 'compact', order: 5 },
   'rights-manager': { slot: 'rights', order: 6 },
-  issues: { slot: 'issues', order: 7 },
+  analytics: { slot: 'issues', order: 7 },
 };
 
 const DEFAULT_LAYOUT: DashboardCardLayout = { slot: 'compact', order: 99 };

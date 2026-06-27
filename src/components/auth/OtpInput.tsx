@@ -109,7 +109,7 @@ export function OtpInput({
             onKeyDown={(e) => handleKeyDown(i, e)}
             onPaste={handlePaste}
             className={cn(
-              'h-[52px] w-[52px] rounded-2xl border bg-[#161616] text-center text-xl font-semibold text-white outline-none transition-colors',
+              'h-[52px] w-[52px] rounded-xl border bg-[#0a0a0a] text-center text-xl font-semibold text-white outline-none transition-colors',
               focused === i ? 'border-[#3e5c38] ring-1 ring-[#3e5c38]/50' : 'border-[#1f1f1f]',
               error && 'border-red-500/60',
             )}

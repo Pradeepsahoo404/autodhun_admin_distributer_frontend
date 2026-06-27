@@ -1,7 +1,7 @@
 'use client';
 
 import type { ReactNode } from 'react';
-import { Loader2, Pencil, Trash2 } from 'lucide-react';
+import { Loader2, Eye, Pencil, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import {
@@ -10,8 +10,10 @@ import {
 } from '@/components/common/dashboardTableStyles';
 
 interface TableRowActionsProps {
+  onView?: () => void;
   onEdit?: () => void;
   onDelete?: () => void;
+  canView?: boolean;
   canEdit?: boolean;
   canDelete?: boolean;
   leadingActions?: ReactNode;
@@ -26,17 +28,20 @@ interface TableRowActionsProps {
 }
 
 export function TableRowActions({
+  onView,
   onEdit,
   onDelete,
+  canView = true,
   canEdit = true,
   canDelete = true,
   leadingActions,
   statusToggle,
 }: TableRowActionsProps) {
+  const showView = canView && onView;
   const showEdit = canEdit && onEdit;
   const showDelete = canDelete && onDelete;
 
-  if (!statusToggle && !showEdit && !showDelete && !leadingActions) return null;
+  if (!statusToggle && !showView && !showEdit && !showDelete && !leadingActions) return null;
 
   return (
     <div className="inline-flex items-center justify-end gap-1.5">
@@ -57,6 +62,17 @@ export function TableRowActions({
             />
           )}
         </div>
+      ) : null}
+      {showView ? (
+        <Button
+          size="sm"
+          variant="ghost"
+          title="View details"
+          className={tableIconButtonClass}
+          onClick={onView}
+        >
+          <Eye className="h-3.5 w-3.5" />
+        </Button>
       ) : null}
       {showEdit ? (
         <Button

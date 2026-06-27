@@ -3,8 +3,12 @@ import type { BaseQueryFn, FetchArgs, FetchBaseQueryError } from '@reduxjs/toolk
 import { TOKEN_STORAGE_KEY } from '@/constants';
 import { logout, setAccessToken } from '@/store/slices/authSlice';
 import type { RootState } from '@/store';
+import { forceLogoutForInactiveAccount, isAccountInactiveError, shouldSkipInactiveLogoutRedirect } from '@/utils/accountAccess';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:5000/api';
+
+const getRequestUrl = (args: string | FetchArgs): string =>
+  typeof args === 'string' ? args : args.url;
 
 /** Endpoints where 401 is an expected business error — do not refresh the session. */
 const SKIP_REAUTH_ON_401_PATHS = [
@@ -23,7 +27,7 @@ const SKIP_REAUTH_ON_401_PATHS = [
 ];
 
 const shouldSkipReauthOn401 = (args: string | FetchArgs): boolean => {
-  const url = typeof args === 'string' ? args : args.url;
+  const url = getRequestUrl(args);
   return SKIP_REAUTH_ON_401_PATHS.some((path) => url.includes(path));
 };
 
@@ -44,6 +48,14 @@ const baseQueryWithReauth: BaseQueryFn<string | FetchArgs, unknown, FetchBaseQue
 ) => {
   let result = await rawBaseQuery(args, api, extraOptions);
 
+  if (result.error && isAccountInactiveError(result.error)) {
+    api.dispatch(logout());
+    if (!shouldSkipInactiveLogoutRedirect(getRequestUrl(args))) {
+      forceLogoutForInactiveAccount();
+    }
+    return result;
+  }
+
   // Wrong password / validation failures must not cascade into refresh-token spam.
   if (result.error?.status === 401 && !shouldSkipReauthOn401(args)) {
     const refresh = await rawBaseQuery(
@@ -51,6 +63,12 @@ const baseQueryWithReauth: BaseQueryFn<string | FetchArgs, unknown, FetchBaseQue
       api,
       extraOptions,
     );
+
+    if (refresh.error && isAccountInactiveError(refresh.error)) {
+      api.dispatch(logout());
+      forceLogoutForInactiveAccount();
+      return result;
+    }
 
     if (refresh.data) {
       const accessToken = (refresh.data as { data: { accessToken: string } }).data.accessToken;
@@ -71,6 +89,6 @@ const baseQueryWithReauth: BaseQueryFn<string | FetchArgs, unknown, FetchBaseQue
 export const baseApi = createApi({
   reducerPath: 'api',
   baseQuery: baseQueryWithReauth,
-  tagTypes: ['Auth', 'Users', 'Roles', 'Modules', 'Permissions', 'Sidebar', 'Notifications', 'ReferenceOverlaps', 'InvalidReferences', 'OwnershipTransfers', 'PotentialClaims', 'DisputedClaims', 'AppealedClaims', 'YoutubeClaimReleases', 'FacebookClaimReleases', 'ContentIds', 'Oac', 'ProfileLinking', 'Allowlist', 'ManualClaiming', 'Takedown'],
+  tagTypes: ['Auth', 'Users', 'Roles', 'Modules', 'Permissions', 'Sidebar', 'Notifications', 'CronjobSettings', 'ReferenceOverlaps', 'InvalidReferences', 'OwnershipTransfers', 'PotentialClaims', 'DisputedClaims', 'AppealedClaims', 'YoutubeClaimReleases', 'FacebookClaimReleases', 'ContentIds', 'Oac', 'ProfileLinking', 'Allowlist', 'ManualClaiming', 'Takedown'],
   endpoints: () => ({}),
 });

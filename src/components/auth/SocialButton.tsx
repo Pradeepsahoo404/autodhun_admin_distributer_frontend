@@ -35,7 +35,7 @@ export const SocialButton = forwardRef<HTMLButtonElement, SocialButtonProps>(
       ref={ref}
       disabled={disabled || loading}
       className={cn(
-        'flex h-[52px] w-full items-center justify-center gap-3 rounded-2xl border border-neutral-800 bg-[#141414] text-[15px] font-medium text-white transition-all duration-200 hover:border-neutral-600 hover:bg-[#1a1a1a] disabled:cursor-not-allowed disabled:opacity-60',
+        'flex h-[52px] w-full items-center justify-center gap-3 rounded-xl border border-neutral-800 bg-[#0a0a0a] text-[15px] font-medium text-white transition-all duration-200 hover:border-neutral-600 hover:bg-[#141414] disabled:cursor-not-allowed disabled:opacity-60',
         className,
       )}
       {...props}

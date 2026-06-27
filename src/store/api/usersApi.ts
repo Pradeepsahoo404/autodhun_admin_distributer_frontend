@@ -1,5 +1,5 @@
 import { baseApi } from './baseApi';
-import type { ApiSuccess, PaginatedMeta, User } from '@/types';
+import type { AdminCreationStats, ApiSuccess, PaginatedMeta, User } from '@/types';
 
 const injectOptions = { overrideExisting: process.env.NODE_ENV === 'development' } as const;
 
@@ -7,6 +7,14 @@ export const usersApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     getUsers: builder.query<ApiSuccess<User[]> & { meta?: PaginatedMeta }, Record<string, string | number>>({
       query: (params) => ({ url: '/users', params }),
+      providesTags: ['Users'],
+    }),
+    getUserById: builder.query<ApiSuccess<User>, string>({
+      query: (id) => `/users/${id}`,
+      providesTags: (_result, _error, id) => [{ type: 'Users', id }],
+    }),
+    getAdminCreationStats: builder.query<ApiSuccess<AdminCreationStats>, void>({
+      query: () => '/users/stats/admins-created',
       providesTags: ['Users'],
     }),
     createUser: builder.mutation<ApiSuccess<User>, Record<string, unknown>>({
@@ -35,6 +43,8 @@ export const usersApi = baseApi.injectEndpoints({
 
 export const {
   useGetUsersQuery,
+  useGetUserByIdQuery,
+  useGetAdminCreationStatsQuery,
   useCreateUserMutation,
   useInviteAdminMutation,
   useResendInviteMutation,

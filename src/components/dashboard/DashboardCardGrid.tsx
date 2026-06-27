@@ -30,14 +30,18 @@ export function DashboardCardGrid({
     <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3 xl:auto-rows-fr">
       {sorted.map((card) => {
         const { slot } = getCardLayout(card.key);
+        const isTallAnalyticsCard = slot === 'rights' || slot === 'issues';
+        const isHeroIssues = slot === 'hero' && card.key === 'issues';
+
         return (
           <div
             key={card.key}
             className={cn(
               'flex',
-              (slot === 'rights' || slot === 'issues') && 'items-start self-start',
+              (isTallAnalyticsCard || isHeroIssues) && 'h-full',
+              (isTallAnalyticsCard || isHeroIssues) && 'items-start self-start',
               SLOT_GRID_CLASS[slot],
-              SLOT_MIN_HEIGHT[slot],
+              isHeroIssues ? 'min-h-[380px] xl:min-h-full' : SLOT_MIN_HEIGHT[slot],
             )}
           >
             <DashboardCardItem

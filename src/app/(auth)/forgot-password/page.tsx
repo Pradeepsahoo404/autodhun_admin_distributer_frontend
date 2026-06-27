@@ -6,7 +6,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
 import { AuthLayout } from '@/components/auth/AuthLayout';
-import { AuthHeading } from '@/components/auth/AuthHeading';
+import { AuthCard } from '@/components/auth/AuthCard';
 import { AuthField } from '@/components/auth/AuthField';
 import { AuthButton } from '@/components/auth/AuthButton';
 import { AuthGuard } from '@/components/auth/AuthGuard';
@@ -44,20 +44,17 @@ export default function ForgotPasswordPage() {
   return (
     <AuthGuard requireAuth={false}>
       <AuthLayout>
-        <div className="w-full space-y-8 text-center">
-          <div className="w-full px-1">
-            <AuthHeading className="sm:text-[34px]">Forgot your password?</AuthHeading>
-            <p className="mt-3 text-[16px] text-neutral-500">
-              Enter your account email and we&apos;ll send you a verification code to reset your password.
-            </p>
-          </div>
-
-          <div className="mx-auto w-full max-w-[420px] space-y-6 text-left">
+        <AuthCard
+          title="Forgot your password?"
+          subtitle="Enter your account email and we'll send you a verification code to reset your password."
+        >
+          <div className="space-y-6 text-left">
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
               <AuthField
                 label="Email"
                 type="email"
                 autoComplete="email"
+                placeholder="Enter your email"
                 error={errors.email?.message}
                 {...register('email')}
               />
@@ -72,7 +69,7 @@ export default function ForgotPasswordPage() {
               </Link>
             </p>
           </div>
-        </div>
+        </AuthCard>
       </AuthLayout>
     </AuthGuard>
   );

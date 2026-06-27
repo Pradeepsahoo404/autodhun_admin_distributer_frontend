@@ -2,12 +2,12 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
 import { AuthLayout } from '@/components/auth/AuthLayout';
-import { AuthHeading } from '@/components/auth/AuthHeading';
+import { AuthCard } from '@/components/auth/AuthCard';
 import { AuthField } from '@/components/auth/AuthField';
 import { AuthButton } from '@/components/auth/AuthButton';
 import { SocialButton } from '@/components/auth/SocialButton';
@@ -22,6 +22,7 @@ import { useTermsAcceptance } from '@/hooks/useTermsAcceptance';
 import { ROUTES, OTP_PURPOSE } from '@/constants';
 import { getApiErrorMessage } from '@/services/apiClient';
 import { syncUserProfile } from '@/utils/syncUserProfile';
+import { consumeInactiveAccountMessage } from '@/utils/accountAccess';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -29,6 +30,13 @@ export default function LoginPage() {
   const [showEmailForm, setShowEmailForm] = useState(false);
   const [login, { isLoading }] = useLoginMutation();
   const { signInWithGoogle, isLoading: googleLoading } = useGoogleSignIn();
+
+  useEffect(() => {
+    const message = consumeInactiveAccountMessage();
+    if (message) {
+      toast.error(message);
+    }
+  }, []);
 
   const {
     register,
@@ -78,26 +86,30 @@ export default function LoginPage() {
   return (
     <AuthGuard requireAuth={false}>
       <AuthLayout>
-        <div className="w-full space-y-8 text-center">
-          <div className="w-full px-1">
-            <AuthHeading className="mx-auto max-w-[600px] text-[28px] sm:text-[32px] lg:text-[36px]">
-              If you&apos;ve got the beats,
-              <br />
-              we&apos;ve got the tech.
-            </AuthHeading>
-            <p className="mt-3 text-[16px] text-neutral-500">
-              {showEmailForm ? 'Enter your credentials to continue' : 'Select a login method to continue'}
-            </p>
-          </div>
-
-          <div className="mx-auto w-full max-w-[420px] space-y-4">
+        <AuthCard
+          title={showEmailForm ? 'Welcome back' : undefined}
+          subtitle={
+            showEmailForm
+              ? 'Enter your email and password to access your account.'
+              : 'Select a login method to continue'
+          }
+        >
+          <div className="space-y-4">
             {showEmailForm ? (
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 text-left">
-                <AuthField label="Email" type="email" autoComplete="email" error={errors.email?.message} {...register('email')} />
+                <AuthField
+                  label="Email"
+                  type="email"
+                  autoComplete="email"
+                  placeholder="Enter your email"
+                  error={errors.email?.message}
+                  {...register('email')}
+                />
                 <AuthField
                   label="Password"
                   type="password"
                   autoComplete="current-password"
+                  placeholder="Enter your password"
                   error={errors.password?.message}
                   {...register('password')}
                 />
@@ -108,7 +120,7 @@ export default function LoginPage() {
                 </div>
                 <div className="pt-1">
                   <AuthButton type="submit" loading={isLoading}>
-                    Login
+                    Log in
                   </AuthButton>
                 </div>
                 <button
@@ -137,7 +149,7 @@ export default function LoginPage() {
               </>
             )}
 
-            <p className="pt-2 text-[14px] leading-relaxed text-neutral-500">
+            <p className="pt-2 text-center text-[14px] leading-relaxed text-neutral-500">
               Don&apos;t have an account?{' '}
               <Link href={ROUTES.REGISTER} className="font-medium text-brand-lime hover:underline">
                 Create account
@@ -152,7 +164,7 @@ export default function LoginPage() {
               loading={saving}
             />
           </div>
-        </div>
+        </AuthCard>
       </AuthLayout>
     </AuthGuard>
   );

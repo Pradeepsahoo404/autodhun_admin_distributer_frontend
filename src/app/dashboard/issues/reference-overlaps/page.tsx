@@ -5,7 +5,6 @@ import { toast } from 'sonner';
 import { Plus } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Switch } from '@/components/ui/switch';
 import {
   useDeleteReferenceOverlapMutation,
   useExportReferenceOverlapsMutation,
@@ -50,6 +49,7 @@ import { CreateReferenceOverlapDialog } from '@/components/dashboard/reference-o
 import { EditReferenceOverlapDialog } from '@/components/dashboard/reference-overlaps/EditReferenceOverlapDialog';
 import { DeleteReferenceOverlapDialog } from '@/components/dashboard/reference-overlaps/DeleteReferenceOverlapDialog';
 import { OwnershipControl } from '@/components/dashboard/reference-overlaps/OwnershipControl';
+import { IssuesStatusToggle } from '@/components/dashboard/issues-entry/IssuesStatusToggle';
 import { formatDateTime } from '@/lib/formatDateTime';
 import { useLegalEntryHighlight, legalEntryRowClass } from '@/hooks/useLegalEntryHighlight';
 import { cn } from '@/lib/utils';
@@ -320,17 +320,14 @@ export default function ReferenceOverlapsPage() {
                         ) : null}
                         <td className={dashboardTableCellStatus}>
                           {isSuperAdmin ? (
-                            <div className="flex items-center gap-2">
-                              <Switch
-                                checked={item.status === 'active'}
-                                disabled={statusUpdatingId !== null}
-                                onCheckedChange={(checked) => void handleStatusToggle(item, checked)}
-                                aria-label={`Toggle status for ${item.assetName}`}
-                              />
-                              <span className="text-xs text-neutral-500">
-                                {getReferenceOverlapStatusLabel(item.status)}
-                              </span>
-                            </div>
+                            <IssuesStatusToggle
+                              checked={item.status === 'active'}
+                              loading={statusUpdatingId === item._id}
+                              disabled={statusUpdatingId !== null && statusUpdatingId !== item._id}
+                              statusLabel={getReferenceOverlapStatusLabel(item.status)}
+                              onCheckedChange={(checked) => void handleStatusToggle(item, checked)}
+                              ariaLabel={`Toggle status for ${item.assetName}`}
+                            />
                           ) : (
                             <span
                               className={cn(
@@ -371,7 +368,6 @@ export default function ReferenceOverlapsPage() {
               setLimit(nextLimit);
               setPage(1);
             }}
-            className="mt-5"
           />
           {isFetching && !isLoading ? (
             <p className="mt-2 text-center text-xs text-neutral-600">Updating...</p>

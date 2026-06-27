@@ -29,6 +29,7 @@ export function ProfileAccountShell({
           { label: 'Forgot Password', href: ROUTES.PROFILE_FORGOT_PASSWORD },
         ]
       : []),
+    ...(isSuperAdmin ? [{ label: 'Cronjob Setting', href: ROUTES.PROFILE_CRONJOB_SETTINGS }] : []),
   ];
 
   const isGeneralActive =

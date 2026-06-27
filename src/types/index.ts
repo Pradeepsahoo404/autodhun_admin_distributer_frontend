@@ -189,6 +189,19 @@ export interface User {
   termsAccepted?: boolean;
   lastLogin?: string;
   createdAt: string;
+  updatedAt?: string;
+  provider?: string;
+  avatarUrl?: string;
+  profile?: UserProfile;
+  bankDetails?: UserBankDetails;
+}
+
+export interface AdminCreationStats {
+  total: number;
+  last7Days: number;
+  last30Days: number;
+  last90Days: number;
+  last365Days: number;
 }
 
 export interface Role {

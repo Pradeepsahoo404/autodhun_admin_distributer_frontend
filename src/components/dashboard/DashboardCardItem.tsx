@@ -59,6 +59,25 @@ export function DashboardCardItem({
   const { can } = usePermission(ctaModule);
   const ctaAllowed = card.cta ? can(card.cta.action as Action) : false;
 
+  if (card.key === 'issues' && (slot === 'issues' || slot === 'hero')) {
+    if (issuesAnalytics) {
+      return (
+        <IssuesDashboardCard
+          card={card}
+          analytics={issuesAnalytics}
+          ctaAllowed={ctaAllowed}
+          fillHeight={slot === 'hero'}
+        />
+      );
+    }
+    return <ListCard card={card} ctaAllowed={ctaAllowed} />;
+  }
+  if (card.key === 'release-music') {
+    return <CompactFeatureCard card={card} ctaAllowed={ctaAllowed} />;
+  }
+  if (card.key === 'analytics') {
+    return <StatCard card={card} ctaAllowed={ctaAllowed} />;
+  }
   if (slot === 'rights' && card.key === 'rights-manager') {
     if (rightsManagerAnalytics) {
       return (
@@ -67,17 +86,51 @@ export function DashboardCardItem({
     }
     return <ListCard card={card} ctaAllowed={ctaAllowed} />;
   }
-  if (slot === 'issues' && card.key === 'issues') {
-    if (issuesAnalytics) {
-      return <IssuesDashboardCard card={card} analytics={issuesAnalytics} ctaAllowed={ctaAllowed} />;
-    }
-    return <ListCard card={card} ctaAllowed={ctaAllowed} />;
-  }
   if (slot === 'hero') return <HeroCard card={card} ctaAllowed={ctaAllowed} />;
   if (slot === 'stat') return <StatCard card={card} ctaAllowed={ctaAllowed} />;
   if (slot === 'media') return <MediaCard card={card} ctaAllowed={ctaAllowed} />;
   if (slot === 'list') return <ListCard card={card} ctaAllowed={ctaAllowed} />;
   return <CompactCard card={card} currency={currency} earnings={earnings} ctaAllowed={ctaAllowed} />;
+}
+
+function CompactFeatureCard({ card, ctaAllowed }: { card: DashboardCard; ctaAllowed: boolean }) {
+  return (
+    <article className={cardShell(card.variant)}>
+      <div className="flex flex-1 flex-col p-4">
+        <div className="relative flex min-h-[148px] flex-1 flex-col items-center justify-center overflow-hidden rounded-xl border border-dashed border-brand-lime/25 bg-[#0d0d0d]/80 px-4 py-5 text-center">
+          <div className="pointer-events-none absolute -right-6 -top-6 h-24 w-24 rounded-full bg-brand-lime/10 blur-2xl" />
+          <div className="relative mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-brand-lime/25 to-brand-purple/20 ring-2 ring-brand-lime/30">
+            <Music2 className="h-7 w-7 text-brand-lime" />
+          </div>
+          <h3 className="relative mb-1.5 text-[15px] font-semibold text-white">{card.title}</h3>
+          <p className="relative line-clamp-3 max-w-[240px] text-[12px] leading-relaxed text-neutral-400">
+            {card.description}
+          </p>
+        </div>
+      </div>
+      <footer className="border-t border-[#1f1f1f] px-4 py-3">
+        <div className="flex flex-wrap items-center gap-2">
+          {card.cta && ctaAllowed && (
+            <button
+              type="button"
+              className="rounded-full bg-brand-lime px-4 py-2 text-[12px] font-semibold text-black transition-colors hover:bg-brand-lime-dark"
+            >
+              {card.cta.label}
+            </button>
+          )}
+          {card.secondaryCta && (
+            <button
+              type="button"
+              className="flex items-center gap-1.5 rounded-full px-2.5 py-1.5 text-[11px] font-medium text-brand-purple transition-colors hover:bg-brand-purple/10"
+            >
+              <Play className="h-3.5 w-3.5 fill-current" />
+              {card.secondaryCta.label}
+            </button>
+          )}
+        </div>
+      </footer>
+    </article>
+  );
 }
 
 function HeroCard({ card, ctaAllowed }: { card: DashboardCard; ctaAllowed: boolean }) {

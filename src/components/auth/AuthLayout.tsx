@@ -1,20 +1,17 @@
 import { ReactNode } from 'react';
-import { AuthLogo } from './AuthLogo';
+import { cn } from '@/lib/utils';
 
 interface AuthLayoutProps {
   children: ReactNode;
+  /** Wider card for multi-field forms (register, reset password). */
+  wide?: boolean;
 }
 
-/** Centered auth shell — logo + form vertically and horizontally centered. */
-export function AuthLayout({ children }: AuthLayoutProps) {
+/** Centered auth shell on a pure black canvas. */
+export function AuthLayout({ children, wide }: AuthLayoutProps) {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-brand-black font-sans px-5 py-8 sm:px-8">
-      <div className="flex w-full max-w-[600px] flex-col items-center justify-center animate-fade-up">
-        <div className="mb-8 flex w-full justify-center sm:mb-10">
-          <AuthLogo />
-        </div>
-        <div className="flex w-full flex-col items-center text-center">{children}</div>
-      </div>
+    <div className="flex min-h-screen items-center justify-center bg-brand-black px-4 py-4 font-sans sm:px-6 sm:py-6">
+      <div className={cn('w-full animate-fade-up', wide ? 'max-w-[580px]' : 'max-w-[480px]')}>{children}</div>
     </div>
   );
 }

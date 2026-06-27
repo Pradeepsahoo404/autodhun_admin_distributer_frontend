@@ -17,13 +17,14 @@ interface AppModalProps {
   closeOnBackdropClick?: boolean;
   /** Show the top-right close button. Default: true */
   showCloseButton?: boolean;
-  size?: 'sm' | 'md' | 'lg';
+  size?: 'sm' | 'md' | 'lg' | 'xl';
 }
 
 const sizeClass: Record<NonNullable<AppModalProps['size']>, string> = {
   sm: 'max-w-md',
   md: 'max-w-lg',
   lg: 'max-w-2xl',
+  xl: 'max-w-3xl',
 };
 
 export function AppModal({
@@ -58,7 +59,7 @@ export function AppModal({
   if (!open || !mounted) return null;
 
   return createPortal(
-    <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 sm:p-6">
       <div
         className="absolute inset-0 bg-black/80 backdrop-blur-[3px]"
         onClick={closeOnBackdropClick ? onClose : undefined}
@@ -70,12 +71,12 @@ export function AppModal({
         aria-modal="true"
         aria-labelledby="app-modal-title"
         className={cn(
-          'relative w-full overflow-hidden rounded-2xl border border-[#252525] bg-[#111111] shadow-[0_24px_80px_rgba(0,0,0,0.6)]',
+          'relative flex max-h-[min(92vh,880px)] w-full flex-col overflow-hidden rounded-2xl border border-[#252525] bg-[#111111] shadow-[0_24px_80px_rgba(0,0,0,0.6)]',
           sizeClass[size],
           className,
         )}
       >
-        <div className="flex items-start justify-between border-b border-[#252525] bg-gradient-to-r from-[#161616] via-[#121212] to-[#111111] px-6 py-5">
+        <div className="flex shrink-0 items-start justify-between border-b border-[#252525] bg-gradient-to-r from-[#161616] via-[#121212] to-[#111111] px-6 py-5">
           <div className="min-w-0 pr-4">
             <h2 id="app-modal-title" className="text-[18px] font-semibold tracking-tight text-white">
               {title}
@@ -97,10 +98,10 @@ export function AppModal({
           ) : null}
         </div>
 
-        <div className="px-6 py-5">{children}</div>
+        <div className="min-h-0 flex-1 overflow-y-auto px-6 py-5">{children}</div>
 
         {footer ? (
-          <div className="border-t border-[#252525] bg-[#0d0d0d]/60 px-6 py-4">{footer}</div>
+          <div className="shrink-0 border-t border-[#252525] bg-[#0d0d0d]/60 px-6 py-4">{footer}</div>
         ) : null}
       </div>
     </div>,

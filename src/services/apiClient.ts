@@ -1,5 +1,6 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
-import { TOKEN_STORAGE_KEY } from '@/constants';
+import { TOKEN_STORAGE_KEY, ACCOUNT_INACTIVE_MESSAGE } from '@/constants';
+import { forceLogoutForInactiveAccount, shouldSkipInactiveLogoutRedirect } from '@/utils/accountAccess';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:5000/api';
 
@@ -31,6 +32,15 @@ apiClient.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {
     const original = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
+    const inactiveMessage = extractMessageFromData(error.response?.data);
+
+    if (error.response?.status === 403 && inactiveMessage === ACCOUNT_INACTIVE_MESSAGE) {
+      const requestUrl = original?.url ?? '';
+      if (!shouldSkipInactiveLogoutRedirect(requestUrl)) {
+        forceLogoutForInactiveAccount();
+      }
+      return Promise.reject(error);
+    }
 
     if (error.response?.status !== 401 || original._retry) {
       return Promise.reject(error);

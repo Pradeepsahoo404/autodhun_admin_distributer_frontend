@@ -7,6 +7,7 @@ interface AuthTermsCheckboxProps {
   error?: string;
   loading?: boolean;
   className?: string;
+  compact?: boolean;
 }
 
 /** Terms / privacy agreement with required checkbox. */
@@ -16,6 +17,7 @@ export function AuthTermsCheckbox({
   onChange,
   error,
   loading,
+  compact,
   className,
 }: AuthTermsCheckboxProps) {
   const id = variant === 'register' ? 'terms-register' : 'terms-login';
@@ -25,7 +27,8 @@ export function AuthTermsCheckbox({
       <label
         htmlFor={id}
         className={cn(
-          'mx-auto inline-flex max-w-[380px] cursor-pointer items-start gap-3 text-left',
+          'mx-auto inline-flex cursor-pointer items-start gap-2.5 text-left',
+          compact ? 'max-w-none' : 'max-w-[380px]',
           loading && 'pointer-events-none opacity-60',
         )}
       >
@@ -35,9 +38,12 @@ export function AuthTermsCheckbox({
           checked={checked}
           disabled={loading}
           onChange={(e) => onChange(e.target.checked)}
-          className="mt-1 h-[18px] w-[18px] shrink-0 cursor-pointer rounded border border-neutral-600 bg-[#161616] accent-[#A3FF12] disabled:cursor-not-allowed"
+          className={cn(
+            'shrink-0 cursor-pointer rounded border border-neutral-600 bg-[#161616] accent-[#A3FF12] disabled:cursor-not-allowed',
+            compact ? 'mt-0.5 h-4 w-4' : 'mt-1 h-[18px] w-[18px]',
+          )}
         />
-        <span className="text-[14px] leading-relaxed text-neutral-500">
+        <span className={cn('text-neutral-500', compact ? 'text-[12px] leading-snug' : 'text-[14px] leading-relaxed')}>
           {variant === 'register' ? (
             <>
               By signing up, I agree to the{' '}
