@@ -1,6 +1,8 @@
 import { NextAuthOptions } from 'next-auth';
 import GoogleProvider from 'next-auth/providers/google';
 
+const isProduction = process.env.NODE_ENV === 'production';
+
 export const authOptions: NextAuthOptions = {
   providers: [
     GoogleProvider({
@@ -13,7 +15,8 @@ export const authOptions: NextAuthOptions = {
       },
     }),
   ],
-  session: { strategy: 'jwt' },
+  session: { strategy: 'jwt', maxAge: 5 * 60 },
+  useSecureCookies: isProduction,
   callbacks: {
     async jwt({ token, account }) {
       if (account?.id_token) {
@@ -22,8 +25,10 @@ export const authOptions: NextAuthOptions = {
       return token;
     },
     async session({ session, token }) {
-      session.idToken = token.idToken as string | undefined;
-      return session;
+      return {
+        ...session,
+        idToken: token.idToken as string | undefined,
+      };
     },
   },
   pages: {
@@ -31,4 +36,5 @@ export const authOptions: NextAuthOptions = {
     error: '/login',
   },
   secret: process.env.NEXTAUTH_SECRET,
+  debug: !isProduction,
 };

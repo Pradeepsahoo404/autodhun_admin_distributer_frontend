@@ -16,6 +16,9 @@ export const ROUTES = {
 
   RESET_PASSWORD: '/reset-password',
 
+  /** NextAuth lands here after Google OAuth — completes backend login */
+  GOOGLE_COMPLETE: '/auth/google-complete',
+
   DASHBOARD: '/dashboard',
 
   SETTINGS: '/dashboard/settings',
