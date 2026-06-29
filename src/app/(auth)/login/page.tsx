@@ -23,6 +23,7 @@ import { ROUTES, OTP_PURPOSE } from '@/constants';
 import { getApiErrorMessage } from '@/services/apiClient';
 import { syncUserProfile } from '@/utils/syncUserProfile';
 import { consumeInactiveAccountMessage } from '@/utils/accountAccess';
+import { consumeNextAuthErrorMessage } from '@/utils/nextAuthErrors';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -35,6 +36,11 @@ export default function LoginPage() {
     const message = consumeInactiveAccountMessage();
     if (message) {
       toast.error(message);
+    }
+
+    const oauthError = consumeNextAuthErrorMessage();
+    if (oauthError) {
+      toast.error(oauthError);
     }
   }, []);
 

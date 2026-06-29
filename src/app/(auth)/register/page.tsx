@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
@@ -21,6 +21,7 @@ import { useGoogleSignIn } from '@/hooks/useGoogleSignIn';
 import { useTermsAcceptance } from '@/hooks/useTermsAcceptance';
 import { ROUTES, OTP_PURPOSE } from '@/constants';
 import { getApiErrorMessage } from '@/services/apiClient';
+import { consumeNextAuthErrorMessage } from '@/utils/nextAuthErrors';
 
 const fieldProps = { fieldSize: 'compact' as const };
 
@@ -30,6 +31,13 @@ export default function RegisterPage() {
   const [showEmailForm, setShowEmailForm] = useState(false);
   const [registerUser, { isLoading }] = useRegisterMutation();
   const { signInWithGoogle, isLoading: googleLoading } = useGoogleSignIn();
+
+  useEffect(() => {
+    const oauthError = consumeNextAuthErrorMessage();
+    if (oauthError) {
+      toast.error(oauthError);
+    }
+  }, []);
 
   const {
     register,

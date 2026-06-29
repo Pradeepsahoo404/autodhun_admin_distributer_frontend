@@ -22,10 +22,8 @@ export const authOptions: NextAuthOptions = {
       return token;
     },
     async session({ session, token }) {
-      return {
-        ...session,
-        idToken: token.idToken as string | undefined,
-      };
+      session.idToken = token.idToken as string | undefined;
+      return session;
     },
   },
   pages: {
