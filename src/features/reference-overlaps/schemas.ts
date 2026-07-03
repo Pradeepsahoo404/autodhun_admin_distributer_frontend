@@ -14,7 +14,7 @@ export const referenceOverlapFormSchema = z.object({
   assetType: z.enum(REFERENCE_OVERLAP_ASSET_TYPES, { message: 'Select asset type' }),
   isrcCode: requiredIsrcField(),
   overlappingAssetName: requiredTextField('Overlapping asset name'),
-  labelName: requiredTextField('Label'),
+  labelName: requiredSelectField('Select a label'),
   assignedTo: requiredSelectField('Select an admin'),
 });
 

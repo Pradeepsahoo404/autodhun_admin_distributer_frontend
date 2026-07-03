@@ -177,6 +177,56 @@ export interface PaginatedMeta {
   totalPages: number;
 }
 
+export interface MusicReleaseTrack {
+  title: string;
+  artist: string;
+  lyrics: string;
+  isrcOption: 'own' | 'generate';
+  isrc: string;
+  composer: string;
+  producer: string;
+  director: string;
+  language: string;
+  genre: string;
+  subGenre: string;
+  price: string;
+}
+
+export interface MusicReleaseAudioFile {
+  fileName: string;
+  url: string;
+  mimeType?: string;
+  sizeBytes?: number;
+}
+
+export interface MusicRelease {
+  _id: string;
+  title: string;
+  version: string;
+  artist: string;
+  releaseType: 'single' | 'ep' | 'album';
+  releasingDate: string;
+  label: string;
+  instrumental: 'yes' | 'no';
+  explicit: 'yes' | 'no';
+  aiGenerated: 'yes' | 'no';
+  upc: string;
+  pLine: string;
+  cLine: string;
+  coverArtUrl: string;
+  audioFiles: MusicReleaseAudioFile[];
+  tracks: MusicReleaseTrack[];
+  crbtEntries: { title: string; startTime: string }[];
+  scheduledReleaseDate: string;
+  scheduleNotes: string;
+  releasePlatform: string;
+  status: 'in_review' | 'correction' | 'qc_approval' | 'live';
+  createdBy?: { _id: string; name: string; email: string };
+  updatedBy?: { _id: string; name: string; email: string };
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface User {
   _id: string;
   firstName: string;
@@ -378,7 +428,10 @@ export type NotificationType =
   | 'rights_entry_created'
   | 'rights_status_updated'
   | 'issues_entry_assigned'
-  | 'issues_ownership_updated';
+  | 'issues_ownership_updated'
+  | 'release_created'
+  | 'release_updated'
+  | 'release_status_updated';
 
 export interface Notification {
   _id: string;

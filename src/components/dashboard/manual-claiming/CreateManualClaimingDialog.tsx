@@ -26,6 +26,8 @@ export function CreateManualClaimingDialog({ open, onClose }: CreateManualClaimi
     register,
     handleSubmit,
     reset,
+    setValue,
+    watch,
     formState: { errors },
   } = useForm<ManualClaimingFormData>({
     resolver: zodResolver(manualClaimingFormSchema),
@@ -36,6 +38,8 @@ export function CreateManualClaimingDialog({ open, onClose }: CreateManualClaimi
       songLink: '',
     },
   });
+
+  const labelName = watch('labelName');
 
   const close = () => {
     reset();
@@ -71,7 +75,13 @@ export function CreateManualClaimingDialog({ open, onClose }: CreateManualClaimi
         onSubmit={handleSubmit(onSubmit, onManualClaimingFormInvalid)}
         className={modalFormClass}
       >
-        <ManualClaimingFormFields register={register} errors={errors} idPrefix="create-" />
+        <ManualClaimingFormFields
+          register={register}
+          errors={errors}
+          idPrefix="create-"
+          labelName={labelName}
+          onLabelNameChange={(value) => setValue('labelName', value, { shouldValidate: true })}
+        />
       </form>
     </AppModal>
   );

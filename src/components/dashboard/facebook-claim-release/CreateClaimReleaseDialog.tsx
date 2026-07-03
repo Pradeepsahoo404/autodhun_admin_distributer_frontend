@@ -12,6 +12,7 @@ import {
   onFacebookClaimReleaseFormInvalid,
   type FacebookClaimReleaseFormData,
 } from '@/features/facebook-claim-release/schemas';
+import { updateClaimLabelField } from '@/lib/forms/syncClaimLabels';
 import { ClaimReleaseFormFields } from './ClaimReleaseFormFields';
 
 interface CreateClaimReleaseDialogProps {
@@ -26,6 +27,9 @@ export function CreateClaimReleaseDialog({ open, onClose }: CreateClaimReleaseDi
     register,
     handleSubmit,
     reset,
+    setValue,
+    trigger,
+    watch,
     formState: { errors },
   } = useForm<FacebookClaimReleaseFormData>({
     resolver: zodResolver(facebookClaimReleaseFormSchema),
@@ -36,6 +40,17 @@ export function CreateClaimReleaseDialog({ open, onClose }: CreateClaimReleaseDi
       isrcCode: '',
     },
   });
+
+  const senderLabelName = watch('senderLabelName');
+  const receiverLabelName = watch('receiverLabelName');
+
+  const handleSenderLabelChange = (value: string) => {
+    updateClaimLabelField('senderLabelName', setValue, trigger, value);
+  };
+
+  const handleReceiverLabelChange = (value: string) => {
+    updateClaimLabelField('receiverLabelName', setValue, trigger, value);
+  };
 
   const close = () => {
     reset();
@@ -71,7 +86,15 @@ export function CreateClaimReleaseDialog({ open, onClose }: CreateClaimReleaseDi
         onSubmit={handleSubmit(onSubmit, onFacebookClaimReleaseFormInvalid)}
         className={modalFormClass}
       >
-        <ClaimReleaseFormFields register={register} errors={errors} idPrefix="create-" />
+        <ClaimReleaseFormFields
+          register={register}
+          errors={errors}
+          idPrefix="create-"
+          senderLabelName={senderLabelName}
+          receiverLabelName={receiverLabelName}
+          onSenderLabelChange={handleSenderLabelChange}
+          onReceiverLabelChange={handleReceiverLabelChange}
+        />
       </form>
     </AppModal>
   );

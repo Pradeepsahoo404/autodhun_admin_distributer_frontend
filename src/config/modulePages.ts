@@ -192,3 +192,9 @@ export const ALL_MODULE_ROUTES = Object.entries(MODULE_PAGES).map(([route, def])
   route,
   slug: def.slug,
 }));
+
+/** Resolve a dashboard CTA module slug to its primary app route. */
+export function getRouteForModuleSlug(slug: string): string | undefined {
+  const match = Object.entries(MODULE_PAGES).find(([, def]) => def.slug === slug);
+  return match?.[0];
+}

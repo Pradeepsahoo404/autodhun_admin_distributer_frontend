@@ -29,10 +29,14 @@ export function EditManualClaimingDialog({ open, item, onClose }: EditManualClai
     register,
     handleSubmit,
     reset,
+    setValue,
+    watch,
     formState: { errors },
   } = useForm<ManualClaimingFormData>({
     resolver: zodResolver(manualClaimingFormSchema),
   });
+
+  const labelName = watch('labelName');
 
   useEffect(() => {
     if (!item) return;
@@ -81,7 +85,13 @@ export function EditManualClaimingDialog({ open, item, onClose }: EditManualClai
         onSubmit={handleSubmit(onSubmit, onManualClaimingFormInvalid)}
         className={modalFormClass}
       >
-        <ManualClaimingFormFields register={register} errors={errors} idPrefix="edit-" />
+        <ManualClaimingFormFields
+          register={register}
+          errors={errors}
+          idPrefix="edit-"
+          labelName={labelName}
+          onLabelNameChange={(value) => setValue('labelName', value, { shouldValidate: true })}
+        />
       </form>
     </AppModal>
   );

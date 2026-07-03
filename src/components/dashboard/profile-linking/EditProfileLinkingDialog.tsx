@@ -29,10 +29,14 @@ export function EditProfileLinkingDialog({ open, item, onClose }: EditProfileLin
     register,
     handleSubmit,
     reset,
+    setValue,
+    watch,
     formState: { errors },
   } = useForm<ProfileLinkingFormData>({
     resolver: zodResolver(profileLinkingFormSchema),
   });
+
+  const labelName = watch('labelName');
 
   useEffect(() => {
     if (!item) return;
@@ -81,7 +85,13 @@ export function EditProfileLinkingDialog({ open, item, onClose }: EditProfileLin
         onSubmit={handleSubmit(onSubmit, onProfileLinkingFormInvalid)}
         className={modalFormClass}
       >
-        <ProfileLinkingFormFields register={register} errors={errors} idPrefix="edit-" />
+        <ProfileLinkingFormFields
+          register={register}
+          errors={errors}
+          idPrefix="edit-"
+          labelName={labelName}
+          onLabelNameChange={(value) => setValue('labelName', value, { shouldValidate: true })}
+        />
       </form>
     </AppModal>
   );

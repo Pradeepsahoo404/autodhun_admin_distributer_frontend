@@ -1,10 +1,14 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import { DashboardQuickAction } from '@/types';
 import { getModuleIcon } from '@/utils/icons';
+import { getRouteForModuleSlug } from '@/config/modulePages';
 
 /** Horizontal row of permission-filtered quick-action buttons. */
 export function QuickActions({ actions }: { actions: DashboardQuickAction[] }) {
+  const router = useRouter();
+
   if (actions.length === 0) return null;
 
   return (
@@ -14,11 +18,17 @@ export function QuickActions({ actions }: { actions: DashboardQuickAction[] }) {
         {actions.map((action, i) => {
           const Icon = getModuleIcon(action.icon);
           const accent = i % 2 === 0 ? 'lime' : 'purple';
+          const href = getRouteForModuleSlug(action.module);
+
           return (
             <button
               key={action.key}
               type="button"
-              className="flex items-center gap-3 rounded-2xl border border-[#222222] bg-[#111111] px-5 py-3.5 text-[14px] font-medium text-neutral-300 transition-all hover:border-brand-lime/30 hover:text-white"
+              disabled={!href}
+              onClick={() => {
+                if (href) router.push(href);
+              }}
+              className="flex items-center gap-3 rounded-2xl border border-[#222222] bg-[#111111] px-5 py-3.5 text-[14px] font-medium text-neutral-300 transition-all hover:border-brand-lime/30 hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
             >
               <span
                 className={

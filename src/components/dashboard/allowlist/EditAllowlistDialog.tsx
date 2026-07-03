@@ -29,10 +29,14 @@ export function EditAllowlistDialog({ open, item, onClose }: EditAllowlistDialog
     register,
     handleSubmit,
     reset,
+    setValue,
+    watch,
     formState: { errors },
   } = useForm<AllowlistFormData>({
     resolver: zodResolver(allowlistFormSchema),
   });
+
+  const labelName = watch('labelName');
 
   useEffect(() => {
     if (!item) return;
@@ -79,7 +83,13 @@ export function EditAllowlistDialog({ open, item, onClose }: EditAllowlistDialog
         onSubmit={handleSubmit(onSubmit, onAllowlistFormInvalid)}
         className={modalFormClass}
       >
-        <AllowlistFormFields register={register} errors={errors} idPrefix="edit-" />
+        <AllowlistFormFields
+          register={register}
+          errors={errors}
+          idPrefix="edit-"
+          labelName={labelName}
+          onLabelNameChange={(value) => setValue('labelName', value, { shouldValidate: true })}
+        />
       </form>
     </AppModal>
   );

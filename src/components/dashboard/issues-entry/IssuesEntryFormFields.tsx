@@ -2,6 +2,7 @@
 
 import { UseFormRegister, FieldErrors } from 'react-hook-form';
 import { FormFieldLabel, ProfileInputField } from '@/components/dashboard/profile/ProfileField';
+import { ReleaseLabelSelect } from '@/components/common/ReleaseLabelSelect';
 import { TableSelectField } from '@/components/common/TableSelectField';
 import { ISSUES_ENTRY_ASSET_TYPES } from '@/constants/issuesEntry';
 import type { IssuesEntryFormData } from '@/features/issues-entry/schemas';
@@ -18,6 +19,8 @@ interface IssuesEntryFormFieldsProps {
   onAssetTypeChange?: (value: string) => void;
   assignedTo?: string;
   onAssignedToChange?: (value: string) => void;
+  labelName?: string;
+  onLabelNameChange?: (value: string) => void;
 }
 
 export function IssuesEntryFormFields({
@@ -31,6 +34,8 @@ export function IssuesEntryFormFields({
   onAssetTypeChange,
   assignedTo = '',
   onAssignedToChange,
+  labelName = '',
+  onLabelNameChange,
 }: IssuesEntryFormFieldsProps) {
   const adminOptions = [
     { value: '', label: adminsLoading ? 'Loading admins...' : 'Select admin' },
@@ -82,13 +87,10 @@ export function IssuesEntryFormFields({
         {...register('overlappingAssetName')}
       />
 
-      <ProfileInputField
-        id={`${idPrefix}labelName`}
-        label="Label"
-        placeholder="Label name"
-        required
+      <ReleaseLabelSelect
+        value={labelName}
+        onChange={(value) => onLabelNameChange?.(value)}
         error={errors.labelName?.message ? String(errors.labelName.message) : undefined}
-        {...register('labelName')}
       />
 
       <div className="min-w-0 space-y-2">

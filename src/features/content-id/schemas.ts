@@ -1,10 +1,10 @@
 import { z } from 'zod';
 import type { FieldErrors } from 'react-hook-form';
 import { toast } from 'sonner';
-import { requiredIsrcField, requiredTextField } from '@/lib/validation/fields';
+import { requiredCatalogLabelField, requiredIsrcField } from '@/lib/validation/fields';
 
 export const contentIdFormSchema = z.object({
-  labelName: requiredTextField('Label name'),
+  labelName: requiredCatalogLabelField('Label name'),
   isrcCode: requiredIsrcField(),
 });
 

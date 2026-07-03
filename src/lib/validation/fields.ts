@@ -114,3 +114,40 @@ export function optionalRoleDescription() {
 export function requiredSelectField(message: string) {
   return z.string().trim().min(1, message);
 }
+
+export const YOUTUBE_URL_MESSAGE = 'Enter a valid YouTube link';
+export const FACEBOOK_PAGE_URL_MESSAGE = 'Enter a valid Facebook page link';
+
+export function isYoutubeUrl(url: string): boolean {
+  try {
+    const { hostname } = new URL(url);
+    return /(?:^|\.)youtube\.com$/i.test(hostname) || /^youtu\.be$/i.test(hostname);
+  } catch {
+    return false;
+  }
+}
+
+export function isFacebookPageUrl(url: string): boolean {
+  try {
+    const { hostname } = new URL(url);
+    return /(?:^|\.)facebook\.com$/i.test(hostname) || /(?:^|\.)fb\.com$/i.test(hostname);
+  } catch {
+    return false;
+  }
+}
+
+export function requiredYoutubeUrlField(label: string, max = 500) {
+  return requiredUrlField(label, max).refine(isYoutubeUrl, YOUTUBE_URL_MESSAGE);
+}
+
+export function requiredFacebookPageUrlField(label: string, max = 500) {
+  return requiredUrlField(label, max).refine(isFacebookPageUrl, FACEBOOK_PAGE_URL_MESSAGE);
+}
+
+export function requiredCatalogLabelField(label: string, max = 200) {
+  return z
+    .string()
+    .trim()
+    .min(1, `Select ${label.toLowerCase()}`)
+    .max(max, `${label} must be at most ${max} characters`);
+}

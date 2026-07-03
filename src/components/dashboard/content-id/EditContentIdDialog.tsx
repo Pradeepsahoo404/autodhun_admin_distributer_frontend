@@ -29,10 +29,14 @@ export function EditContentIdDialog({ open, item, onClose }: EditContentIdDialog
     register,
     handleSubmit,
     reset,
+    setValue,
+    watch,
     formState: { errors },
   } = useForm<ContentIdFormData>({
     resolver: zodResolver(contentIdFormSchema),
   });
+
+  const labelName = watch('labelName');
 
   useEffect(() => {
     if (!item) return;
@@ -79,7 +83,13 @@ export function EditContentIdDialog({ open, item, onClose }: EditContentIdDialog
         onSubmit={handleSubmit(onSubmit, onContentIdFormInvalid)}
         className={modalFormClass}
       >
-        <ContentIdFormFields register={register} errors={errors} idPrefix="edit-" />
+        <ContentIdFormFields
+          register={register}
+          errors={errors}
+          idPrefix="edit-"
+          labelName={labelName}
+          onLabelNameChange={(value) => setValue('labelName', value, { shouldValidate: true })}
+        />
       </form>
     </AppModal>
   );

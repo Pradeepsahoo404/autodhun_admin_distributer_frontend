@@ -21,6 +21,8 @@ import './issues/potentialClaimsApi';
 import './issues/disputedClaimsApi';
 import './issues/appealedClaimsApi';
 import './cronjobSettingsApi';
+import './musicReleaseApi';
+import './releaseCatalogApi';
 
 export { authApi } from './authApi';
 export {
@@ -224,3 +226,20 @@ export {
   useUpdateCronjobSettingsMutation,
   useRunCronjobNowMutation,
 } from './cronjobSettingsApi';
+
+export {
+  useGetMusicReleasesQuery,
+  useGetMusicReleaseByIdQuery,
+  useCreateMusicReleaseMutation,
+  useUpdateMusicReleaseMutation,
+  useUpdateMusicReleaseStatusMutation,
+  useBulkUpdateMusicReleaseStatusMutation,
+  useExportMusicReleasesMutation,
+} from './musicReleaseApi';
+
+export {
+  useGetReleaseArtistsQuery,
+  useCreateReleaseArtistMutation,
+  useGetReleaseLabelsQuery,
+  useCreateReleaseLabelMutation,
+} from './releaseCatalogApi';

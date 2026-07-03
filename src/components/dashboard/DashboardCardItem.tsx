@@ -1,11 +1,13 @@
 'use client';
 
-import { BarChart3, ChevronLeft, ChevronRight, Music2, Play, Radio, Shield, Truck } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { BarChart3, ChevronLeft, ChevronRight, Music2, Radio, Shield, Truck } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { DashboardCard, IssuesAnalytics, RightsManagerAnalytics } from '@/types';
 import { usePermission } from '@/hooks/usePermission';
 import { RightsManagerDashboardCard } from '@/components/dashboard/RightsManagerDashboardCard';
 import { IssuesDashboardCard } from '@/components/dashboard/IssuesDashboardCard';
+import { getRouteForModuleSlug } from '@/config/modulePages';
 import type { DashboardCardSlot } from '@/constants/dashboardCards';
 
 type Action = 'view' | 'create' | 'update' | 'delete';
@@ -93,9 +95,49 @@ export function DashboardCardItem({
   return <CompactCard card={card} currency={currency} earnings={earnings} ctaAllowed={ctaAllowed} />;
 }
 
-function CompactFeatureCard({ card, ctaAllowed }: { card: DashboardCard; ctaAllowed: boolean }) {
+function DashboardCardCta({
+  card,
+  ctaAllowed,
+  className,
+}: {
+  card: DashboardCard;
+  ctaAllowed: boolean;
+  className: string;
+}) {
+  const router = useRouter();
+
+  if (!card.cta) return null;
+
+  const href = getRouteForModuleSlug(card.cta.moduleSlug);
+
   return (
-    <article className={cardShell(card.variant)}>
+    <button
+      type="button"
+      disabled={!ctaAllowed || !href}
+      onClick={() => {
+        if (href && ctaAllowed) router.push(href);
+      }}
+      className={cn(
+        className,
+        (!ctaAllowed || !href) && 'cursor-not-allowed opacity-50',
+      )}
+    >
+      {card.cta.label}
+    </button>
+  );
+}
+
+function CompactFeatureCard({ card, ctaAllowed }: { card: DashboardCard; ctaAllowed: boolean }) {
+  const router = useRouter();
+  const href = card.cta ? getRouteForModuleSlug(card.cta.moduleSlug) : undefined;
+  const isClickable = Boolean(href && ctaAllowed);
+
+  const handleNavigate = () => {
+    if (href && ctaAllowed) router.push(href);
+  };
+
+  const content = (
+    <>
       <div className="flex flex-1 flex-col p-4">
         <div className="relative flex min-h-[148px] flex-1 flex-col items-center justify-center overflow-hidden rounded-xl border border-dashed border-brand-lime/25 bg-[#0d0d0d]/80 px-4 py-5 text-center">
           <div className="pointer-events-none absolute -right-6 -top-6 h-24 w-24 rounded-full bg-brand-lime/10 blur-2xl" />
@@ -108,28 +150,29 @@ function CompactFeatureCard({ card, ctaAllowed }: { card: DashboardCard; ctaAllo
           </p>
         </div>
       </div>
-      <footer className="border-t border-[#1f1f1f] px-4 py-3">
-        <div className="flex flex-wrap items-center gap-2">
-          {card.cta && ctaAllowed && (
-            <button
-              type="button"
-              className="rounded-full bg-brand-lime px-4 py-2 text-[12px] font-semibold text-black transition-colors hover:bg-brand-lime-dark"
-            >
-              {card.cta.label}
-            </button>
-          )}
-          {card.secondaryCta && (
-            <button
-              type="button"
-              className="flex items-center gap-1.5 rounded-full px-2.5 py-1.5 text-[11px] font-medium text-brand-purple transition-colors hover:bg-brand-purple/10"
-            >
-              <Play className="h-3.5 w-3.5 fill-current" />
-              {card.secondaryCta.label}
-            </button>
-          )}
-        </div>
-      </footer>
-    </article>
+      {card.cta ? (
+        <footer className="border-t border-[#1f1f1f] px-4 py-3 text-left">
+          <span className="inline-flex rounded-full bg-brand-lime px-4 py-2 text-[12px] font-semibold text-black">
+            {card.cta.label}
+          </span>
+        </footer>
+      ) : null}
+    </>
+  );
+
+  if (!isClickable) {
+    return <article className={cardShell(card.variant)}>{content}</article>;
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={handleNavigate}
+      className={cn(cardShell(card.variant), 'cursor-pointer text-left')}
+      aria-label={card.cta?.label ?? card.title}
+    >
+      {content}
+    </button>
   );
 }
 
@@ -148,25 +191,13 @@ function HeroCard({ card, ctaAllowed }: { card: DashboardCard; ctaAllowed: boole
         </div>
       </div>
       <footer className="border-t border-[#1f1f1f] px-5 py-4">
-        <div className="flex flex-wrap items-center gap-2">
-          {card.cta && ctaAllowed && (
-            <button
-              type="button"
-              className="rounded-full bg-brand-lime px-5 py-2.5 text-[13px] font-semibold text-black transition-colors hover:bg-brand-lime-dark"
-            >
-              {card.cta.label}
-            </button>
-          )}
-          {card.secondaryCta && (
-            <button
-              type="button"
-              className="flex items-center gap-1.5 rounded-full px-3 py-2 text-[12px] font-medium text-brand-purple transition-colors hover:bg-brand-purple/10"
-            >
-              <Play className="h-3.5 w-3.5 fill-current" />
-              {card.secondaryCta.label}
-            </button>
-          )}
-        </div>
+        {card.cta ? (
+          <DashboardCardCta
+            card={card}
+            ctaAllowed={ctaAllowed}
+            className="rounded-full bg-brand-lime px-5 py-2.5 text-[13px] font-semibold text-black transition-colors hover:bg-brand-lime-dark disabled:hover:bg-brand-lime"
+          />
+        ) : null}
       </footer>
     </article>
   );
@@ -211,17 +242,15 @@ function StatCard({ card, ctaAllowed }: { card: DashboardCard; ctaAllowed: boole
         <p className="mt-3 text-[12px] leading-relaxed text-neutral-500">{card.description}</p>
       </div>
 
-      {card.cta && (
+      {card.cta ? (
         <footer className="border-t border-[#1f1f1f] px-5 py-3">
-          <button
-            type="button"
-            disabled={!ctaAllowed}
-            className="rounded-full bg-brand-purple px-4 py-2 text-[12px] font-semibold text-white transition-colors hover:bg-brand-purple/80 disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            {card.cta.label}
-          </button>
+          <DashboardCardCta
+            card={card}
+            ctaAllowed={ctaAllowed}
+            className="rounded-full bg-brand-purple px-4 py-2 text-[12px] font-semibold text-white transition-colors hover:bg-brand-purple/80 disabled:hover:bg-brand-purple"
+          />
         </footer>
-      )}
+      ) : null}
     </article>
   );
 }
@@ -260,17 +289,15 @@ function MediaCard({ card, ctaAllowed }: { card: DashboardCard; ctaAllowed: bool
         <p className="flex-1 text-[13px] leading-relaxed text-neutral-400">{card.description}</p>
       </div>
 
-      {card.cta && (
+      {card.cta ? (
         <footer className="border-t border-[#1f1f1f] px-5 py-3">
-          <button
-            type="button"
-            disabled={!ctaAllowed}
-            className="rounded-full bg-brand-purple px-4 py-2 text-[12px] font-semibold text-white transition-colors hover:bg-brand-purple/80 disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            {card.cta.label}
-          </button>
+          <DashboardCardCta
+            card={card}
+            ctaAllowed={ctaAllowed}
+            className="rounded-full bg-brand-purple px-4 py-2 text-[12px] font-semibold text-white transition-colors hover:bg-brand-purple/80 disabled:hover:bg-brand-purple"
+          />
         </footer>
-      )}
+      ) : null}
     </article>
   );
 }
@@ -308,23 +335,21 @@ function CompactCard({
       {(card.cta || card.secondaryCta) && (
         <footer className="border-t border-[#1f1f1f] px-5 py-3">
           <div className="flex flex-wrap gap-2">
-            {card.cta && (
-              <button
-                type="button"
-                disabled={!ctaAllowed}
-                className="rounded-full bg-[#2a2a2a] px-4 py-2 text-[12px] font-medium text-neutral-200 transition-colors hover:bg-[#333333] disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                {card.cta.label}
-              </button>
-            )}
-            {card.secondaryCta && (
+            {card.cta ? (
+              <DashboardCardCta
+                card={card}
+                ctaAllowed={ctaAllowed}
+                className="rounded-full bg-[#2a2a2a] px-4 py-2 text-[12px] font-medium text-neutral-200 transition-colors hover:bg-[#333333] disabled:hover:bg-[#2a2a2a]"
+              />
+            ) : null}
+            {card.secondaryCta ? (
               <button
                 type="button"
                 className="rounded-full border border-brand-lime/40 px-4 py-2 text-[12px] font-medium text-brand-lime transition-colors hover:bg-brand-lime/10"
               >
                 {card.secondaryCta.label}
               </button>
-            )}
+            ) : null}
           </div>
         </footer>
       )}
@@ -386,20 +411,19 @@ function ListCard({ card, ctaAllowed }: { card: DashboardCard; ctaAllowed: boole
         })}
       </ul>
 
-      {card.cta && (
+      {card.cta ? (
         <footer className="border-t border-[#1f1f1f] px-5 py-3">
-          <button
-            type="button"
-            disabled={!ctaAllowed}
+          <DashboardCardCta
+            card={card}
+            ctaAllowed={ctaAllowed}
             className={cn(
-              'rounded-full px-4 py-2 text-[12px] font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-50',
+              'rounded-full px-4 py-2 text-[12px] font-semibold transition-colors',
               ctaClass,
+              'disabled:hover:opacity-50',
             )}
-          >
-            {card.cta.label}
-          </button>
+          />
         </footer>
-      )}
+      ) : null}
     </article>
   );
 }

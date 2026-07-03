@@ -26,6 +26,8 @@ export function CreateAllowlistDialog({ open, onClose }: CreateAllowlistDialogPr
     register,
     handleSubmit,
     reset,
+    setValue,
+    watch,
     formState: { errors },
   } = useForm<AllowlistFormData>({
     resolver: zodResolver(allowlistFormSchema),
@@ -34,6 +36,8 @@ export function CreateAllowlistDialog({ open, onClose }: CreateAllowlistDialogPr
       channelLink: '',
     },
   });
+
+  const labelName = watch('labelName');
 
   const close = () => {
     reset();
@@ -69,7 +73,13 @@ export function CreateAllowlistDialog({ open, onClose }: CreateAllowlistDialogPr
         onSubmit={handleSubmit(onSubmit, onAllowlistFormInvalid)}
         className={modalFormClass}
       >
-        <AllowlistFormFields register={register} errors={errors} idPrefix="create-" />
+        <AllowlistFormFields
+          register={register}
+          errors={errors}
+          idPrefix="create-"
+          labelName={labelName}
+          onLabelNameChange={(value) => setValue('labelName', value, { shouldValidate: true })}
+        />
       </form>
     </AppModal>
   );

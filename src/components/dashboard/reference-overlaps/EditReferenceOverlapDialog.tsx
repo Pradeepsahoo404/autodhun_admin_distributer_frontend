@@ -43,6 +43,7 @@ export function EditReferenceOverlapDialog({ open, item, onClose }: EditReferenc
 
   const assignedTo = watch('assignedTo');
   const assetType = watch('assetType');
+  const labelName = watch('labelName');
 
   useEffect(() => {
     if (!item || !open) return;
@@ -108,6 +109,8 @@ export function EditReferenceOverlapDialog({ open, item, onClose }: EditReferenc
           onAssetTypeChange={(value) => setValue('assetType', value as ReferenceOverlapFormData['assetType'], { shouldValidate: true })}
           assignedTo={assignedTo}
           onAssignedToChange={(value) => setValue('assignedTo', value, { shouldValidate: true })}
+          labelName={labelName}
+          onLabelNameChange={(value) => setValue('labelName', value, { shouldValidate: true })}
         />
       </form>
     </AppModal>

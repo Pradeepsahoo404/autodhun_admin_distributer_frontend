@@ -26,6 +26,8 @@ export function CreateTakedownDialog({ open, onClose }: CreateTakedownDialogProp
     register,
     handleSubmit,
     reset,
+    setValue,
+    watch,
     formState: { errors },
   } = useForm<TakedownFormData>({
     resolver: zodResolver(takedownFormSchema),
@@ -35,6 +37,8 @@ export function CreateTakedownDialog({ open, onClose }: CreateTakedownDialogProp
       songLink: '',
     },
   });
+
+  const labelName = watch('labelName');
 
   const close = () => {
     reset();
@@ -70,7 +74,13 @@ export function CreateTakedownDialog({ open, onClose }: CreateTakedownDialogProp
         onSubmit={handleSubmit(onSubmit, onTakedownFormInvalid)}
         className={modalFormClass}
       >
-        <TakedownFormFields register={register} errors={errors} idPrefix="create-" />
+        <TakedownFormFields
+          register={register}
+          errors={errors}
+          idPrefix="create-"
+          labelName={labelName}
+          onLabelNameChange={(value) => setValue('labelName', value, { shouldValidate: true })}
+        />
       </form>
     </AppModal>
   );

@@ -9,6 +9,7 @@ import { ModalFormFooter } from '@/components/common/ModalFormFooter';
 import { useUpdateYoutubeClaimReleaseMutation } from '@/store/api';
 import { getApiErrorMessage } from '@/services/apiClient';
 import { claimReleaseFormSchema, onClaimReleaseFormInvalid, type ClaimReleaseFormData } from '@/features/youtube-claim-release/schemas';
+import { updateClaimLabelField } from '@/lib/forms/syncClaimLabels';
 import { ClaimReleaseFormFields } from './ClaimReleaseFormFields';
 import type { YoutubeClaimRelease } from '@/types';
 
@@ -25,10 +26,24 @@ export function EditClaimReleaseDialog({ open, item, onClose }: EditClaimRelease
     register,
     handleSubmit,
     reset,
+    setValue,
+    trigger,
+    watch,
     formState: { errors },
   } = useForm<ClaimReleaseFormData>({
     resolver: zodResolver(claimReleaseFormSchema),
   });
+
+  const senderLabelName = watch('senderLabelName');
+  const receiverLabelName = watch('receiverLabelName');
+
+  const handleSenderLabelChange = (value: string) => {
+    updateClaimLabelField('senderLabelName', setValue, trigger, value);
+  };
+
+  const handleReceiverLabelChange = (value: string) => {
+    updateClaimLabelField('receiverLabelName', setValue, trigger, value);
+  };
 
   useEffect(() => {
     if (!item) return;
@@ -77,7 +92,15 @@ export function EditClaimReleaseDialog({ open, item, onClose }: EditClaimRelease
         onSubmit={handleSubmit(onSubmit, onClaimReleaseFormInvalid)}
         className={modalFormClass}
       >
-        <ClaimReleaseFormFields register={register} errors={errors} idPrefix="edit-" />
+        <ClaimReleaseFormFields
+          register={register}
+          errors={errors}
+          idPrefix="edit-"
+          senderLabelName={senderLabelName}
+          receiverLabelName={receiverLabelName}
+          onSenderLabelChange={handleSenderLabelChange}
+          onReceiverLabelChange={handleReceiverLabelChange}
+        />
       </form>
     </AppModal>
   );

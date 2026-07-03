@@ -26,6 +26,8 @@ export function CreateProfileLinkingDialog({ open, onClose }: CreateProfileLinki
     register,
     handleSubmit,
     reset,
+    setValue,
+    watch,
     formState: { errors },
   } = useForm<ProfileLinkingFormData>({
     resolver: zodResolver(profileLinkingFormSchema),
@@ -36,6 +38,8 @@ export function CreateProfileLinkingDialog({ open, onClose }: CreateProfileLinki
       instagramHandleName: '',
     },
   });
+
+  const labelName = watch('labelName');
 
   const close = () => {
     reset();
@@ -71,7 +75,13 @@ export function CreateProfileLinkingDialog({ open, onClose }: CreateProfileLinki
         onSubmit={handleSubmit(onSubmit, onProfileLinkingFormInvalid)}
         className={modalFormClass}
       >
-        <ProfileLinkingFormFields register={register} errors={errors} idPrefix="create-" />
+        <ProfileLinkingFormFields
+          register={register}
+          errors={errors}
+          idPrefix="create-"
+          labelName={labelName}
+          onLabelNameChange={(value) => setValue('labelName', value, { shouldValidate: true })}
+        />
       </form>
     </AppModal>
   );

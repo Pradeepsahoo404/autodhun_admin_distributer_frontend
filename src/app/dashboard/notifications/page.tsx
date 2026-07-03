@@ -14,6 +14,10 @@ import {
 import { DashboardPageHeader } from '@/components/dashboard/DashboardPageHeader';
 import { DataPagination } from '@/components/common/DataPagination';
 import { getLegalModuleStatusLabel } from '@/constants/legalModuleStatus';
+import {
+  MUSIC_RELEASE_STATUS_LABELS,
+  type MusicReleaseStatus,
+} from '@/constants/musicReleaseStatus';
 import { getApiErrorMessage } from '@/services/apiClient';
 import { DASHBOARD_PAGE } from '@/constants';
 import { formatRelativeTime, formatShortDate } from '@/lib/formatDateTime';
@@ -22,6 +26,28 @@ import type { Notification, PaginatedMeta } from '@/types';
 
 const DEFAULT_PAGE_LIMIT = 10;
 
+const RELEASE_NOTIFICATION_TYPES = new Set<Notification['type']>([
+  'release_created',
+  'release_updated',
+  'release_status_updated',
+]);
+
+function isReleaseNotification(type: Notification['type']): boolean {
+  return RELEASE_NOTIFICATION_TYPES.has(type);
+}
+
+function getReleaseStatusLabel(status: string): string {
+  return MUSIC_RELEASE_STATUS_LABELS[status as MusicReleaseStatus] ?? status;
+}
+
+function releaseStatusBadgeClass(status: string): string {
+  if (status === 'in_review') return 'border-amber-500/30 bg-amber-500/10 text-amber-400';
+  if (status === 'correction') return 'border-orange-500/30 bg-orange-500/10 text-orange-400';
+  if (status === 'qc_approval') return 'border-sky-500/30 bg-sky-500/10 text-sky-400';
+  if (status === 'live') return 'border-brand-lime/30 bg-brand-lime/10 text-brand-lime';
+  return 'border-neutral-600/30 bg-neutral-500/10 text-neutral-400';
+}
+
 function statusBadgeClass(status: string): string {
   if (status === 'active') return 'border-green-500/25 bg-green-500/10 text-green-400';
   if (status === 'in_progress') return 'border-brand-purple/30 bg-brand-purple/10 text-brand-purple';
@@ -29,6 +55,18 @@ function statusBadgeClass(status: string): string {
 }
 
 function getNotificationSubject(item: Notification): string {
+  if (item.type === 'release_created') return 'New release submitted';
+  if (item.type === 'release_updated') {
+    return item.entrySummary?.resubmitted === 'yes'
+      ? 'Resubmitted after correction'
+      : 'Release updated';
+  }
+  if (item.type === 'release_status_updated') {
+    const status = item.entrySummary?.status;
+    if (status) return `Status · ${getReleaseStatusLabel(status)}`;
+    return 'Release status updated';
+  }
+
   if (item.type === 'rights_entry_created') return 'New entry submitted';
   if (item.type === 'issues_entry_assigned') return 'New assignment';
 
@@ -46,6 +84,9 @@ function getNotificationSubject(item: Notification): string {
 }
 
 function getNotificationTypeLabel(type: Notification['type']): string {
+  if (type === 'release_created') return 'New release';
+  if (type === 'release_updated') return 'Release update';
+  if (type === 'release_status_updated') return 'Status update';
   if (type === 'rights_entry_created') return 'New entry';
   if (type === 'rights_status_updated') return 'Status update';
   if (type === 'issues_entry_assigned') return 'Assigned';
@@ -68,6 +109,20 @@ function NotificationItem({
   const timestamp = item.updatedAt ?? item.createdAt;
   const ownership = item.entrySummary?.ownership;
   const displayStatus = status ?? (ownership ? `ownership:${ownership}` : undefined);
+  const statusLabel = status
+    ? isReleaseNotification(item.type)
+      ? getReleaseStatusLabel(status)
+      : getLegalModuleStatusLabel(displayStatus ?? status)
+    : null;
+  const statusClass = status
+    ? isReleaseNotification(item.type)
+      ? releaseStatusBadgeClass(status)
+      : ownership === 'yes'
+        ? 'border-green-500/25 bg-green-500/10 text-green-400'
+        : ownership === 'no'
+          ? 'border-red-500/25 bg-red-500/10 text-red-400'
+          : statusBadgeClass(displayStatus?.replace('ownership:', '') ?? status)
+    : null;
 
   return (
     <button
@@ -99,18 +154,14 @@ function NotificationItem({
               <span
                 className={cn(
                   'inline-flex rounded-full border px-2.5 py-1 text-xs font-medium whitespace-nowrap',
-                  ownership === 'yes'
-                    ? 'border-green-500/25 bg-green-500/10 text-green-400'
-                    : ownership === 'no'
-                      ? 'border-red-500/25 bg-red-500/10 text-red-400'
-                      : statusBadgeClass(displayStatus.replace('ownership:', '')),
+                  statusClass,
                 )}
               >
                 {ownership === 'yes'
                   ? 'Yes'
                   : ownership === 'no'
                     ? 'No'
-                    : getLegalModuleStatusLabel(displayStatus)}
+                    : statusLabel}
               </span>
             ) : null}
             <span className="inline-flex rounded-full border border-[#2a2a2a] bg-[#1a1a1a] px-2.5 py-1 text-xs font-medium text-neutral-300 whitespace-nowrap">

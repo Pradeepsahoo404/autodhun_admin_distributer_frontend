@@ -1,11 +1,11 @@
 import { z } from 'zod';
 import type { FieldErrors } from 'react-hook-form';
 import { toast } from 'sonner';
-import { requiredTextField, requiredUrlField } from '@/lib/validation/fields';
+import { requiredCatalogLabelField, requiredYoutubeUrlField } from '@/lib/validation/fields';
 
 export const allowlistFormSchema = z.object({
-  labelName: requiredTextField('Label name'),
-  channelLink: requiredUrlField('Channel link'),
+  labelName: requiredCatalogLabelField('Label name'),
+  channelLink: requiredYoutubeUrlField('Channel link'),
 });
 
 export type AllowlistFormData = z.infer<typeof allowlistFormSchema>;

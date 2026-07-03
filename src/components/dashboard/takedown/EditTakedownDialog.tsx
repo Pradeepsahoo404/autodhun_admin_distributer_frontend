@@ -29,10 +29,14 @@ export function EditTakedownDialog({ open, item, onClose }: EditTakedownDialogPr
     register,
     handleSubmit,
     reset,
+    setValue,
+    watch,
     formState: { errors },
   } = useForm<TakedownFormData>({
     resolver: zodResolver(takedownFormSchema),
   });
+
+  const labelName = watch('labelName');
 
   useEffect(() => {
     if (!item) return;
@@ -80,7 +84,13 @@ export function EditTakedownDialog({ open, item, onClose }: EditTakedownDialogPr
         onSubmit={handleSubmit(onSubmit, onTakedownFormInvalid)}
         className={modalFormClass}
       >
-        <TakedownFormFields register={register} errors={errors} idPrefix="edit-" />
+        <TakedownFormFields
+          register={register}
+          errors={errors}
+          idPrefix="edit-"
+          labelName={labelName}
+          onLabelNameChange={(value) => setValue('labelName', value, { shouldValidate: true })}
+        />
       </form>
     </AppModal>
   );

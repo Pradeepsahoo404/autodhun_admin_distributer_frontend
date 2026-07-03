@@ -26,6 +26,8 @@ export function CreateContentIdDialog({ open, onClose }: CreateContentIdDialogPr
     register,
     handleSubmit,
     reset,
+    setValue,
+    watch,
     formState: { errors },
   } = useForm<ContentIdFormData>({
     resolver: zodResolver(contentIdFormSchema),
@@ -34,6 +36,8 @@ export function CreateContentIdDialog({ open, onClose }: CreateContentIdDialogPr
       isrcCode: '',
     },
   });
+
+  const labelName = watch('labelName');
 
   const close = () => {
     reset();
@@ -69,7 +73,13 @@ export function CreateContentIdDialog({ open, onClose }: CreateContentIdDialogPr
         onSubmit={handleSubmit(onSubmit, onContentIdFormInvalid)}
         className={modalFormClass}
       >
-        <ContentIdFormFields register={register} errors={errors} idPrefix="create-" />
+        <ContentIdFormFields
+          register={register}
+          errors={errors}
+          idPrefix="create-"
+          labelName={labelName}
+          onLabelNameChange={(value) => setValue('labelName', value, { shouldValidate: true })}
+        />
       </form>
     </AppModal>
   );

@@ -64,6 +64,7 @@ export function CreateIssuesEntryDialog({
 
   const assignedTo = watch('assignedTo');
   const assetType = watch('assetType');
+  const labelName = watch('labelName');
 
   useEffect(() => {
     if (!open) return;
@@ -132,6 +133,8 @@ export function CreateIssuesEntryDialog({
           }
           assignedTo={assignedTo}
           onAssignedToChange={(value) => setValue('assignedTo', value, { shouldValidate: true })}
+          labelName={labelName}
+          onLabelNameChange={(value) => setValue('labelName', value, { shouldValidate: true })}
         />
       </form>
     </AppModal>

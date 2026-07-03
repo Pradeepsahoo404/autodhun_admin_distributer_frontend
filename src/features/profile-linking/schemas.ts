@@ -2,21 +2,16 @@ import { z } from 'zod';
 import type { FieldErrors } from 'react-hook-form';
 import { toast } from 'sonner';
 import {
+  requiredCatalogLabelField,
+  requiredFacebookPageUrlField,
   requiredInstagramHandle,
   requiredIsrcField,
-  requiredTextField,
-  requiredUrlField,
 } from '@/lib/validation/fields';
 
-const facebookPageLinkField = requiredUrlField('Facebook page link').refine(
-  (url) => /facebook\.com|fb\.com/i.test(url),
-  'Enter a valid Facebook page link',
-);
-
 export const profileLinkingFormSchema = z.object({
-  labelName: requiredTextField('Label name'),
+  labelName: requiredCatalogLabelField('Label name'),
   isrcCode: requiredIsrcField(),
-  facebookPageLink: facebookPageLinkField,
+  facebookPageLink: requiredFacebookPageUrlField('Facebook page link'),
   instagramHandleName: requiredInstagramHandle(),
 });
 
