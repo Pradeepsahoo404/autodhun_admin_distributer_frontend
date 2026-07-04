@@ -40,7 +40,7 @@ export function CatalogLookupSelect({
   const options = useMemo(() => {
     const items = kind === 'artist' ? artistsQuery.data?.data : labelsQuery.data?.data;
     const names = (items ?? []).map((item) => item.name);
-    if (value && !names.includes(value)) {
+    if (kind === 'artist' && value && !names.includes(value)) {
       return [...names, value].sort((a, b) => a.localeCompare(b));
     }
     return names;

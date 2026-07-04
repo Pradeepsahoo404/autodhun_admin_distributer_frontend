@@ -2,11 +2,21 @@
 
 import { usePathname } from 'next/navigation';
 import { ModulePlaceholder } from '@/components/dashboard/ModulePlaceholder';
+import { LabelTransferPage } from '@/components/dashboard/label-transfer/LabelTransferPage';
+import { LabelBlockPage } from '@/components/dashboard/label-block/LabelBlockPage';
 import { MODULE_PAGES } from '@/config/modulePages';
 
 export function DynamicModulePage() {
   const pathname = usePathname();
   const config = MODULE_PAGES[pathname];
+
+  if (pathname === '/dashboard/assets/label-transfer') {
+    return <LabelTransferPage />;
+  }
+
+  if (pathname === '/dashboard/assets/label-block') {
+    return <LabelBlockPage />;
+  }
 
   if (!config) {
     return (

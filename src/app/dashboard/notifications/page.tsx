@@ -42,6 +42,7 @@ function getReleaseStatusLabel(status: string): string {
 
 function releaseStatusBadgeClass(status: string): string {
   if (status === 'in_review') return 'border-amber-500/30 bg-amber-500/10 text-amber-400';
+  if (status === 'takedown') return 'border-red-500/30 bg-red-500/10 text-red-400';
   if (status === 'correction') return 'border-orange-500/30 bg-orange-500/10 text-orange-400';
   if (status === 'qc_approval') return 'border-sky-500/30 bg-sky-500/10 text-sky-400';
   if (status === 'live') return 'border-brand-lime/30 bg-brand-lime/10 text-brand-lime';
@@ -66,6 +67,11 @@ function getNotificationSubject(item: Notification): string {
     if (status) return `Status · ${getReleaseStatusLabel(status)}`;
     return 'Release status updated';
   }
+  if (item.type === 'label_transferred') {
+    return item.entrySummary?.labelName
+      ? `Label · ${item.entrySummary.labelName}`
+      : 'Label transferred';
+  }
 
   if (item.type === 'rights_entry_created') return 'New entry submitted';
   if (item.type === 'issues_entry_assigned') return 'New assignment';
@@ -87,6 +93,7 @@ function getNotificationTypeLabel(type: Notification['type']): string {
   if (type === 'release_created') return 'New release';
   if (type === 'release_updated') return 'Release update';
   if (type === 'release_status_updated') return 'Status update';
+  if (type === 'label_transferred') return 'Label transfer';
   if (type === 'rights_entry_created') return 'New entry';
   if (type === 'rights_status_updated') return 'Status update';
   if (type === 'issues_entry_assigned') return 'Assigned';

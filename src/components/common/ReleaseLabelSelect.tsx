@@ -29,13 +29,7 @@ export function ReleaseLabelSelect({
 
   const options = useMemo(() => {
     const names = (data?.data ?? []).map((item) => item.name);
-    const uniqueNames = [...new Set(names)];
-
-    if (value && !uniqueNames.some((name) => name.toLowerCase() === value.toLowerCase())) {
-      uniqueNames.push(value);
-    }
-
-    uniqueNames.sort((a, b) => a.localeCompare(b));
+    const uniqueNames = [...new Set(names)].sort((a, b) => a.localeCompare(b));
 
     return [
       {
@@ -44,7 +38,7 @@ export function ReleaseLabelSelect({
       },
       ...uniqueNames.map((name) => ({ value: name, label: name })),
     ];
-  }, [data?.data, isLoading, value]);
+  }, [data?.data, isLoading, selectPlaceholder]);
 
   return (
     <div className="min-w-0 space-y-2">

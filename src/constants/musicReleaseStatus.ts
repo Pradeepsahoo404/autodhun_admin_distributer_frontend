@@ -1,5 +1,6 @@
 export const MUSIC_RELEASE_STATUS = {
   IN_REVIEW: 'in_review',
+  TAKEDOWN: 'takedown',
   CORRECTION: 'correction',
   QC_APPROVAL: 'qc_approval',
   LIVE: 'live',
@@ -19,6 +20,7 @@ export type MusicReleaseListContext =
 
 export const MUSIC_RELEASE_STATUS_LABELS: Record<MusicReleaseStatus, string> = {
   in_review: 'In Review',
+  takedown: 'Takedown',
   correction: 'Correction',
   qc_approval: 'QC Approval',
   live: 'Live',
@@ -42,6 +44,7 @@ export const MUSIC_RELEASE_STATUS_FILTER_OPTIONS = [
 export const CONTENT_DELIVERY_STATUS_FILTER_OPTIONS = [
   { value: 'all', label: 'All statuses' },
   { value: MUSIC_RELEASE_STATUS.IN_REVIEW, label: MUSIC_RELEASE_STATUS_LABELS.in_review },
+  { value: MUSIC_RELEASE_STATUS.TAKEDOWN, label: MUSIC_RELEASE_STATUS_LABELS.takedown },
   { value: MUSIC_RELEASE_STATUS.CORRECTION, label: MUSIC_RELEASE_STATUS_LABELS.correction },
 ] as const;
 
@@ -56,6 +59,7 @@ export const ASSETS_OVERVIEW_STATUS_FILTER_OPTIONS = [
 export const ASSETS_STATUS_FILTER_OPTIONS = [
   { value: 'all', label: 'All statuses' },
   { value: MUSIC_RELEASE_STATUS.IN_REVIEW, label: MUSIC_RELEASE_STATUS_LABELS.in_review },
+  { value: MUSIC_RELEASE_STATUS.TAKEDOWN, label: MUSIC_RELEASE_STATUS_LABELS.takedown },
   { value: MUSIC_RELEASE_STATUS.QC_APPROVAL, label: MUSIC_RELEASE_STATUS_LABELS.qc_approval },
   { value: MUSIC_RELEASE_STATUS.LIVE, label: MUSIC_RELEASE_STATUS_LABELS.live },
 ] as const;
@@ -63,6 +67,7 @@ export const ASSETS_STATUS_FILTER_OPTIONS = [
 /** Super Admin status dropdown on Content Delivery rows. */
 export const CONTENT_DELIVERY_STATUS_SELECT_OPTIONS = [
   { value: MUSIC_RELEASE_STATUS.IN_REVIEW, label: MUSIC_RELEASE_STATUS_LABELS.in_review },
+  { value: MUSIC_RELEASE_STATUS.TAKEDOWN, label: MUSIC_RELEASE_STATUS_LABELS.takedown },
   { value: MUSIC_RELEASE_STATUS.CORRECTION, label: MUSIC_RELEASE_STATUS_LABELS.correction },
   { value: MUSIC_RELEASE_STATUS.QC_APPROVAL, label: MUSIC_RELEASE_STATUS_LABELS.qc_approval },
   { value: MUSIC_RELEASE_STATUS.LIVE, label: MUSIC_RELEASE_STATUS_LABELS.live },

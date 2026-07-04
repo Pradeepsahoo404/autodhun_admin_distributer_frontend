@@ -27,6 +27,13 @@ export function canAdminEditRelease(release: MusicRelease, userId?: string): boo
   return Boolean(ownerId && ownerId === userId);
 }
 
+export function canAdminDeleteRelease(release: MusicRelease, userId?: string): boolean {
+  if (!userId) return false;
+  if (release.status !== MUSIC_RELEASE_STATUS.CORRECTION) return false;
+  const ownerId = release.createdBy?._id;
+  return Boolean(ownerId && ownerId === userId);
+}
+
 export function truncateReleaseTitle(title: string, maxLength = 22): string {
   const trimmed = title.trim();
   if (trimmed.length <= maxLength) return trimmed;

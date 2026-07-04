@@ -25,7 +25,7 @@ interface TableSelectFieldProps {
 }
 
 export function TableSelectField({
-  value,
+  value: valueProp,
   onChange,
   options,
   className,
@@ -35,6 +35,7 @@ export function TableSelectField({
   inModal = false,
   'aria-label': ariaLabel,
 }: TableSelectFieldProps) {
+  const value = valueProp ?? '';
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
   const selected = options.find((option) => option.value === value) ?? options[0];
@@ -79,7 +80,7 @@ export function TableSelectField({
           )}
         >
           <span className={cn('truncate text-[14px]', !value && 'text-neutral-500')}>
-            {selected?.label}
+            {selected?.label ?? options[0]?.label ?? 'Select...'}
           </span>
           <ChevronDown
             className={cn('h-4 w-4 shrink-0 text-neutral-500 transition-transform', open && 'rotate-180')}
@@ -105,11 +106,14 @@ export function TableSelectField({
               onChange={(e) => setQuery(e.target.value)}
               placeholder={searchPlaceholder}
               className="min-w-0 flex-1 bg-transparent py-1 text-[14px] text-white outline-none placeholder:text-neutral-600"
-              autoFocus
             />
           </div>
         ) : null}
-        <ul role="listbox" aria-label={ariaLabel} className={searchable ? 'max-h-48 overflow-y-auto' : undefined}>
+        <ul
+          role="listbox"
+          aria-label={ariaLabel}
+          className={searchable ? 'max-h-48 overflow-y-auto' : ''}
+        >
           {displayedOptions.length === 0 ? (
             <li className="px-4 py-2.5 text-[13px] text-neutral-500">No matches found</li>
           ) : (

@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import {
   useBulkUpdateMusicReleaseStatusMutation,
+  useDeleteMusicReleaseMutation,
   useExportMusicReleasesMutation,
   useGetMusicReleasesQuery,
   useUpdateMusicReleaseStatusMutation,
@@ -39,6 +40,8 @@ import { ReleaseBulkStatusBar } from '@/components/dashboard/music-releases/Rele
 import { ReleaseListTrackPlay } from '@/components/dashboard/music-releases/ReleaseListTrackPlay';
 import { ReleaseStatusBadge } from '@/components/dashboard/music-releases/ReleaseStatusBadge';
 import { ReleaseStatusSelect } from '@/components/dashboard/music-releases/ReleaseStatusSelect';
+import { CorrectionReasonDialog } from '@/components/dashboard/music-releases/CorrectionReasonDialog';
+import { DeleteReleaseDialog } from '@/components/dashboard/music-releases/DeleteReleaseDialog';
 import { ViewReleaseDialog } from '@/components/dashboard/music-releases/ViewReleaseDialog';
 import {
   dashboardTableBodyClass,
@@ -61,6 +64,7 @@ import { cn } from '@/lib/utils';
 import { resolveReleaseMediaUrl } from '@/features/create-release/mapReleaseToFormData';
 import {
   canAdminEditRelease,
+  canAdminDeleteRelease,
   formatReleaseIsrcDisplay,
   getPrimaryIsrcCode,
   truncateReleaseTitle,
@@ -175,6 +179,12 @@ export function MusicReleasesListPage({ context }: MusicReleasesListPageProps) {
   const [bulkStatus, setBulkStatus] = useState<MusicReleaseStatus>(() => getDefaultBulkStatus(context));
   const [isBulkApplying, setIsBulkApplying] = useState(false);
   const [viewRelease, setViewRelease] = useState<MusicRelease | null>(null);
+  const [correctionDialog, setCorrectionDialog] = useState<{
+    mode: 'single' | 'bulk';
+    release?: MusicRelease;
+  } | null>(null);
+  const [isCorrectionSubmitting, setIsCorrectionSubmitting] = useState(false);
+  const [deleteRelease, setDeleteRelease] = useState<MusicRelease | null>(null);
   const highlightId = useLegalEntryHighlight();
 
   useEffect(() => {
@@ -213,6 +223,7 @@ export function MusicReleasesListPage({ context }: MusicReleasesListPageProps) {
     refetchOnMountOrArgChange: true,
   });
   const [updateStatus] = useUpdateMusicReleaseStatusMutation();
+  const [deleteReleaseMutation, { isLoading: isDeleting }] = useDeleteMusicReleaseMutation();
   const [bulkUpdateStatus] = useBulkUpdateMusicReleaseStatusMutation();
   const [exportCsv, { isLoading: exporting }] = useExportMusicReleasesMutation();
 
@@ -237,20 +248,98 @@ export function MusicReleasesListPage({ context }: MusicReleasesListPageProps) {
 
   const showActionsColumn =
     config.showActions &&
-    filteredItems.some((item) => canAdminEditRelease(item, currentUser?.id));
+    filteredItems.some(
+      (item) =>
+        canAdminEditRelease(item, currentUser?.id) ||
+        canAdminDeleteRelease(item, currentUser?.id),
+    );
+
+  const showDeleteAction = context === MUSIC_RELEASE_LIST_CONTEXT.CORRECTION;
 
   const allPageSelected =
     filteredItems.length > 0 && filteredItems.every((item) => selectedIds.has(item._id));
 
-  const handleStatusChange = async (item: MusicRelease, status: MusicReleaseStatus) => {
+  const handleStatusChange = async (
+    item: MusicRelease,
+    status: MusicReleaseStatus,
+    correctionReasons?: string[],
+  ) => {
+    if (status === item.status && !correctionReasons) return;
+
+    if (
+      status === MUSIC_RELEASE_STATUS.CORRECTION &&
+      item.status !== MUSIC_RELEASE_STATUS.CORRECTION &&
+      !correctionReasons
+    ) {
+      setCorrectionDialog({ mode: 'single', release: item });
+      return;
+    }
+
     setStatusUpdatingId(item._id);
     try {
-      await updateStatus({ id: item._id, status }).unwrap();
+      await updateStatus({
+        id: item._id,
+        status,
+        ...(correctionReasons?.length ? { correctionReasons } : {}),
+      }).unwrap();
       toast.success('Release status updated');
     } catch (error) {
       toast.error(getApiErrorMessage(error));
     } finally {
       setStatusUpdatingId(null);
+    }
+  };
+
+  const handleBulkApply = async (correctionReasons?: string[]) => {
+    if (selectedIds.size === 0) return;
+
+    if (bulkStatus === MUSIC_RELEASE_STATUS.CORRECTION && !correctionReasons) {
+      setCorrectionDialog({ mode: 'bulk' });
+      return;
+    }
+
+    setIsBulkApplying(true);
+    try {
+      const result = await bulkUpdateStatus({
+        ids: Array.from(selectedIds),
+        status: bulkStatus,
+        ...(correctionReasons?.length ? { correctionReasons } : {}),
+      }).unwrap();
+      const updated = result.data?.updated ?? selectedIds.size;
+      toast.success(`${updated} release(s) updated`);
+      setSelectedIds(new Set());
+    } catch (error) {
+      toast.error(getApiErrorMessage(error));
+    } finally {
+      setIsBulkApplying(false);
+    }
+  };
+
+  const handleCorrectionConfirm = async (reasons: string[]) => {
+    if (!correctionDialog) return;
+
+    setIsCorrectionSubmitting(true);
+    try {
+      if (correctionDialog.mode === 'single' && correctionDialog.release) {
+        await handleStatusChange(correctionDialog.release, MUSIC_RELEASE_STATUS.CORRECTION, reasons);
+      } else {
+        await handleBulkApply(reasons);
+      }
+      setCorrectionDialog(null);
+    } finally {
+      setIsCorrectionSubmitting(false);
+    }
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!deleteRelease) return;
+
+    try {
+      await deleteReleaseMutation(deleteRelease._id).unwrap();
+      toast.success('Release deleted');
+      setDeleteRelease(null);
+    } catch (error) {
+      toast.error(getApiErrorMessage(error));
     }
   };
 
@@ -279,24 +368,6 @@ export function MusicReleasesListPage({ context }: MusicReleasesListPageProps) {
       else next.add(id);
       return next;
     });
-  };
-
-  const handleBulkApply = async () => {
-    if (selectedIds.size === 0) return;
-    setIsBulkApplying(true);
-    try {
-      const result = await bulkUpdateStatus({
-        ids: Array.from(selectedIds),
-        status: bulkStatus,
-      }).unwrap();
-      const updated = result.data?.updated ?? selectedIds.size;
-      toast.success(`${updated} release(s) updated`);
-      setSelectedIds(new Set());
-    } catch (error) {
-      toast.error(getApiErrorMessage(error));
-    } finally {
-      setIsBulkApplying(false);
-    }
   };
 
   const handleExport = async () => {
@@ -436,6 +507,7 @@ export function MusicReleasesListPage({ context }: MusicReleasesListPageProps) {
                       const primaryIsrc = getPrimaryIsrcCode(item);
                       const isrcDisplay = formatReleaseIsrcDisplay(item);
                       const canEdit = canAdminEditRelease(item, currentUser?.id);
+                      const canDelete = showDeleteAction && canAdminDeleteRelease(item, currentUser?.id);
                       const firstAudio = item.audioFiles[0];
                       const audioUrl = firstAudio ? resolveReleaseMediaUrl(firstAudio.url) : undefined;
                       const trackTitle = item.tracks[0]?.title || item.title;
@@ -521,13 +593,18 @@ export function MusicReleasesListPage({ context }: MusicReleasesListPageProps) {
                               <AdminBadge name={item.createdBy?.name} />
                             </td>
                           ) : null}
-                          {showActionsColumn && canEdit ? (
+                          {showActionsColumn && (canEdit || canDelete) ? (
                             <td className={dashboardTableCellActions}>
                               <TableRowActions
                                 canView={false}
-                                canDelete={false}
-                                canEdit
-                                onEdit={() => router.push(`/dashboard/release/edit/${item._id}`)}
+                                canEdit={canEdit}
+                                canDelete={canDelete}
+                                onEdit={
+                                  canEdit
+                                    ? () => router.push(`/dashboard/release/edit/${item._id}`)
+                                    : undefined
+                                }
+                                onDelete={canDelete ? () => setDeleteRelease(item) : undefined}
                               />
                             </td>
                           ) : null}
@@ -557,6 +634,23 @@ export function MusicReleasesListPage({ context }: MusicReleasesListPageProps) {
         preview={viewRelease}
         showSubmittedBy={config.showAdmin}
         onClose={() => setViewRelease(null)}
+      />
+
+      <CorrectionReasonDialog
+        open={Boolean(correctionDialog)}
+        releaseTitle={correctionDialog?.release?.title}
+        selectedCount={correctionDialog?.mode === 'bulk' ? selectedIds.size : 1}
+        isLoading={isCorrectionSubmitting || isBulkApplying}
+        onClose={() => setCorrectionDialog(null)}
+        onConfirm={handleCorrectionConfirm}
+      />
+
+      <DeleteReleaseDialog
+        open={Boolean(deleteRelease)}
+        release={deleteRelease}
+        loading={isDeleting}
+        onClose={() => setDeleteRelease(null)}
+        onConfirm={() => void handleDeleteConfirm()}
       />
     </div>
   );

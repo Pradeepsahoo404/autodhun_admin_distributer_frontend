@@ -23,6 +23,7 @@ import './issues/appealedClaimsApi';
 import './cronjobSettingsApi';
 import './musicReleaseApi';
 import './releaseCatalogApi';
+import './labelTransferApi';
 
 export { authApi } from './authApi';
 export {
@@ -235,6 +236,7 @@ export {
   useUpdateMusicReleaseMutation,
   useUpdateMusicReleaseStatusMutation,
   useBulkUpdateMusicReleaseStatusMutation,
+  useDeleteMusicReleaseMutation,
   useExportMusicReleasesMutation,
 } from './musicReleaseApi';
 
@@ -242,5 +244,16 @@ export {
   useGetReleaseArtistsQuery,
   useCreateReleaseArtistMutation,
   useGetReleaseLabelsQuery,
+  useGetManagedLabelsQuery,
   useCreateReleaseLabelMutation,
+  useUpdateReleaseLabelMutation,
+  useUpdateReleaseLabelStatusMutation,
+  useDeleteReleaseLabelMutation,
 } from './releaseCatalogApi';
+
+export {
+  useGetLabelTransferOverviewQuery,
+  useGetLabelTransferRecipientsQuery,
+  useTransferLabelMutation,
+} from './labelTransferApi';
+export type { LabelTransferOverviewAdmin } from './labelTransferApi';

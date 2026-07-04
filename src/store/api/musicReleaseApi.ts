@@ -43,24 +43,35 @@ export const musicReleaseApi = baseApi.injectEndpoints({
     }),
     updateMusicReleaseStatus: builder.mutation<
       ApiSuccess<MusicRelease>,
-      { id: string; status: MusicReleaseStatus }
+      { id: string; status: MusicReleaseStatus; correctionReasons?: string[] }
     >({
-      query: ({ id, status }) => ({
+      query: ({ id, status, correctionReasons }) => ({
         url: `/music-releases/${id}/status`,
         method: 'PATCH',
-        body: { status },
+        body: {
+          status,
+          ...(correctionReasons?.length ? { correctionReasons } : {}),
+        },
       }),
       invalidatesTags: ['MusicReleases'],
     }),
     bulkUpdateMusicReleaseStatus: builder.mutation<
       ApiSuccess<{ updated: number }>,
-      { ids: string[]; status: MusicReleaseStatus }
+      { ids: string[]; status: MusicReleaseStatus; correctionReasons?: string[] }
     >({
-      query: (body) => ({
+      query: ({ ids, status, correctionReasons }) => ({
         url: '/music-releases/bulk/status',
         method: 'PATCH',
-        body,
+        body: {
+          ids,
+          status,
+          ...(correctionReasons?.length ? { correctionReasons } : {}),
+        },
       }),
+      invalidatesTags: ['MusicReleases'],
+    }),
+    deleteMusicRelease: builder.mutation<ApiSuccess<null>, string>({
+      query: (id) => ({ url: `/music-releases/${id}`, method: 'DELETE' }),
       invalidatesTags: ['MusicReleases'],
     }),
     exportMusicReleases: builder.mutation<
@@ -85,5 +96,6 @@ export const {
   useUpdateMusicReleaseMutation,
   useUpdateMusicReleaseStatusMutation,
   useBulkUpdateMusicReleaseStatusMutation,
+  useDeleteMusicReleaseMutation,
   useExportMusicReleasesMutation,
 } = musicReleaseApi;

@@ -220,7 +220,8 @@ export interface MusicRelease {
   scheduledReleaseDate: string;
   scheduleNotes: string;
   releasePlatform: string;
-  status: 'in_review' | 'correction' | 'qc_approval' | 'live';
+  status: 'in_review' | 'takedown' | 'correction' | 'qc_approval' | 'live';
+  correctionReasons?: string[];
   createdBy?: { _id: string; name: string; email: string };
   updatedBy?: { _id: string; name: string; email: string };
   createdAt: string;
@@ -431,7 +432,8 @@ export type NotificationType =
   | 'issues_ownership_updated'
   | 'release_created'
   | 'release_updated'
-  | 'release_status_updated';
+  | 'release_status_updated'
+  | 'label_transferred';
 
 export interface Notification {
   _id: string;
