@@ -22,11 +22,11 @@ import {
   ReviewGrid,
 } from '@/components/dashboard/create-release/ReleaseReviewComponents';
 import {
-  ISRC_OPTIONS,
   PRICE_TIER_OPTIONS,
   RELEASE_PLATFORM_OPTIONS,
   RELEASE_TYPE_OPTIONS,
 } from '@/features/create-release/constants';
+import { formatReleaseIsrcExample } from '@/features/create-release/isrcUtils';
 import { formatDisplayDate, parseApiDate } from '@/lib/dateUtils';
 import { cn } from '@/lib/utils';
 import type { CreateReleaseFormData } from '@/features/create-release/types';
@@ -186,9 +186,8 @@ export function StepFinalReview() {
                 ? PRICE_TIER_OPTIONS.find((o) => o.value === track.price)?.label
                 : undefined;
               const isrc =
-                track?.isrcOption === 'own'
-                  ? track.isrc
-                  : ISRC_OPTIONS.find((o) => o.value === track?.isrcOption)?.label;
+                track?.isrc?.trim() ||
+                (track?.isrcOption === 'generate' ? formatReleaseIsrcExample() : track?.isrc);
               return (
                 <ReviewTrackPlayRow
                   key={`track-row-${i}`}
@@ -219,9 +218,8 @@ export function StepFinalReview() {
               if (!track.title && !track.artist && !track.genre) return null;
               const priceLabel = PRICE_TIER_OPTIONS.find((o) => o.value === track.price)?.label;
               const isrcLabel =
-                track.isrcOption === 'own'
-                  ? track.isrc
-                  : ISRC_OPTIONS.find((o) => o.value === track.isrcOption)?.label;
+                track.isrc?.trim() ||
+                (track.isrcOption === 'generate' ? formatReleaseIsrcExample() : track.isrc);
               return (
                 <div
                   key={`track-meta-${i}`}

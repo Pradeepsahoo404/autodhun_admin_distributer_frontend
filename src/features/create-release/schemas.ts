@@ -1,12 +1,15 @@
 import { z } from 'zod';
 import {
-  ISRC_MESSAGE,
-  ISRC_PATTERN,
   requiredNameField,
   requiredSelectField,
   optionalNameField,
   optionalTextField,
 } from '@/lib/validation/fields';
+import {
+  RELEASE_ISRC_MESSAGE,
+  RELEASE_ISRC_PATTERN,
+  isValidReleaseIsrc,
+} from '@/features/create-release/isrcUtils';
 import {
   isPastApiDate,
   isPastTimeForToday,
@@ -103,13 +106,22 @@ const trackItemSchema = z
         });
         return;
       }
-      if (!ISRC_PATTERN.test(track.isrc.trim())) {
+      if (!isValidReleaseIsrc(track.isrc.trim())) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
-          message: ISRC_MESSAGE,
+          message: RELEASE_ISRC_MESSAGE,
           path: ['isrc'],
         });
       }
+      return;
+    }
+
+    if (track.isrc?.trim() && !RELEASE_ISRC_PATTERN.test(track.isrc.trim().toUpperCase())) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: RELEASE_ISRC_MESSAGE,
+        path: ['isrc'],
+      });
     }
   });
 

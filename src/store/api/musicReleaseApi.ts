@@ -27,6 +27,12 @@ export const musicReleaseApi = baseApi.injectEndpoints({
       query: (id) => `/music-releases/${id}`,
       providesTags: (_r, _e, id) => [{ type: 'MusicReleases', id }],
     }),
+    getNextReleaseIsrcPreview: builder.query<ApiSuccess<string[]>, { count?: number } | void>({
+      query: (params) => ({
+        url: '/music-releases/isrc/next',
+        params: params?.count ? { count: params.count } : {},
+      }),
+    }),
     createMusicRelease: builder.mutation<ApiSuccess<MusicRelease>, FormData>({
       query: (body) => ({ url: '/music-releases', method: 'POST', body }),
       invalidatesTags: ['MusicReleases'],
@@ -74,6 +80,7 @@ export const musicReleaseApi = baseApi.injectEndpoints({
 export const {
   useGetMusicReleasesQuery,
   useGetMusicReleaseByIdQuery,
+  useGetNextReleaseIsrcPreviewQuery,
   useCreateMusicReleaseMutation,
   useUpdateMusicReleaseMutation,
   useUpdateMusicReleaseStatusMutation,

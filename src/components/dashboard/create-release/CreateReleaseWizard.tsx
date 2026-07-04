@@ -17,6 +17,7 @@ import { StepTrackDetails } from '@/components/dashboard/create-release/steps/St
 import { StepCrbt } from '@/components/dashboard/create-release/steps/StepCrbt';
 import { StepScheduleRelease } from '@/components/dashboard/create-release/steps/StepScheduleRelease';
 import { StepFinalReview } from '@/components/dashboard/create-release/steps/StepFinalReview';
+import { ReleaseWizardProvider } from '@/components/dashboard/create-release/ReleaseWizardContext';
 import { ReleaseSubmitSuccess } from '@/components/dashboard/create-release/ReleaseSubmitSuccess';
 import { RELEASE_WIZARD_STEPS } from '@/features/create-release/constants';
 import {
@@ -178,6 +179,7 @@ export function CreateReleaseWizard({
   const pageTitle = isEdit ? 'Edit Release' : 'Create New Release';
 
   return (
+    <ReleaseWizardProvider isEdit={isEdit}>
     <FormProvider {...methods}>
       <div className={`${DASHBOARD_PAGE} w-full`}>
         <div className="mb-6 flex items-center gap-4">
@@ -240,6 +242,7 @@ export function CreateReleaseWizard({
         )}
       </div>
     </FormProvider>
+    </ReleaseWizardProvider>
   );
 }
 

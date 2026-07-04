@@ -69,6 +69,6 @@ export function formatStatusDetail(status: MusicRelease['status']): string {
 
 export function formatIsrcDetail(track?: MusicReleaseTrack): string {
   if (!track) return '—';
-  if (track.isrcOption === 'own' && track.isrc?.trim()) return track.isrc.trim();
-  return 'Generated';
+  if (track.isrc?.trim()) return track.isrc.trim().toUpperCase();
+  return '—';
 }

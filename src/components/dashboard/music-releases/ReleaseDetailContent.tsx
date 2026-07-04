@@ -128,11 +128,11 @@ export function ReleaseDetailContent({ release, showSubmittedBy = false }: Relea
             )}
           </div>
 
-          <div className="min-w-0 flex-1 text-center sm:text-left">
+          <div className="min-w-0 flex-1 text-left">
             <h3 className="text-[26px] font-bold leading-tight text-white sm:text-[30px]">{release.title}</h3>
             <p className="mt-1 text-[15px] text-neutral-400">{release.artist}</p>
 
-            <div className="mt-3 flex flex-col items-center gap-1 sm:items-start">
+            <div className="mt-3 flex w-full flex-col items-start gap-1 text-left">
               {isPlaying ? <ReleaseDetailPlayingIndicator /> : null}
               <p className="truncate text-[13px] font-medium text-white">{trackTitle}</p>
               {primaryAudio?.fileName ? (
@@ -140,7 +140,7 @@ export function ReleaseDetailContent({ release, showSubmittedBy = false }: Relea
               ) : null}
             </div>
 
-            <div className="mt-4 flex flex-wrap items-center justify-center gap-3 sm:justify-start">
+            <div className="mt-4 flex flex-wrap items-center justify-start gap-3">
               <ReleaseStatusBadge status={release.status} />
               <ReleaseDetailRow label="Instrumental" value={formatYesNoDetail(release.instrumental)} inline />
               <ReleaseDetailRow label="Explicit" value={formatYesNoDetail(release.explicit)} inline />
@@ -148,7 +148,7 @@ export function ReleaseDetailContent({ release, showSubmittedBy = false }: Relea
             </div>
 
             {showSubmittedBy ? (
-              <div className="mt-4 flex items-center justify-center gap-3 sm:justify-start">
+              <div className="mt-4 flex items-center justify-start gap-3">
                 <span className="text-[13px] text-neutral-500">Submitted By</span>
                 <AdminBadge name={release.createdBy?.name} />
               </div>

@@ -5,7 +5,7 @@ export function formatReleaseIsrcDisplay(release: MusicRelease): string {
   if (!release.tracks?.length) return '—';
 
   const labels = release.tracks.map((track) =>
-    track.isrcOption === 'own' && track.isrc?.trim() ? track.isrc.trim() : 'Generated',
+    track.isrc?.trim() ? track.isrc.trim().toUpperCase() : '—',
   );
 
   if (labels.length === 1) return labels[0];
@@ -13,8 +13,8 @@ export function formatReleaseIsrcDisplay(release: MusicRelease): string {
 }
 
 export function getPrimaryIsrcCode(release: MusicRelease): string | null {
-  const own = release.tracks.find((t) => t.isrcOption === 'own' && t.isrc?.trim());
-  return own?.isrc?.trim() ?? null;
+  const track = release.tracks.find((t) => t.isrc?.trim());
+  return track?.isrc?.trim().toUpperCase() ?? null;
 }
 
 export function canAdminEditRelease(release: MusicRelease, userId?: string): boolean {

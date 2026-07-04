@@ -230,6 +230,7 @@ export {
 export {
   useGetMusicReleasesQuery,
   useGetMusicReleaseByIdQuery,
+  useGetNextReleaseIsrcPreviewQuery,
   useCreateMusicReleaseMutation,
   useUpdateMusicReleaseMutation,
   useUpdateMusicReleaseStatusMutation,

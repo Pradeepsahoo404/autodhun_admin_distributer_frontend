@@ -9,8 +9,8 @@ interface ClaimReleaseLabelFieldsProps {
   onSenderLabelChange: (value: string) => void;
   onReceiverLabelChange: (value: string) => void;
   errors: FieldErrors<{
-    senderLabelName?: { message?: string };
-    receiverLabelName?: { message?: string };
+    senderLabelName: string;
+    receiverLabelName: string;
   }>;
 }
 
