@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { FormProvider, useForm } from 'react-hook-form';
 import { ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
-import { useCreateMusicReleaseMutation, useUpdateMusicReleaseMutation } from '@/store/api';
+import { useCreateMusicReleaseMutation, useLazyCheckReleaseIsrcQuery, useUpdateMusicReleaseMutation } from '@/store/api';
 import { getApiErrorMessage } from '@/services/apiClient';
 import { buildReleaseSubmitFormData } from '@/features/create-release/buildReleaseSubmitFormData';
 import { Card, CardContent } from '@/components/ui/card';
@@ -26,6 +26,7 @@ import {
   releaseInformationEditSchema,
   releaseInformationSchema,
   scheduleReleaseSchema,
+  STEP_ERROR_PATHS,
   trackDetailsSchema,
   uploadTracksEditSchema,
   uploadTracksSchema,
@@ -96,6 +97,7 @@ export function CreateReleaseWizard({
   const { getValues, setError, clearErrors } = methods;
   const [createMusicRelease] = useCreateMusicReleaseMutation();
   const [updateMusicRelease] = useUpdateMusicReleaseMutation();
+  const [checkReleaseIsrc] = useLazyCheckReleaseIsrcQuery();
   const stepSchemas = getStepSchemas(isEdit);
   const StepComponent = STEP_COMPONENTS[currentStep - 1];
   const stepMeta = RELEASE_WIZARD_STEPS[currentStep - 1];
@@ -106,12 +108,12 @@ export function CreateReleaseWizard({
     const payload = getStepPayload(step, values, isEdit);
     const result = schema.safeParse(payload);
 
-    clearErrors();
+    (STEP_ERROR_PATHS[step] ?? []).forEach((path) => clearErrors(path as never));
 
     if (!result.success) {
       result.error.issues.forEach((issue) => {
-        const path = issue.path.join('.') as keyof CreateReleaseFormData | string;
-        setError(path as never, { message: issue.message });
+        const path = issue.path.join('.') as never;
+        setError(path, { message: issue.message });
       });
       toast.error('Please fix the highlighted fields before continuing');
       return false;
@@ -131,10 +133,19 @@ export function CreateReleaseWizard({
     while (newTracks.length < uploadedCount) {
       newTracks.push({
         ...defaultTrackDetails(),
+        title: values.title,
         artist: values.artist,
       });
     }
-    methods.setValue('tracks', newTracks);
+
+    methods.setValue(
+      'tracks',
+      newTracks.map((track) => ({
+        ...track,
+        title: track.title.trim() || values.title,
+        artist: track.artist.trim() || values.artist,
+      })),
+    );
   };
 
   const goToStep = (step: number) => {
@@ -143,8 +154,56 @@ export function CreateReleaseWizard({
     scrollMainToTop();
   };
 
-  const handleNext = () => {
+  const validateOwnIsrcAvailability = async (): Promise<boolean> => {
+    const tracks = getValues().tracks;
+    const seenInForm = new Set<string>();
+    let hasError = false;
+
+    for (let index = 0; index < tracks.length; index += 1) {
+      const track = tracks[index];
+      if (track.isrcOption !== 'own') continue;
+
+      const code = track.isrc?.trim();
+      if (!code) continue;
+
+      const normalized = code.toUpperCase();
+      if (seenInForm.has(normalized)) {
+        setError(`tracks.${index}.isrc`, { message: 'This ISRC is already used on another track' });
+        hasError = true;
+        continue;
+      }
+      seenInForm.add(normalized);
+
+      try {
+        const result = await checkReleaseIsrc({
+          code,
+          excludeReleaseId: releaseId,
+        }).unwrap();
+
+        if (!result.data.available) {
+          setError(`tracks.${index}.isrc`, { message: 'This ISRC is already taken' });
+          hasError = true;
+        }
+      } catch {
+        toast.error('Could not verify ISRC availability');
+        return false;
+      }
+    }
+
+    if (hasError) {
+      toast.error('Please fix the highlighted fields before continuing');
+      return false;
+    }
+
+    return true;
+  };
+
+  const handleNext = async () => {
     if (!validateStep(currentStep)) return;
+    if (currentStep === 3) {
+      const isrcOk = await validateOwnIsrcAvailability();
+      if (!isrcOk) return;
+    }
     if (currentStep === 2) syncTracksWithAudio();
     setCurrentStep((s) => Math.min(s + 1, RELEASE_WIZARD_STEPS.length));
     scrollMainToTop();
@@ -157,6 +216,7 @@ export function CreateReleaseWizard({
 
   const handleSubmit = async () => {
     if (!validateStep(currentStep)) return;
+    if (!(await validateOwnIsrcAvailability())) return;
 
     setIsSubmitting(true);
     try {
@@ -179,7 +239,7 @@ export function CreateReleaseWizard({
   const pageTitle = isEdit ? 'Edit Release' : 'Create New Release';
 
   return (
-    <ReleaseWizardProvider isEdit={isEdit}>
+    <ReleaseWizardProvider isEdit={isEdit} releaseId={releaseId}>
     <FormProvider {...methods}>
       <div className={`${DASHBOARD_PAGE} w-full`}>
         <div className="mb-6 flex items-center gap-4">
@@ -287,7 +347,6 @@ function getStepPayload(step: number, values: CreateReleaseFormData, isEdit: boo
       return { tracks: values.tracks };
     case 4:
       return {
-        releasingDate: values.releasingDate,
         crbtEntries: values.crbtEntries,
       };
     case 5:

@@ -2,6 +2,19 @@ import { baseApi } from './baseApi';
 import type { ApiSuccess, MusicRelease, PaginatedMeta } from '@/types';
 import type { MusicReleaseListContext, MusicReleaseStatus } from '@/constants/musicReleaseStatus';
 
+export interface BulkImportRowError {
+  row: number;
+  field: string;
+  message: string;
+}
+
+export interface BulkImportResult {
+  totalRows: number;
+  created: number;
+  failed: number;
+  errors: BulkImportRowError[];
+}
+
 const injectOptions = { overrideExisting: process.env.NODE_ENV === 'development' } as const;
 
 export const musicReleaseApi = baseApi.injectEndpoints({
@@ -31,6 +44,18 @@ export const musicReleaseApi = baseApi.injectEndpoints({
       query: (params) => ({
         url: '/music-releases/isrc/next',
         params: params?.count ? { count: params.count } : {},
+      }),
+    }),
+    checkReleaseIsrc: builder.query<
+      ApiSuccess<{ available: boolean }>,
+      { code: string; excludeReleaseId?: string }
+    >({
+      query: ({ code, excludeReleaseId }) => ({
+        url: '/music-releases/isrc/check',
+        params: {
+          code,
+          ...(excludeReleaseId ? { excludeReleaseId } : {}),
+        },
       }),
     }),
     createMusicRelease: builder.mutation<ApiSuccess<MusicRelease>, FormData>({
@@ -84,6 +109,16 @@ export const musicReleaseApi = baseApi.injectEndpoints({
         responseHandler: (response) => response.blob(),
       }),
     }),
+    downloadBulkImportTemplate: builder.mutation<Blob, void>({
+      query: () => ({
+        url: '/music-releases/bulk-import/template',
+        responseHandler: (response) => response.blob(),
+      }),
+    }),
+    bulkImportReleases: builder.mutation<ApiSuccess<BulkImportResult>, FormData>({
+      query: (body) => ({ url: '/music-releases/bulk-import', method: 'POST', body }),
+      invalidatesTags: ['MusicReleases'],
+    }),
   }),
   ...injectOptions,
 });
@@ -92,10 +127,13 @@ export const {
   useGetMusicReleasesQuery,
   useGetMusicReleaseByIdQuery,
   useGetNextReleaseIsrcPreviewQuery,
+  useLazyCheckReleaseIsrcQuery,
   useCreateMusicReleaseMutation,
   useUpdateMusicReleaseMutation,
   useUpdateMusicReleaseStatusMutation,
   useBulkUpdateMusicReleaseStatusMutation,
   useDeleteMusicReleaseMutation,
   useExportMusicReleasesMutation,
+  useDownloadBulkImportTemplateMutation,
+  useBulkImportReleasesMutation,
 } = musicReleaseApi;

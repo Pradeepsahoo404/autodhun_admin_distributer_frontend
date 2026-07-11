@@ -1,7 +1,7 @@
 'use client';
 
 import { cn } from '@/lib/utils';
-import { DashboardCard, IssuesAnalytics, RightsManagerAnalytics } from '@/types';
+import { DashboardCard, IssuesAnalytics, ReleaseAnalyticsBundle, RightsManagerAnalytics } from '@/types';
 import { DashboardCardItem } from './DashboardCardItem';
 import { getCardLayout, SLOT_GRID_CLASS, SLOT_MIN_HEIGHT, sortDashboardCards } from '@/constants/dashboardCards';
 
@@ -11,6 +11,7 @@ interface DashboardCardGridProps {
   earnings: number;
   rightsManagerAnalytics?: RightsManagerAnalytics | null;
   issuesAnalytics?: IssuesAnalytics | null;
+  releaseAnalytics?: ReleaseAnalyticsBundle | null;
 }
 
 /**
@@ -23,6 +24,7 @@ export function DashboardCardGrid({
   earnings,
   rightsManagerAnalytics,
   issuesAnalytics,
+  releaseAnalytics,
 }: DashboardCardGridProps) {
   const sorted = sortDashboardCards(cards);
 
@@ -51,6 +53,7 @@ export function DashboardCardGrid({
               slot={slot}
               rightsManagerAnalytics={rightsManagerAnalytics}
               issuesAnalytics={issuesAnalytics}
+              releaseAnalytics={releaseAnalytics}
             />
           </div>
         );

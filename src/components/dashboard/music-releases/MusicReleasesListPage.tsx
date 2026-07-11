@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
-import { Plus } from 'lucide-react';
+import { Plus, Upload } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import {
@@ -41,6 +41,7 @@ import { ReleaseListTrackPlay } from '@/components/dashboard/music-releases/Rele
 import { ReleaseStatusBadge } from '@/components/dashboard/music-releases/ReleaseStatusBadge';
 import { ReleaseStatusSelect } from '@/components/dashboard/music-releases/ReleaseStatusSelect';
 import { CorrectionReasonDialog } from '@/components/dashboard/music-releases/CorrectionReasonDialog';
+import { BulkImportDialog } from '@/components/dashboard/music-releases/BulkImportDialog';
 import { DeleteReleaseDialog } from '@/components/dashboard/music-releases/DeleteReleaseDialog';
 import { ViewReleaseDialog } from '@/components/dashboard/music-releases/ViewReleaseDialog';
 import {
@@ -176,6 +177,7 @@ export function MusicReleasesListPage({ context }: MusicReleasesListPageProps) {
   const [dateTo, setDateTo] = useState('');
   const [statusUpdatingId, setStatusUpdatingId] = useState<string | null>(null);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [importOpen, setImportOpen] = useState(false);
   const [bulkStatus, setBulkStatus] = useState<MusicReleaseStatus>(() => getDefaultBulkStatus(context));
   const [isBulkApplying, setIsBulkApplying] = useState(false);
   const [viewRelease, setViewRelease] = useState<MusicRelease | null>(null);
@@ -409,18 +411,33 @@ export function MusicReleasesListPage({ context }: MusicReleasesListPageProps) {
         description={config.description}
         action={
           context === MUSIC_RELEASE_LIST_CONTEXT.ASSETS ? (
-            <Button
-              asChild
-              className="rounded-xl bg-brand-lime text-black hover:bg-brand-lime-dark"
-            >
-              <Link href="/dashboard/release/create">
-                <Plus className="mr-2 h-4 w-4" />
-                Create Release
-              </Link>
-            </Button>
+            <div className="flex flex-wrap items-center gap-3">
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={() => setImportOpen(true)}
+                className="rounded-xl border border-[#2a2a2a] text-neutral-200 hover:text-white"
+              >
+                <Upload className="mr-2 h-4 w-4" />
+                Import Release
+              </Button>
+              <Button
+                asChild
+                className="rounded-xl bg-brand-lime text-black hover:bg-brand-lime-dark"
+              >
+                <Link href="/dashboard/release/create">
+                  <Plus className="mr-2 h-4 w-4" />
+                  Create Release
+                </Link>
+              </Button>
+            </div>
           ) : undefined
         }
       />
+
+      {context === MUSIC_RELEASE_LIST_CONTEXT.ASSETS ? (
+        <BulkImportDialog open={importOpen} onClose={() => setImportOpen(false)} />
+      ) : null}
 
       <Card className={legalModuleCardClass}>
         <CardHeader className={legalModuleCardHeaderClass}>

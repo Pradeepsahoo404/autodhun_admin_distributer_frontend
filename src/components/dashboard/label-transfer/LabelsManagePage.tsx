@@ -33,6 +33,8 @@ interface LabelsManagePageProps {
   tableIcon?: 'tag' | 'ban';
   emptyMessage: string;
   showTransfer?: boolean;
+  /** When true, omit outer page wrapper (used inside LabelTransferPage). */
+  embedded?: boolean;
 }
 
 export function LabelsManagePage({
@@ -44,6 +46,7 @@ export function LabelsManagePage({
   tableIcon = 'tag',
   emptyMessage,
   showTransfer = false,
+  embedded = false,
 }: LabelsManagePageProps) {
   const { canCreate, canUpdate, canDelete } = usePermission(permissionModule);
   const isActiveList = status === 'active';
@@ -122,7 +125,7 @@ export function LabelsManagePage({
   };
 
   return (
-    <div className={DASHBOARD_PAGE}>
+    <div className={embedded ? undefined : DASHBOARD_PAGE}>
       <DashboardPageHeader
         title={title}
         description={description}

@@ -159,6 +159,24 @@ export interface IssuesAnalytics {
   dailyTrend30: number[];
 }
 
+export interface ReleaseStatusCount {
+  status: string;
+  label: string;
+  count: number;
+}
+
+export interface ReleaseAnalytics {
+  variant: 'admin' | 'content-delivery';
+  scopeLabel: string;
+  total: number;
+  counts: ReleaseStatusCount[];
+}
+
+export interface ReleaseAnalyticsBundle {
+  admin: ReleaseAnalytics | null;
+  contentDelivery: ReleaseAnalytics | null;
+}
+
 export interface DashboardData {
   earnings: number;
   currency: string;
@@ -168,6 +186,7 @@ export interface DashboardData {
   permissions: Record<string, { canView: boolean; canCreate: boolean; canUpdate: boolean; canDelete: boolean }>;
   rightsManagerAnalytics: RightsManagerAnalytics | null;
   issuesAnalytics: IssuesAnalytics | null;
+  releaseAnalytics: ReleaseAnalyticsBundle;
 }
 
 export interface PaginatedMeta {
@@ -315,6 +334,31 @@ export interface YoutubeClaimRelease {
   updatedAt: string;
 }
 
+export interface Channel {
+  _id: string;
+  channelName: string;
+  channelLink: string;
+  status: LegalModuleStatus;
+  createdBy?: { _id: string; name: string; email: string };
+  updatedBy?: { _id: string; name: string; email: string };
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ChannelLinking {
+  _id: string;
+  channelLink: string;
+  channelName: string;
+  totalRevenue90Days: number;
+  totalViews90Days: number;
+  status: 'in_process' | 'approved' | 'rejected';
+  autoRejectAt?: string | null;
+  createdBy?: { _id: string; name: string; email: string };
+  updatedBy?: { _id: string; name: string; email: string };
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface FacebookClaimRelease {
   _id: string;
   senderLabelName: string;
@@ -433,7 +477,9 @@ export type NotificationType =
   | 'release_created'
   | 'release_updated'
   | 'release_status_updated'
-  | 'label_transferred';
+  | 'label_transferred'
+  | 'channel_entry_created'
+  | 'channel_status_updated';
 
 export interface Notification {
   _id: string;

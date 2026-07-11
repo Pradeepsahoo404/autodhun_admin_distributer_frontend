@@ -13,11 +13,16 @@ interface AudioFileUploadProps {
   error?: string;
 }
 
-const AUDIO_ACCEPT = 'audio/*,.wav,.mp3,.flac,.aac,.m4a';
+const AUDIO_ACCEPT = 'audio/wav,.wav';
 const EMPTY_SLOT: UploadedAudio = { file: null, fileName: '' };
 
-function isValidAudioFile(file: File): boolean {
-  return file.type.startsWith('audio/') || /\.(wav|mp3|flac|aac|m4a)$/i.test(file.name);
+function isValidWavFile(file: File): boolean {
+  const isWavMime =
+    file.type === 'audio/wav' ||
+    file.type === 'audio/x-wav' ||
+    file.type === 'audio/wave' ||
+    file.type === '';
+  return isWavMime && /\.wav$/i.test(file.name);
 }
 
 function normalizeFiles(files: UploadedAudio[]): UploadedAudio[] {
@@ -43,9 +48,9 @@ export function AudioFileUpload({ files, onChange, error }: AudioFileUploadProps
   };
 
   const applyFiles = (incoming: File[], mode: 'add' | 'replace', index?: number) => {
-    const valid = incoming.filter(isValidAudioFile);
+    const valid = incoming.filter(isValidWavFile);
     if (valid.length === 0) {
-      toast.error('Please upload valid audio files (MP3, WAV, FLAC, AAC)');
+      toast.error('Only WAV audio files are allowed');
       return;
     }
 
@@ -112,48 +117,46 @@ export function AudioFileUpload({ files, onChange, error }: AudioFileUploadProps
             <Upload className="h-6 w-6 text-neutral-500" />
           </div>
           <p className="text-[15px] font-semibold text-white">Upload Audio File</p>
-          <p className="mt-1 text-[12px] text-neutral-500">Click here or drag and drop an audio file</p>
+          <p className="mt-1 text-[12px] text-neutral-500">WAV format only — click or drag and drop</p>
         </div>
       ) : (
-        <>
-          <ul className="space-y-2">
-            {uploaded.map((entry, index) => (
-              <li
-                key={`${entry.fileName}-${index}`}
-                className="flex items-center gap-3 rounded-xl border border-[#222] bg-[#0d0d0d] px-4 py-3"
-              >
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-brand-lime/10 ring-1 ring-brand-lime/20">
-                  <FileAudio className="h-5 w-5 text-brand-lime" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="text-[11px] font-medium uppercase tracking-wide text-neutral-500">
-                    Track {index + 1}
-                  </p>
-                  <p className="truncate text-[14px] font-medium text-white">
-                    {entry.fileName || entry.file?.name}
-                  </p>
-                </div>
-                <div className="flex shrink-0 items-center gap-1">
-                  <button
-                    type="button"
-                    onClick={() => openPicker('replace', index)}
-                    className="rounded-lg px-3 py-1.5 text-[12px] font-medium text-neutral-400 transition-colors hover:bg-[#1a1a1a] hover:text-white"
-                  >
-                    Replace
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => removeFile(index)}
-                    className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-neutral-500 transition-colors hover:bg-red-500/10 hover:text-red-400"
-                    aria-label={`Remove track ${index + 1}`}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </button>
-                </div>
-              </li>
-            ))}
-          </ul>
-        </>
+        <ul className="space-y-2">
+          {uploaded.map((entry, index) => (
+            <li
+              key={`${entry.fileName}-${index}`}
+              className="flex items-center gap-3 rounded-xl border border-[#222] bg-[#0d0d0d] px-4 py-3"
+            >
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-brand-lime/10 ring-1 ring-brand-lime/20">
+                <FileAudio className="h-5 w-5 text-brand-lime" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="text-[11px] font-medium uppercase tracking-wide text-neutral-500">
+                  Track {index + 1}
+                </p>
+                <p className="truncate text-[14px] font-medium text-white">
+                  {entry.fileName || entry.file?.name}
+                </p>
+              </div>
+              <div className="flex shrink-0 items-center gap-1">
+                <button
+                  type="button"
+                  onClick={() => openPicker('replace', index)}
+                  className="rounded-lg px-3 py-1.5 text-[12px] font-medium text-neutral-400 transition-colors hover:bg-[#1a1a1a] hover:text-white"
+                >
+                  Replace
+                </button>
+                <button
+                  type="button"
+                  onClick={() => removeFile(index)}
+                  className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-neutral-500 transition-colors hover:bg-red-500/10 hover:text-red-400"
+                  aria-label={`Remove track ${index + 1}`}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </button>
+              </div>
+            </li>
+          ))}
+        </ul>
       )}
 
       <input

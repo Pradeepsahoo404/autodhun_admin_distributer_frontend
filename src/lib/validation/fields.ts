@@ -115,6 +115,19 @@ export function requiredSelectField(message: string) {
   return z.string().trim().min(1, message);
 }
 
+export const CHANNEL_NAME_PATTERN = /^[\p{L}\p{N}][\p{L}\p{N}\s.,'"&()_@#:!|/-]*$/u;
+export const CHANNEL_NAME_MESSAGE =
+  "Channel name must start with a letter or number and can only contain letters, numbers, spaces and . , ' \" & ( ) _ @ # : ! | / -";
+
+export function requiredChannelNameField(max = 100) {
+  return z
+    .string()
+    .trim()
+    .min(2, 'Channel name must be at least 2 characters')
+    .max(max, `Channel name must be at most ${max} characters`)
+    .regex(CHANNEL_NAME_PATTERN, CHANNEL_NAME_MESSAGE);
+}
+
 export const YOUTUBE_URL_MESSAGE = 'Enter a valid YouTube link';
 export const FACEBOOK_PAGE_URL_MESSAGE = 'Enter a valid Facebook page link';
 

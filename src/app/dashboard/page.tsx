@@ -15,6 +15,7 @@ export default function DashboardPage() {
   const quickActions = dashboard?.quickActions ?? [];
   const rightsManagerAnalytics = dashboard?.rightsManagerAnalytics ?? null;
   const issuesAnalytics = dashboard?.issuesAnalytics ?? null;
+  const releaseAnalytics = dashboard?.releaseAnalytics ?? null;
 
   return (
     <div className={DASHBOARD_PAGE}>
@@ -36,6 +37,7 @@ export default function DashboardPage() {
               earnings={earnings}
               rightsManagerAnalytics={rightsManagerAnalytics}
               issuesAnalytics={issuesAnalytics}
+              releaseAnalytics={releaseAnalytics}
             />
           ) : (
             <p className="rounded-2xl border border-[#222222] bg-[#111111] p-8 text-center text-sm text-neutral-500">

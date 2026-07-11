@@ -2,21 +2,17 @@ import { z } from 'zod';
 import {
   requiredNameField,
   requiredSelectField,
+  requiredCatalogLabelField,
   optionalNameField,
   optionalTextField,
 } from '@/lib/validation/fields';
 import {
-  RELEASE_ISRC_MESSAGE,
-  RELEASE_ISRC_PATTERN,
-  isValidReleaseIsrc,
-} from '@/features/create-release/isrcUtils';
-import {
   isPastApiDate,
-  isPastTimeForToday,
+  isTodayOrPastApiDate,
   isValidApiDate,
+  isValidCrbtStartTime,
   minScheduledReleaseDate,
-  parseTimeToMinutes,
-  todayApiDate,
+  tomorrowApiDate,
 } from '@/lib/releaseDateTime';
 
 const yesNoSchema = z.enum(['yes', 'no']);
@@ -88,38 +84,19 @@ const trackItemSchema = z
     lyrics: z.string().trim().max(5000).optional().or(z.literal('')),
     isrcOption: isrcOptionSchema,
     isrc: z.string().trim().max(20).optional().or(z.literal('')),
-    composer: optionalNameField('Composer', 120),
-    producer: optionalNameField('Producer', 120),
-    director: optionalNameField('Director', 120),
-    language: optionalNameField('Language', 80),
-    genre: optionalNameField('Genre', 80),
-    subGenre: optionalNameField('Sub genre', 80),
+    composer: requiredNameField('Composer', 120),
+    producer: requiredNameField('Producer', 120),
+    director: requiredNameField('Director', 120),
+    language: requiredCatalogLabelField('Language', 120),
+    genre: requiredCatalogLabelField('Genre', 120),
+    subGenre: requiredCatalogLabelField('Sub genre', 120),
     price: priceTierSchema,
   })
   .superRefine((track, ctx) => {
-    if (track.isrcOption === 'own') {
-      if (!track.isrc?.trim()) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: 'ISRC is required when using your own',
-          path: ['isrc'],
-        });
-        return;
-      }
-      if (!isValidReleaseIsrc(track.isrc.trim())) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: RELEASE_ISRC_MESSAGE,
-          path: ['isrc'],
-        });
-      }
-      return;
-    }
-
-    if (track.isrc?.trim() && !RELEASE_ISRC_PATTERN.test(track.isrc.trim().toUpperCase())) {
+    if (track.isrcOption === 'own' && !track.isrc?.trim()) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: RELEASE_ISRC_MESSAGE,
+        message: 'ISRC is required when using your own',
         path: ['isrc'],
       });
     }
@@ -135,27 +112,12 @@ const crbtEntrySchema = z.object({
     .string()
     .trim()
     .min(1, 'Start time is required')
-    .refine((value) => parseTimeToMinutes(value) !== null, 'Start time must be valid (HH:mm)'),
+    .refine((value) => isValidCrbtStartTime(value), 'Start time must be valid (HH:MM:SS, e.g. 00:00:00)'),
 });
 
-export const crbtSchema = z
-  .object({
-    releasingDate: z.string().optional(),
-    crbtEntries: z.array(crbtEntrySchema).min(1),
-  })
-  .superRefine((data, ctx) => {
-    if (data.releasingDate === todayApiDate()) {
-      data.crbtEntries.forEach((entry, index) => {
-        if (isPastTimeForToday(entry.startTime)) {
-          ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            message: 'Start time cannot be in the past when releasing today',
-            path: ['crbtEntries', index, 'startTime'],
-          });
-        }
-      });
-    }
-  });
+export const crbtSchema = z.object({
+  crbtEntries: z.array(crbtEntrySchema).length(1),
+});
 
 export const scheduleReleaseSchema = z
   .object({
@@ -163,23 +125,25 @@ export const scheduleReleaseSchema = z
     scheduledReleaseDate: apiDateField('Scheduled release date'),
   })
   .superRefine((data, ctx) => {
-    if (isPastApiDate(data.scheduledReleaseDate)) {
+    if (isTodayOrPastApiDate(data.scheduledReleaseDate)) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: 'Scheduled release date cannot be in the past',
+        message: 'Scheduled release date must be a future date',
         path: ['scheduledReleaseDate'],
       });
     }
 
-    if (data.releasingDate && isValidApiDate(data.releasingDate) && isValidApiDate(data.scheduledReleaseDate)) {
-      const minDate = minScheduledReleaseDate(data.releasingDate);
-      if (data.scheduledReleaseDate < minDate) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: 'Scheduled release date cannot be before releasing date',
-          path: ['scheduledReleaseDate'],
-        });
-      }
+    if (
+      data.releasingDate &&
+      isValidApiDate(data.releasingDate) &&
+      isValidApiDate(data.scheduledReleaseDate) &&
+      data.scheduledReleaseDate < data.releasingDate
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Scheduled release date cannot be before releasing date',
+        path: ['scheduledReleaseDate'],
+      });
     }
   });
 
@@ -214,3 +178,30 @@ export const uploadTracksEditSchema = z.object({
       'At least one audio file is required',
     ),
 });
+
+/** Field paths cleared when validating each wizard step. */
+export const STEP_ERROR_PATHS: Record<number, string[]> = {
+  1: [
+    'title',
+    'version',
+    'artist',
+    'releaseType',
+    'releasingDate',
+    'label',
+    'instrumental',
+    'explicit',
+    'aiGenerated',
+    'upc',
+    'pLine',
+    'cLine',
+    'coverArt',
+    'coverArtPreview',
+  ],
+  2: ['audioFiles'],
+  3: ['tracks'],
+  4: ['crbtEntries'],
+  5: ['scheduledReleaseDate'],
+  6: ['releasePlatform', 'termsAccepted'],
+};
+
+export { tomorrowApiDate, minScheduledReleaseDate };

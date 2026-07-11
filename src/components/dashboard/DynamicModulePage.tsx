@@ -4,6 +4,7 @@ import { usePathname } from 'next/navigation';
 import { ModulePlaceholder } from '@/components/dashboard/ModulePlaceholder';
 import { LabelTransferPage } from '@/components/dashboard/label-transfer/LabelTransferPage';
 import { LabelBlockPage } from '@/components/dashboard/label-block/LabelBlockPage';
+import { LabelUpdatePage } from '@/components/dashboard/label-update/LabelUpdatePage';
 import { MODULE_PAGES } from '@/config/modulePages';
 
 export function DynamicModulePage() {
@@ -16,6 +17,10 @@ export function DynamicModulePage() {
 
   if (pathname === '/dashboard/assets/label-block') {
     return <LabelBlockPage />;
+  }
+
+  if (pathname === '/dashboard/assets/label-update') {
+    return <LabelUpdatePage />;
   }
 
   if (!config) {

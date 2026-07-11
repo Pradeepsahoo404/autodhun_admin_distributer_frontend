@@ -24,6 +24,9 @@ import './cronjobSettingsApi';
 import './musicReleaseApi';
 import './releaseCatalogApi';
 import './labelTransferApi';
+import './labelUpdateApi';
+import './channelApi';
+import './channelLinkingApi';
 
 export { authApi } from './authApi';
 export {
@@ -91,6 +94,24 @@ export {
   useDeleteYoutubeClaimReleaseMutation,
   useExportYoutubeClaimReleasesMutation,
 } from './rightsManager/youtubeClaimReleaseApi';
+
+export {
+  useGetChannelsQuery,
+  useCreateChannelMutation,
+  useUpdateChannelMutation,
+  useUpdateChannelStatusMutation,
+  useDeleteChannelMutation,
+  useExportChannelsMutation,
+} from './channelApi';
+
+export {
+  useGetChannelLinkingEntriesQuery,
+  useCreateChannelLinkingMutation,
+  useUpdateChannelLinkingMutation,
+  useUpdateChannelLinkingStatusMutation,
+  useDeleteChannelLinkingMutation,
+  useExportChannelLinkingMutation,
+} from './channelLinkingApi';
 
 export {
   useGetFacebookClaimReleasesQuery,
@@ -232,16 +253,22 @@ export {
   useGetMusicReleasesQuery,
   useGetMusicReleaseByIdQuery,
   useGetNextReleaseIsrcPreviewQuery,
+  useLazyCheckReleaseIsrcQuery,
   useCreateMusicReleaseMutation,
   useUpdateMusicReleaseMutation,
   useUpdateMusicReleaseStatusMutation,
   useBulkUpdateMusicReleaseStatusMutation,
   useDeleteMusicReleaseMutation,
   useExportMusicReleasesMutation,
+  useDownloadBulkImportTemplateMutation,
+  useBulkImportReleasesMutation,
 } from './musicReleaseApi';
+export type { BulkImportResult, BulkImportRowError } from './musicReleaseApi';
 
 export {
   useGetReleaseArtistsQuery,
+  useGetReleaseLanguagesQuery,
+  useGetReleaseGenresQuery,
   useCreateReleaseArtistMutation,
   useGetReleaseLabelsQuery,
   useGetManagedLabelsQuery,
@@ -257,3 +284,6 @@ export {
   useTransferLabelMutation,
 } from './labelTransferApi';
 export type { LabelTransferOverviewAdmin } from './labelTransferApi';
+
+export { useGetLabelUpdatesQuery, useGetLabelTransferHistoryQuery } from './labelUpdateApi';
+export type { LabelUpdateRecord, LabelTransferHistoryRecord } from './labelUpdateApi';

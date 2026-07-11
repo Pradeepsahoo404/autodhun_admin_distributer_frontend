@@ -22,6 +22,7 @@ export function StepReleaseInformation() {
     register,
     watch,
     setValue,
+    clearErrors,
     formState: { errors },
   } = useFormContext<CreateReleaseFormData>();
 
@@ -37,7 +38,7 @@ export function StepReleaseInformation() {
               className="[&>label]:sr-only"
               placeholder="Enter release title"
               error={errors.title?.message}
-              {...register('title')}
+              {...register('title', { onChange: () => clearErrors('title') })}
             />
           </ReleaseFormRow>
 
@@ -47,7 +48,7 @@ export function StepReleaseInformation() {
               className="[&>label]:sr-only"
               placeholder="e.g. Deluxe, Remix"
               error={errors.version?.message}
-              {...register('version')}
+              {...register('version', { onChange: () => clearErrors('version') })}
             />
           </ReleaseFormRow>
         </ReleaseFormGrid>
@@ -57,7 +58,10 @@ export function StepReleaseInformation() {
             <CatalogLookupSelect
               kind="artist"
               value={watch('artist')}
-              onChange={(v) => setValue('artist', v, { shouldDirty: true })}
+              onChange={(v) => {
+                setValue('artist', v, { shouldDirty: true });
+                clearErrors('artist');
+              }}
               selectPlaceholder="- Select an artist -"
               addNewLabel="-- Add New Artist --"
               error={errors.artist?.message}
@@ -69,7 +73,10 @@ export function StepReleaseInformation() {
             <CatalogLookupSelect
               kind="label"
               value={watch('label')}
-              onChange={(v) => setValue('label', v, { shouldDirty: true })}
+              onChange={(v) => {
+                setValue('label', v, { shouldDirty: true });
+                clearErrors('label');
+              }}
               selectPlaceholder="- Select a label -"
               addNewLabel="-- Add New Label --"
               error={errors.label?.message}
@@ -82,7 +89,10 @@ export function StepReleaseInformation() {
           <ReleaseFormRow label="Release Type" required>
             <TableSelectField
               value={watch('releaseType')}
-              onChange={(v) => setValue('releaseType', v as CreateReleaseFormData['releaseType'], { shouldDirty: true })}
+              onChange={(v) => {
+                setValue('releaseType', v as CreateReleaseFormData['releaseType'], { shouldDirty: true });
+                clearErrors('releaseType');
+              }}
               options={RELEASE_TYPE_OPTIONS.map((o) => ({ value: o.value, label: o.label }))}
               className="w-full"
               aria-label="Release type"
@@ -94,7 +104,10 @@ export function StepReleaseInformation() {
               id="releasing-date"
               label=""
               value={watch('releasingDate')}
-              onChange={(v) => setValue('releasingDate', v, { shouldDirty: true })}
+              onChange={(v) => {
+                setValue('releasingDate', v, { shouldDirty: true });
+                clearErrors('releasingDate');
+              }}
               minDate={todayApiDate()}
               className="[&>label]:sr-only w-full"
             />
@@ -107,7 +120,7 @@ export function StepReleaseInformation() {
 
       <ReleaseFormSection title="Content & Rights" description="Classification and copyright information.">
         <ReleaseFormGrid3>
-          <ReleaseFormRow label="Instrumental">
+          <ReleaseFormRow label="Instrumental" required>
             <ReleaseYesNoGroup
               name="instrumental"
               value={watch('instrumental')}
@@ -139,7 +152,7 @@ export function StepReleaseInformation() {
               className="[&>label]:sr-only"
               placeholder="Enter UPC"
               error={errors.upc?.message}
-              {...register('upc')}
+              {...register('upc', { onChange: () => clearErrors('upc') })}
             />
           </ReleaseFormRow>
 
@@ -149,7 +162,7 @@ export function StepReleaseInformation() {
               className="[&>label]:sr-only"
               placeholder="Enter P Line"
               error={errors.pLine?.message}
-              {...register('pLine')}
+              {...register('pLine', { onChange: () => clearErrors('pLine') })}
             />
           </ReleaseFormRow>
 
@@ -159,7 +172,7 @@ export function StepReleaseInformation() {
               className="[&>label]:sr-only"
               placeholder="Enter C Line"
               error={errors.cLine?.message}
-              {...register('cLine')}
+              {...register('cLine', { onChange: () => clearErrors('cLine') })}
             />
           </ReleaseFormRow>
         </ReleaseFormGrid3>
@@ -172,6 +185,7 @@ export function StepReleaseInformation() {
             onChange={(file, preview) => {
               setValue('coverArt', file, { shouldDirty: true });
               setValue('coverArtPreview', preview, { shouldDirty: true });
+              clearErrors('coverArt');
             }}
             error={errors.coverArt?.message as string | undefined}
           />

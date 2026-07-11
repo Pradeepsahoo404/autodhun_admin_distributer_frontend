@@ -3,7 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { BarChart3, ChevronLeft, ChevronRight, Music2, Radio, Shield, Truck } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { DashboardCard, IssuesAnalytics, RightsManagerAnalytics } from '@/types';
+import { DashboardCard, IssuesAnalytics, ReleaseAnalytics, ReleaseAnalyticsBundle, RightsManagerAnalytics } from '@/types';
 import { usePermission } from '@/hooks/usePermission';
 import { RightsManagerDashboardCard } from '@/components/dashboard/RightsManagerDashboardCard';
 import { IssuesDashboardCard } from '@/components/dashboard/IssuesDashboardCard';
@@ -40,6 +40,14 @@ const cardShell = (variant: DashboardCard['variant']) =>
     CARD_BG[variant],
   );
 
+const RELEASE_STATUS_COUNT_COLORS: Record<string, string> = {
+  in_review: 'text-yellow-400',
+  takedown: 'text-red-400',
+  correction: 'text-orange-400',
+  qc_approval: 'text-brand-purple',
+  live: 'text-brand-lime',
+};
+
 interface DashboardCardItemProps {
   card: DashboardCard;
   currency: string;
@@ -47,6 +55,7 @@ interface DashboardCardItemProps {
   slot: DashboardCardSlot;
   rightsManagerAnalytics?: RightsManagerAnalytics | null;
   issuesAnalytics?: IssuesAnalytics | null;
+  releaseAnalytics?: ReleaseAnalyticsBundle | null;
 }
 
 export function DashboardCardItem({
@@ -56,6 +65,7 @@ export function DashboardCardItem({
   slot,
   rightsManagerAnalytics,
   issuesAnalytics,
+  releaseAnalytics,
 }: DashboardCardItemProps) {
   const ctaModule = card.cta?.moduleSlug ?? '';
   const { can } = usePermission(ctaModule);
@@ -75,7 +85,13 @@ export function DashboardCardItem({
     return <ListCard card={card} ctaAllowed={ctaAllowed} />;
   }
   if (card.key === 'release-music') {
-    return <CompactFeatureCard card={card} ctaAllowed={ctaAllowed} />;
+    return (
+      <CompactFeatureCard
+        card={card}
+        ctaAllowed={ctaAllowed}
+        analytics={releaseAnalytics?.admin ?? null}
+      />
+    );
   }
   if (card.key === 'analytics') {
     return <StatCard card={card} ctaAllowed={ctaAllowed} />;
@@ -90,7 +106,18 @@ export function DashboardCardItem({
   }
   if (slot === 'hero') return <HeroCard card={card} ctaAllowed={ctaAllowed} />;
   if (slot === 'stat') return <StatCard card={card} ctaAllowed={ctaAllowed} />;
-  if (slot === 'media') return <MediaCard card={card} ctaAllowed={ctaAllowed} />;
+  if (slot === 'media') {
+    if (card.key === 'content-delivery') {
+      return (
+        <MediaCard
+          card={card}
+          ctaAllowed={ctaAllowed}
+          analytics={releaseAnalytics?.contentDelivery ?? null}
+        />
+      );
+    }
+    return <MediaCard card={card} ctaAllowed={ctaAllowed} />;
+  }
   if (slot === 'list') return <ListCard card={card} ctaAllowed={ctaAllowed} />;
   return <CompactCard card={card} currency={currency} earnings={earnings} ctaAllowed={ctaAllowed} />;
 }
@@ -127,7 +154,15 @@ function DashboardCardCta({
   );
 }
 
-function CompactFeatureCard({ card, ctaAllowed }: { card: DashboardCard; ctaAllowed: boolean }) {
+function CompactFeatureCard({
+  card,
+  ctaAllowed,
+  analytics,
+}: {
+  card: DashboardCard;
+  ctaAllowed: boolean;
+  analytics?: ReleaseAnalytics | null;
+}) {
   const router = useRouter();
   const href = card.cta ? getRouteForModuleSlug(card.cta.moduleSlug) : undefined;
   const isClickable = Boolean(href && ctaAllowed);
@@ -139,15 +174,41 @@ function CompactFeatureCard({ card, ctaAllowed }: { card: DashboardCard; ctaAllo
   const content = (
     <>
       <div className="flex flex-1 flex-col p-4">
-        <div className="relative flex min-h-[148px] flex-1 flex-col items-center justify-center overflow-hidden rounded-xl border border-dashed border-brand-lime/25 bg-[#0d0d0d]/80 px-4 py-5 text-center">
+        <div className="relative flex min-h-[220px] flex-1 flex-col items-center justify-center overflow-hidden rounded-xl border border-dashed border-brand-lime/25 bg-[#0d0d0d]/80 px-4 py-4 text-center">
           <div className="pointer-events-none absolute -right-6 -top-6 h-24 w-24 rounded-full bg-brand-lime/10 blur-2xl" />
-          <div className="relative mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-brand-lime/25 to-brand-purple/20 ring-2 ring-brand-lime/30">
+          <Music2 className="pointer-events-none absolute left-1/2 top-[38%] h-32 w-32 -translate-x-1/2 -translate-y-1/2 text-brand-lime/[0.07]" />
+          <div className="relative mb-2 flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-brand-lime/25 to-brand-purple/20 ring-2 ring-brand-lime/30">
             <Music2 className="h-7 w-7 text-brand-lime" />
           </div>
-          <h3 className="relative mb-1.5 text-[15px] font-semibold text-white">{card.title}</h3>
-          <p className="relative line-clamp-3 max-w-[240px] text-[12px] leading-relaxed text-neutral-400">
-            {card.description}
-          </p>
+          <h3 className="relative text-[15px] font-semibold text-white">{card.title}</h3>
+          {analytics ? (
+            <div className="relative mt-2 w-full max-w-[260px] text-left">
+              <p className="text-center text-[12px] text-neutral-500">{analytics.scopeLabel}</p>
+              <p className="mt-2 text-center font-sans text-3xl font-bold leading-none text-brand-lime">
+                {analytics.total}
+              </p>
+              <p className="mt-1 text-center text-[12px] text-neutral-500">Total releases</p>
+              <ul className="mt-3 space-y-1.5 border-t border-[#1f1f1f] pt-3">
+                {analytics.counts.map((row) => (
+                  <li key={row.status} className="flex items-center justify-between text-[13px]">
+                    <span className="text-neutral-500">{row.label}</span>
+                    <span
+                      className={cn(
+                        'font-semibold tabular-nums',
+                        RELEASE_STATUS_COUNT_COLORS[row.status] ?? 'text-white',
+                      )}
+                    >
+                      {row.count}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ) : (
+            <p className="relative mt-2 line-clamp-3 max-w-[240px] text-[13px] leading-relaxed text-neutral-400">
+              {card.description}
+            </p>
+          )}
         </div>
       </div>
       {card.cta ? (
@@ -255,7 +316,15 @@ function StatCard({ card, ctaAllowed }: { card: DashboardCard; ctaAllowed: boole
   );
 }
 
-function MediaCard({ card, ctaAllowed }: { card: DashboardCard; ctaAllowed: boolean }) {
+function MediaCard({
+  card,
+  ctaAllowed,
+  analytics,
+}: {
+  card: DashboardCard;
+  ctaAllowed: boolean;
+  analytics?: ReleaseAnalytics | null;
+}) {
   const Icon = card.variant === 'popular' ? Truck : BarChart3;
 
   return (
@@ -280,13 +349,37 @@ function MediaCard({ card, ctaAllowed }: { card: DashboardCard; ctaAllowed: bool
         <div className="relative mb-4 aspect-video w-full overflow-hidden rounded-xl border border-[#2a2a2a]">
           <div className="absolute inset-0 bg-gradient-to-br from-brand-purple/40 via-[#1a1030] to-brand-lime/20" />
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(163,255,18,0.15),transparent_50%)]" />
+          <Icon className="pointer-events-none absolute left-1/2 top-1/2 h-32 w-32 -translate-x-1/2 -translate-y-1/2 text-brand-lime/[0.08]" />
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="flex h-14 w-14 items-center justify-center rounded-full bg-black/40 ring-2 ring-brand-lime/40 backdrop-blur-sm">
               <Icon className="h-7 w-7 text-brand-lime" />
             </div>
           </div>
         </div>
-        <p className="flex-1 text-[13px] leading-relaxed text-neutral-400">{card.description}</p>
+        {analytics ? (
+          <div className="flex-1">
+            <p className="text-[12px] text-neutral-500">{analytics.scopeLabel}</p>
+            <p className="mt-2 font-sans text-3xl font-bold leading-none text-brand-purple">{analytics.total}</p>
+            <p className="mt-1 text-[12px] text-neutral-500">Total releases</p>
+            <ul className="mt-3 space-y-1.5 border-t border-[#1f1f1f] pt-3">
+              {analytics.counts.map((row) => (
+                <li key={row.status} className="flex items-center justify-between text-[13px]">
+                  <span className="text-neutral-500">{row.label}</span>
+                  <span
+                    className={cn(
+                      'font-semibold tabular-nums',
+                      RELEASE_STATUS_COUNT_COLORS[row.status] ?? 'text-white',
+                    )}
+                  >
+                    {row.count}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ) : (
+          <p className="flex-1 text-[13px] leading-relaxed text-neutral-400">{card.description}</p>
+        )}
       </div>
 
       {card.cta ? (

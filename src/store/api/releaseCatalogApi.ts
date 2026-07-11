@@ -17,6 +17,12 @@ export interface ReleaseCatalogItem {
   };
 }
 
+export interface ReleaseGenreItem {
+  _id: string;
+  name: string;
+  subGenres: string[];
+}
+
 export interface ManagedLabelsQuery {
   status: LabelStatus;
   page?: number;
@@ -30,6 +36,14 @@ export const releaseCatalogApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     getReleaseArtists: builder.query<ApiSuccess<ReleaseCatalogItem[]>, { search?: string; limit?: number } | void>({
       query: (params) => ({ url: '/release-catalog/artists', params: params ?? {} }),
+      providesTags: ['ReleaseCatalog'],
+    }),
+    getReleaseLanguages: builder.query<ApiSuccess<ReleaseCatalogItem[]>, { search?: string; limit?: number } | void>({
+      query: (params) => ({ url: '/release-catalog/languages', params: params ?? {} }),
+      providesTags: ['ReleaseCatalog'],
+    }),
+    getReleaseGenres: builder.query<ApiSuccess<ReleaseGenreItem[]>, { search?: string; limit?: number } | void>({
+      query: (params) => ({ url: '/release-catalog/genres', params: params ?? {} }),
       providesTags: ['ReleaseCatalog'],
     }),
     createReleaseArtist: builder.mutation<ApiSuccess<ReleaseCatalogItem>, { name: string }>({
@@ -49,11 +63,11 @@ export const releaseCatalogApi = baseApi.injectEndpoints({
     }),
     createReleaseLabel: builder.mutation<ApiSuccess<ReleaseCatalogItem>, { name: string }>({
       query: (body) => ({ url: '/release-catalog/labels', method: 'POST', body }),
-      invalidatesTags: ['ReleaseCatalog', 'LabelTransfer'],
+      invalidatesTags: ['ReleaseCatalog', 'LabelTransfer', 'LabelUpdate'],
     }),
     updateReleaseLabel: builder.mutation<ApiSuccess<ReleaseCatalogItem>, { id: string; name: string }>({
       query: ({ id, name }) => ({ url: `/release-catalog/labels/${id}`, method: 'PUT', body: { name } }),
-      invalidatesTags: ['ReleaseCatalog', 'LabelTransfer'],
+      invalidatesTags: ['ReleaseCatalog', 'LabelTransfer', 'LabelUpdate'],
     }),
     updateReleaseLabelStatus: builder.mutation<
       ApiSuccess<ReleaseCatalogItem>,
@@ -64,11 +78,11 @@ export const releaseCatalogApi = baseApi.injectEndpoints({
         method: 'PATCH',
         body: { status },
       }),
-      invalidatesTags: ['ReleaseCatalog', 'LabelTransfer'],
+      invalidatesTags: ['ReleaseCatalog', 'LabelTransfer', 'LabelUpdate'],
     }),
     deleteReleaseLabel: builder.mutation<ApiSuccess<null>, string>({
       query: (id) => ({ url: `/release-catalog/labels/${id}`, method: 'DELETE' }),
-      invalidatesTags: ['ReleaseCatalog', 'LabelTransfer'],
+      invalidatesTags: ['ReleaseCatalog', 'LabelTransfer', 'LabelUpdate'],
     }),
   }),
   ...injectOptions,
@@ -76,6 +90,8 @@ export const releaseCatalogApi = baseApi.injectEndpoints({
 
 export const {
   useGetReleaseArtistsQuery,
+  useGetReleaseLanguagesQuery,
+  useGetReleaseGenresQuery,
   useCreateReleaseArtistMutation,
   useGetReleaseLabelsQuery,
   useGetManagedLabelsQuery,
