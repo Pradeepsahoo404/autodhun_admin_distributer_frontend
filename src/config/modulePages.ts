@@ -186,6 +186,18 @@ export const MODULE_PAGES: Record<string, ModulePageDef> = {
     description: 'Alerts and updates across modules',
     icon: 'Bell',
   },
+  '/dashboard/help-support': {
+    slug: 'help-support',
+    title: 'Help & Support',
+    description: 'Find the status of your support tickets',
+    icon: 'LifeBuoy',
+  },
+  '/dashboard/help-support/create': {
+    slug: 'help-support',
+    title: 'New Request',
+    description: 'Submit a new support request',
+    icon: 'PlusCircle',
+  },
 };
 
 export const ALL_MODULE_ROUTES = Object.entries(MODULE_PAGES).map(([route, def]) => ({

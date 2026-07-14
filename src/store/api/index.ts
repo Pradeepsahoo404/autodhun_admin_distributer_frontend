@@ -27,6 +27,7 @@ import './labelTransferApi';
 import './labelUpdateApi';
 import './channelApi';
 import './channelLinkingApi';
+import './supportTicketApi';
 
 export { authApi } from './authApi';
 export {
@@ -94,6 +95,15 @@ export {
   useDeleteYoutubeClaimReleaseMutation,
   useExportYoutubeClaimReleasesMutation,
 } from './rightsManager/youtubeClaimReleaseApi';
+
+export {
+  useGetSupportTicketsQuery,
+  useGetSupportTicketByIdQuery,
+  useCreateSupportTicketMutation,
+  useUpdateSupportTicketMutation,
+  useUpdateSupportTicketStatusMutation,
+  useDeleteSupportTicketMutation,
+} from './supportTicketApi';
 
 export {
   useGetChannelsQuery,

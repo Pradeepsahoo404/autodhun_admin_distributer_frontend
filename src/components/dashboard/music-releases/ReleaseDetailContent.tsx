@@ -1,6 +1,8 @@
 'use client';
 
 import { useState } from 'react';
+import { Download, Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
 import {
   ReleaseDetailAudioPlayer,
   ReleaseDetailPlayingIndicator,
@@ -8,6 +10,7 @@ import {
 import { ReleaseDetailRow } from '@/components/dashboard/music-releases/ReleaseDetailRow';
 import { ReleaseStatusBadge } from '@/components/dashboard/music-releases/ReleaseStatusBadge';
 import { AdminBadge } from '@/components/common/AdminBadge';
+import { Button } from '@/components/ui/button';
 import { resolveReleaseMediaUrl } from '@/features/create-release/mapReleaseToFormData';
 import {
   displayDetailValue,
@@ -20,6 +23,11 @@ import {
   formatReleaseTypeLabel,
   formatYesNoDetail,
 } from '@/features/create-release/releaseDetailUtils';
+import {
+  buildAudioDownloadName,
+  buildCoverDownloadName,
+  downloadMediaFile,
+} from '@/lib/downloadMedia';
 import { cn } from '@/lib/utils';
 import type { MusicRelease } from '@/types';
 
@@ -53,11 +61,43 @@ function ReleaseDetailAmbientBackdrop({ active }: { active: boolean }) {
 
 export function ReleaseDetailContent({ release, showSubmittedBy = false }: ReleaseDetailContentProps) {
   const [isPlaying, setIsPlaying] = useState(false);
+  const [downloadingCover, setDownloadingCover] = useState(false);
+  const [downloadingAudio, setDownloadingAudio] = useState(false);
 
   const primaryTrack = release.tracks[0];
   const primaryAudio = release.audioFiles[0];
+  const coverUrl = release.coverArtUrl ? resolveReleaseMediaUrl(release.coverArtUrl) : undefined;
   const audioUrl = primaryAudio ? resolveReleaseMediaUrl(primaryAudio.url) : undefined;
   const trackTitle = primaryTrack?.title || release.title;
+
+  const handleDownloadCover = async () => {
+    if (!coverUrl) return;
+    setDownloadingCover(true);
+    try {
+      await downloadMediaFile(coverUrl, buildCoverDownloadName(release.title, coverUrl));
+      toast.success('Banner image downloaded');
+    } catch {
+      toast.error('Failed to download banner image');
+    } finally {
+      setDownloadingCover(false);
+    }
+  };
+
+  const handleDownloadAudio = async () => {
+    if (!audioUrl) return;
+    setDownloadingAudio(true);
+    try {
+      await downloadMediaFile(
+        audioUrl,
+        buildAudioDownloadName(primaryAudio?.fileName, audioUrl, trackTitle),
+      );
+      toast.success('Song downloaded');
+    } catch {
+      toast.error('Failed to download song');
+    } finally {
+      setDownloadingAudio(false);
+    }
+  };
 
   const leftFields = [
     { label: 'Title', value: displayDetailValue(release.title) },
@@ -95,11 +135,11 @@ export function ReleaseDetailContent({ release, showSubmittedBy = false }: Relea
       <div className="relative z-10 p-5 sm:p-6">
         <div className="flex flex-col gap-6 sm:flex-row sm:items-start">
           <div className="relative mx-auto shrink-0 sm:mx-0">
-            {release.coverArtUrl ? (
+            {coverUrl ? (
               <div className="relative h-52 w-52 overflow-hidden rounded-xl ring-1 ring-[#2a2a2a] sm:h-60 sm:w-60">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
-                  src={resolveReleaseMediaUrl(release.coverArtUrl)}
+                  src={coverUrl}
                   alt=""
                   className={cn(
                     'h-full w-full object-cover transition-transform duration-500',
@@ -113,6 +153,21 @@ export function ReleaseDetailContent({ release, showSubmittedBy = false }: Relea
                   variant="overlay"
                   onPlayingChange={setIsPlaying}
                 />
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="ghost"
+                  title="Download banner image"
+                  disabled={downloadingCover}
+                  onClick={() => void handleDownloadCover()}
+                  className="absolute bottom-2 right-2 z-20 h-9 w-9 rounded-full border border-white/20 bg-black/70 p-0 text-white hover:bg-black/85 hover:text-brand-lime"
+                >
+                  {downloadingCover ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Download className="h-4 w-4" />
+                  )}
+                </Button>
               </div>
             ) : (
               <div className="relative flex h-52 w-52 items-center justify-center overflow-hidden rounded-xl bg-[#1a1a1a] text-[13px] text-neutral-600 ring-1 ring-[#2a2a2a] sm:h-60 sm:w-60">
@@ -132,12 +187,50 @@ export function ReleaseDetailContent({ release, showSubmittedBy = false }: Relea
             <h3 className="text-[26px] font-bold leading-tight text-white sm:text-[30px]">{release.title}</h3>
             <p className="mt-1 text-[15px] text-neutral-400">{release.artist}</p>
 
-            <div className="mt-3 flex w-full flex-col items-start gap-1 text-left">
+            <div className="mt-3 flex w-full flex-col items-start gap-2 text-left">
               {isPlaying ? <ReleaseDetailPlayingIndicator /> : null}
               <p className="truncate text-[13px] font-medium text-white">{trackTitle}</p>
-              {primaryAudio?.fileName ? (
-                <p className="truncate text-[11px] text-neutral-600">{primaryAudio.fileName}</p>
-              ) : null}
+              <div className="flex max-w-full flex-wrap items-center gap-2">
+                {primaryAudio?.fileName ? (
+                  <p className="truncate text-[11px] text-neutral-600">{primaryAudio.fileName}</p>
+                ) : null}
+                {audioUrl ? (
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    title="Download song"
+                    disabled={downloadingAudio}
+                    onClick={() => void handleDownloadAudio()}
+                    className="h-8 rounded-lg border-[#2a2a2a] bg-transparent px-2.5 text-[12px] text-neutral-300 hover:border-brand-lime/40 hover:bg-[#141414] hover:text-brand-lime"
+                  >
+                    {downloadingAudio ? (
+                      <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
+                    ) : (
+                      <Download className="mr-1.5 h-3.5 w-3.5" />
+                    )}
+                    Download song
+                  </Button>
+                ) : null}
+                {coverUrl ? (
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    title="Download banner image"
+                    disabled={downloadingCover}
+                    onClick={() => void handleDownloadCover()}
+                    className="h-8 rounded-lg border-[#2a2a2a] bg-transparent px-2.5 text-[12px] text-neutral-300 hover:border-brand-lime/40 hover:bg-[#141414] hover:text-brand-lime"
+                  >
+                    {downloadingCover ? (
+                      <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
+                    ) : (
+                      <Download className="mr-1.5 h-3.5 w-3.5" />
+                    )}
+                    Download banner
+                  </Button>
+                ) : null}
+              </div>
             </div>
 
             <div className="mt-4 flex flex-wrap items-center justify-start gap-3">

@@ -80,6 +80,15 @@ function getNotificationSubject(item: Notification): string {
     if (status) return `Status · ${status.replace(/_/g, ' ')}`;
     return 'Status updated';
   }
+  if (item.type === 'support_ticket_created') {
+    const ticketNumber = item.entrySummary?.ticketNumber;
+    return ticketNumber ? `Ticket · #${ticketNumber}` : 'New support request';
+  }
+  if (item.type === 'support_ticket_status_updated') {
+    const status = item.entrySummary?.status;
+    if (status) return `Status · ${status.replace(/_/g, ' ')}`;
+    return 'Support ticket updated';
+  }
   if (item.type === 'issues_entry_assigned') return 'New assignment';
 
   if (item.type === 'issues_ownership_updated') {
@@ -104,6 +113,8 @@ function getNotificationTypeLabel(type: Notification['type']): string {
   if (type === 'rights_status_updated') return 'Status update';
   if (type === 'channel_entry_created') return 'New entry';
   if (type === 'channel_status_updated') return 'Status update';
+  if (type === 'support_ticket_created') return 'Support request';
+  if (type === 'support_ticket_status_updated') return 'Support update';
   if (type === 'issues_entry_assigned') return 'Assigned';
   return 'Ownership update';
 }

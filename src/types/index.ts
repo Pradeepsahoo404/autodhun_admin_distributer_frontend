@@ -359,6 +359,22 @@ export interface ChannelLinking {
   updatedAt: string;
 }
 
+export interface SupportTicket {
+  _id: string;
+  ticketNumber: number;
+  subject: string;
+  category: import('@/constants/supportTicket').SupportTicketCategory;
+  issueType: import('@/constants/supportTicket').SupportTicketIssueType;
+  description: string;
+  status: import('@/constants/supportTicket').SupportTicketStatus;
+  resolutionNote?: string;
+  resolvedAt?: string | null;
+  createdBy?: { _id: string; name: string; email: string };
+  updatedBy?: { _id: string; name: string; email: string };
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface FacebookClaimRelease {
   _id: string;
   senderLabelName: string;
@@ -479,7 +495,9 @@ export type NotificationType =
   | 'release_status_updated'
   | 'label_transferred'
   | 'channel_entry_created'
-  | 'channel_status_updated';
+  | 'channel_status_updated'
+  | 'support_ticket_created'
+  | 'support_ticket_status_updated';
 
 export interface Notification {
   _id: string;

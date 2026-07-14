@@ -106,8 +106,6 @@ export const ALL_MODULE_ROUTES: Array<{ route: string; slug: string }> = [
 
   { route: '/dashboard/profile', slug: 'settings' },
 
-  { route: '/dashboard/help-support', slug: 'help-support' },
-
   { route: '/dashboard/users', slug: 'users' },
 
   { route: '/dashboard/roles', slug: 'roles' },

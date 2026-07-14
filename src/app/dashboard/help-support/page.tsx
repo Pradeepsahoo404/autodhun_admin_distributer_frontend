@@ -1,14 +1,7 @@
 'use client';
 
-import { ModulePlaceholder } from '@/components/dashboard/ModulePlaceholder';
+import { SupportTicketsListPage } from '@/components/dashboard/help-support/SupportTicketsListPage';
 
 export default function HelpSupportPage() {
-  return (
-    <ModulePlaceholder
-      slug="help-support"
-      title="Help & Support"
-      description="Get help and contact support"
-      icon="LifeBuoy"
-    />
-  );
+  return <SupportTicketsListPage />;
 }
