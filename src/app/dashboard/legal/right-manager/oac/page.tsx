@@ -55,13 +55,12 @@ import { formatDateTime } from '@/lib/formatDateTime';
 import { useLegalEntryHighlight, legalEntryRowClass } from '@/hooks/useLegalEntryHighlight';
 import { cn } from '@/lib/utils';
 import type { Oac, PaginatedMeta } from '@/types';
-import { isElevatedRole } from '@/utils/roles';
 
 const DEFAULT_PAGE_LIMIT = 10;
 
 export default function OacPage() {
   const { user: currentUser } = useAppSelector((s) => s.auth);
-  const isSuperAdmin = isElevatedRole(currentUser?.role);
+  const isSuperAdmin = currentUser?.role === ROLES.SUPER_ADMIN;
   const { canCreate, canUpdate, canDelete } = usePermission('oac');
 
   const [page, setPage] = useState(1);

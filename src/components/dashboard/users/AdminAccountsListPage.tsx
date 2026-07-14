@@ -44,7 +44,6 @@ import { DeleteUserDialog } from '@/components/dashboard/users/DeleteUserDialog'
 import { AdminStatsCards } from '@/components/dashboard/users/AdminStatsCards';
 import { cn } from '@/lib/utils';
 import type { PaginatedMeta, User } from '@/types';
-import { isElevatedRole } from '@/utils/roles';
 
 const DEFAULT_PAGE_LIMIT = 10;
 
@@ -81,7 +80,7 @@ export function AdminAccountsListPage({
   permissionModule = 'users',
 }: AdminAccountsListPageProps) {
   const { user: currentUser } = useAppSelector((s) => s.auth);
-  const isSuperAdmin = isElevatedRole(currentUser?.role);
+  const isSuperAdmin = currentUser?.role === ROLES.SUPER_ADMIN;
   const { canCreate, canUpdate, canDelete } = usePermission(permissionModule);
 
   const [page, setPage] = useState(1);

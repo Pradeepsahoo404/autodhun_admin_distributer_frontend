@@ -41,8 +41,6 @@ import {
   Hand,
   Trash2,
   Bell,
-  Crown,
-  Building2,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -89,8 +87,6 @@ const ICON_MAP: Record<string, LucideIcon> = {
   Hand,
   Trash2,
   Bell,
-  Crown,
-  Building2,
 };
 
 export function getModuleIcon(iconName: string): LucideIcon {

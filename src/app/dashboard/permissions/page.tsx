@@ -35,7 +35,6 @@ import { cn } from '@/lib/utils';
 import { useAppDispatch, useAppSelector } from '@/hooks/useAppStore';
 import { setSidebarModules } from '@/store/slices/permissionSlice';
 import type { PaginatedMeta } from '@/types';
-import { isElevatedRole, isMasterAdminRole } from '@/utils/roles';
 
 type ActionKey = 'canView' | 'canCreate' | 'canUpdate' | 'canDelete';
 const ACTIONS: { key: ActionKey; label: string }[] = [
@@ -57,15 +56,10 @@ export default function PermissionsPage() {
   const { refetch: refetchSidebar } = useGetSidebarQuery();
 
   const roles = useMemo(() => rolesData?.data ?? [], [rolesData]);
-  const isMaster = isMasterAdminRole(user?.role) || Boolean(user?.isMasterAdmin);
-  const isTenantElevated = isElevatedRole(user?.role) && !isMaster;
-
-  const roleOptions = useMemo(() => {
-    const list = isTenantElevated
-      ? roles.filter((role) => role.slug === ROLES.ADMIN)
-      : roles;
-    return list.map((role) => ({ value: role._id, label: role.name }));
-  }, [roles, isTenantElevated]);
+  const roleOptions = useMemo(
+    () => roles.map((role) => ({ value: role._id, label: role.name })),
+    [roles],
+  );
 
   const [selectedRoleId, setSelectedRoleId] = useState('');
   const [searchInput, setSearchInput] = useState('');
@@ -74,15 +68,11 @@ export default function PermissionsPage() {
   const [limit, setLimit] = useState(DEFAULT_PAGE_LIMIT);
 
   useEffect(() => {
-    if (!selectedRoleId && roleOptions.length > 0) {
-      const editable =
-        roleOptions.find((r) => {
-          const full = roles.find((role) => role._id === r.value);
-          return full && full.slug !== ROLES.SUPER_ADMIN && full.slug !== ROLES.MASTER_ADMIN;
-        }) ?? roleOptions[0];
-      setSelectedRoleId(editable.value);
+    if (!selectedRoleId && roles.length > 0) {
+      const editable = roles.find((r) => r.slug !== ROLES.SUPER_ADMIN) ?? roles[0];
+      setSelectedRoleId(editable._id);
     }
-  }, [roles, roleOptions, selectedRoleId]);
+  }, [roles, selectedRoleId]);
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -93,14 +83,10 @@ export default function PermissionsPage() {
   }, [searchInput]);
 
   const selectedRole = roles.find((r) => r._id === selectedRoleId);
-  const isSuperAdminRole =
-    selectedRole?.slug === ROLES.SUPER_ADMIN || selectedRole?.slug === ROLES.MASTER_ADMIN;
+  const isSuperAdminRole = selectedRole?.slug === ROLES.SUPER_ADMIN;
 
   const { data: matrixData, isFetching } = useGetPermissionMatrixQuery(
-    {
-      roleId: selectedRoleId,
-      ...(isMaster ? {} : {}),
-    },
+    { roleId: selectedRoleId },
     { skip: !selectedRoleId },
   );
   const [bulkSet, { isLoading: saving }] = useBulkSetPermissionsMutation();
@@ -198,11 +184,7 @@ export default function PermissionsPage() {
     <div className={cn(DASHBOARD_PAGE, 'space-y-8')}>
       <DashboardPageHeader
         title="Permissions"
-        description={
-          isTenantElevated
-            ? 'Configure what Admins in your organization can access. Changes apply only to your tenant.'
-            : 'Set access on main modules only. Sub-modules inherit from their parent automatically.'
-        }
+        description="Set access on main modules only. Sub-modules inherit from their parent automatically."
         action={
           canUpdate && !isSuperAdminRole ? (
             <Button
@@ -219,7 +201,7 @@ export default function PermissionsPage() {
 
       {isSuperAdminRole ? (
         <div className="rounded-xl border border-brand-lime/20 bg-brand-lime/5 px-4 py-3 text-sm text-brand-lime">
-          Master / Super Admin has implicit full access to every module and cannot be restricted.
+          Super Admin has implicit full access to every module and cannot be restricted.
         </div>
       ) : null}
 
@@ -234,7 +216,6 @@ export default function PermissionsPage() {
                 options={roleOptions}
                 aria-label="Select role"
                 className="min-w-[180px]"
-                disabled={isTenantElevated}
               />
               <TableSearchField
                 value={searchInput}

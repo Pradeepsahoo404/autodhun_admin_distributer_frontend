@@ -55,13 +55,12 @@ import { formatDateTime } from '@/lib/formatDateTime';
 import { useLegalEntryHighlight, legalEntryRowClass } from '@/hooks/useLegalEntryHighlight';
 import { cn } from '@/lib/utils';
 import type { FacebookClaimRelease, PaginatedMeta } from '@/types';
-import { isElevatedRole } from '@/utils/roles';
 
 const DEFAULT_PAGE_LIMIT = 10;
 
 export default function FacebookClaimReleasePage() {
   const { user: currentUser } = useAppSelector((s) => s.auth);
-  const isSuperAdmin = isElevatedRole(currentUser?.role);
+  const isSuperAdmin = currentUser?.role === ROLES.SUPER_ADMIN;
   const { canCreate, canUpdate, canDelete } = usePermission('facebook-claim-release');
 
   const [page, setPage] = useState(1);

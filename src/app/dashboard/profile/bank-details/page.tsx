@@ -14,13 +14,12 @@ import { getApiErrorMessage } from '@/services/apiClient';
 import { isProfileComplete } from '@/utils/profileCompletion';
 import { bankDetailsSchema, type BankDetailsFormData } from '@/features/profile/profileSchemas';
 import { ROUTES, ROLES } from '@/constants';
-import { isElevatedRole } from '@/utils/roles';
 
 export default function BankDetailsPage() {
   const router = useRouter();
   const { user } = useAppSelector((s) => s.auth);
   const [updateBankDetails, { isLoading }] = useUpdateBankDetailsMutation();
-  const isSuperAdmin = isElevatedRole(user?.role);
+  const isSuperAdmin = user?.role === ROLES.SUPER_ADMIN;
 
   const {
     register,

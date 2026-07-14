@@ -89,6 +89,6 @@ const baseQueryWithReauth: BaseQueryFn<string | FetchArgs, unknown, FetchBaseQue
 export const baseApi = createApi({
   reducerPath: 'api',
   baseQuery: baseQueryWithReauth,
-  tagTypes: ['Auth', 'Users', 'Roles', 'Modules', 'Permissions', 'Sidebar', 'Notifications', 'CronjobSettings', 'ReferenceOverlaps', 'InvalidReferences', 'OwnershipTransfers', 'PotentialClaims', 'DisputedClaims', 'AppealedClaims', 'YoutubeClaimReleases', 'FacebookClaimReleases', 'ContentIds', 'Oac', 'ProfileLinking', 'Allowlist', 'ManualClaiming', 'Takedown', 'MusicReleases', 'ReleaseCatalog', 'LabelTransfer', 'LabelUpdate', 'Channels', 'ChannelLinking', 'SupportTickets', 'Tenants'],
+  tagTypes: ['Auth', 'Users', 'Roles', 'Modules', 'Permissions', 'Sidebar', 'Notifications', 'CronjobSettings', 'ReferenceOverlaps', 'InvalidReferences', 'OwnershipTransfers', 'PotentialClaims', 'DisputedClaims', 'AppealedClaims', 'YoutubeClaimReleases', 'FacebookClaimReleases', 'ContentIds', 'Oac', 'ProfileLinking', 'Allowlist', 'ManualClaiming', 'Takedown', 'MusicReleases', 'ReleaseCatalog', 'LabelTransfer', 'LabelUpdate', 'Channels', 'ChannelLinking', 'SupportTickets'],
   endpoints: () => ({}),
 });

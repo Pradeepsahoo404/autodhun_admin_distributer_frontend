@@ -21,8 +21,6 @@ export const ROUTES = {
 
   DASHBOARD: '/dashboard',
 
-  MASTER_DASHBOARD: '/dashboard/master',
-
   SETTINGS: '/dashboard/settings',
 
   PROFILE: '/dashboard/profile',
@@ -56,15 +54,19 @@ export type OtpPurpose = (typeof OTP_PURPOSE)[keyof typeof OTP_PURPOSE];
 
 
 export const ROLES = {
-  MASTER_ADMIN: 'master-admin',
+
   SUPER_ADMIN: 'super-admin',
+
   ADMIN: 'admin',
+
 } as const;
 
 
 
 export const ACCOUNT_INACTIVE_MESSAGE =
+
   'Your account is inactive. To make it active, please contact the Owner.';
+
 
 
 export const TOKEN_STORAGE_KEY = 'autodhun_access_token';

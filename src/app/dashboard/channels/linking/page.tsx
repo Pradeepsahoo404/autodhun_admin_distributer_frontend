@@ -53,7 +53,6 @@ import { DeleteChannelLinkingDialog } from '@/components/dashboard/channel-linki
 import { formatDateTime } from '@/lib/formatDateTime';
 import { cn } from '@/lib/utils';
 import type { PaginatedMeta, ChannelLinking } from '@/types';
-import { isElevatedRole } from '@/utils/roles';
 
 const DEFAULT_PAGE_LIMIT = 10;
 
@@ -71,7 +70,7 @@ function formatViews(value: number): string {
 
 export default function ChannelLinkingPage() {
   const { user: currentUser } = useAppSelector((s) => s.auth);
-  const isSuperAdmin = isElevatedRole(currentUser?.role);
+  const isSuperAdmin = currentUser?.role === ROLES.SUPER_ADMIN;
   const { canCreate, canUpdate, canDelete } = usePermission('channel-linking');
 
   const [page, setPage] = useState(1);

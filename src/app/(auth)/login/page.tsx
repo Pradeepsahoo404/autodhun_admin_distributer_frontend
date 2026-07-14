@@ -24,7 +24,6 @@ import { getApiErrorMessage } from '@/services/apiClient';
 import { syncUserProfile } from '@/utils/syncUserProfile';
 import { consumeInactiveAccountMessage } from '@/utils/accountAccess';
 import { consumeNextAuthErrorMessage } from '@/utils/nextAuthErrors';
-import { getPostLoginRoute } from '@/utils/postLoginRoute';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -74,7 +73,7 @@ export default function LoginPage() {
         dispatch(setCredentials({ user: response.data.user, accessToken: response.data.accessToken }));
         await syncUserProfile(dispatch);
         toast.success(response.message);
-        router.push(getPostLoginRoute(response.data.user));
+        router.push(ROUTES.DASHBOARD);
         return;
       }
       dispatch(setPendingOtp({ email: data.email, purpose: OTP_PURPOSE.LOGIN }));

@@ -30,7 +30,6 @@ import { legalModuleCardClass, legalModuleCardHeaderClass } from '@/components/c
 import { formatRelativeTime, formatShortDate } from '@/lib/formatDateTime';
 import { cn } from '@/lib/utils';
 import type { PaginatedMeta, SupportTicket } from '@/types';
-import { isElevatedRole } from '@/utils/roles';
 
 const DEFAULT_PAGE_LIMIT = 10;
 
@@ -126,7 +125,7 @@ function SupportTicketCard({
 export function SupportTicketsListPage() {
   const router = useRouter();
   const { user: currentUser } = useAppSelector((s) => s.auth);
-  const isSuperAdmin = isElevatedRole(currentUser?.role);
+  const isSuperAdmin = currentUser?.role === ROLES.SUPER_ADMIN;
   const { canCreate, canUpdate, canDelete } = usePermission('help-support');
   const canSubmitRequest = !isSuperAdmin && canCreate;
 

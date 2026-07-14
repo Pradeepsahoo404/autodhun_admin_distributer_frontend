@@ -51,13 +51,12 @@ import { DeleteChannelDialog } from '@/components/dashboard/channel/DeleteChanne
 import { formatDateTime } from '@/lib/formatDateTime';
 import { cn } from '@/lib/utils';
 import type { PaginatedMeta, Channel } from '@/types';
-import { isElevatedRole } from '@/utils/roles';
 
 const DEFAULT_PAGE_LIMIT = 10;
 
 export default function CreateChannelPage() {
   const { user: currentUser } = useAppSelector((s) => s.auth);
-  const isSuperAdmin = isElevatedRole(currentUser?.role);
+  const isSuperAdmin = currentUser?.role === ROLES.SUPER_ADMIN;
   const { canCreate, canUpdate, canDelete } = usePermission('create-channel');
 
   const [page, setPage] = useState(1);
