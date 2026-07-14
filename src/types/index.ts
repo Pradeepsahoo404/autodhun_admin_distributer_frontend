@@ -43,10 +43,24 @@ export interface AuthUser {
   profile: UserProfile;
   bankDetails: UserBankDetails;
   lastLogin?: string;
+  /** null for platform Super Admin until Master role exists. */
+  tenantId?: string | null;
+  /** Reserved — false until Master Admin (Phase 2). */
+  isMasterAdmin?: boolean;
 }
 
 export interface AuthTokens {
   accessToken: string;
+}
+
+/** Phase 1+ tenant shape (Master provisioning UI). */
+export interface Tenant {
+  _id: string;
+  name: string;
+  slug: string;
+  status: 'active' | 'inactive';
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface PendingOtpResult {

@@ -74,6 +74,7 @@ import type { MusicRelease, PaginatedMeta } from '@/types';
 
 import { TableCheckbox } from '@/components/common/TableCheckbox';
 import { useLegalEntryHighlight, legalEntryRowClass } from '@/hooks/useLegalEntryHighlight';
+import { isElevatedRole } from '@/utils/roles';
 
 const PAGE_CONFIG: Record<
   MusicReleaseListContext,
@@ -165,7 +166,7 @@ export function MusicReleasesListPage({ context }: MusicReleasesListPageProps) {
   const config = PAGE_CONFIG[context];
   const router = useRouter();
   const { user: currentUser } = useAppSelector((s) => s.auth);
-  const isSuperAdmin = currentUser?.role === ROLES.SUPER_ADMIN;
+  const isSuperAdmin = isElevatedRole(currentUser?.role);
   const showBulkSelect = config.showStatusControl && isSuperAdmin;
 
   const [page, setPage] = useState(1);

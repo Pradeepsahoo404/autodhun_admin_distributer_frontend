@@ -12,6 +12,7 @@ import { syncUserProfile } from '@/utils/syncUserProfile';
 import { getApiErrorMessage } from '@/services/apiClient';
 import { fetchGoogleIdToken, googleCompleteCallbackUrl } from '@/features/auth/googleIdToken';
 import { signOut } from 'next-auth/react';
+import { getPostLoginRoute } from '@/utils/postLoginRoute';
 
 /**
  * Google sign-in flow:
@@ -35,7 +36,7 @@ export function useGoogleSignIn() {
       await syncUserProfile(dispatch);
       await signOut({ redirect: false });
       toast.success('Signed in with Google');
-      router.push(ROUTES.DASHBOARD);
+      router.push(getPostLoginRoute(response.data.user));
     },
     [dispatch, googleAuth, router],
   );

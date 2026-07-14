@@ -55,12 +55,13 @@ import { formatDateTime } from '@/lib/formatDateTime';
 import { useLegalEntryHighlight, legalEntryRowClass } from '@/hooks/useLegalEntryHighlight';
 import { cn } from '@/lib/utils';
 import type { PaginatedMeta, YoutubeClaimRelease } from '@/types';
+import { isElevatedRole } from '@/utils/roles';
 
 const DEFAULT_PAGE_LIMIT = 10;
 
 export default function YoutubeClaimReleasePage() {
   const { user: currentUser } = useAppSelector((s) => s.auth);
-  const isSuperAdmin = currentUser?.role === ROLES.SUPER_ADMIN;
+  const isSuperAdmin = isElevatedRole(currentUser?.role);
   const { canCreate, canUpdate, canDelete } = usePermission('youtube-claim-release');
 
   const [page, setPage] = useState(1);

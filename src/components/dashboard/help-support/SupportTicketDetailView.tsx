@@ -44,6 +44,7 @@ import { TableSelectField } from '@/components/common/TableSelectField';
 import { legalModuleCardClass } from '@/components/common/dashboardTableStyles';
 import { formatDateTime, formatRelativeTime, formatShortDate } from '@/lib/formatDateTime';
 import { cn } from '@/lib/utils';
+import { isElevatedRole } from '@/utils/roles';
 
 function DetailReadField({ label, value }: { label: string; value: string }) {
   return (
@@ -66,7 +67,7 @@ export function SupportTicketDetailView({ ticketId }: SupportTicketDetailViewPro
   const initialEdit = searchParams.get('mode') === 'edit';
 
   const { user: currentUser } = useAppSelector((s) => s.auth);
-  const isSuperAdmin = currentUser?.role === ROLES.SUPER_ADMIN;
+  const isSuperAdmin = isElevatedRole(currentUser?.role);
   const { canUpdate, canDelete } = usePermission('help-support');
 
   const { data, isLoading, isError } = useGetSupportTicketByIdQuery(ticketId);

@@ -3,6 +3,7 @@
 import { useMemo } from 'react';
 import { useAppSelector } from '@/hooks/useAppStore';
 import { buildModuleSlugMap, getRootSlug } from '@/utils/moduleTree';
+import { isElevatedRole } from '@/utils/roles';
 
 type Action = 'view' | 'create' | 'update' | 'delete';
 
@@ -14,7 +15,8 @@ export function usePermission(moduleSlug: string) {
   const { sidebarModules } = useAppSelector((s) => s.permission);
   const { user } = useAppSelector((s) => s.auth);
 
-  const isSuperAdmin = user?.role === 'super-admin';
+  const isSuperAdmin = isElevatedRole(user?.role);
+  const isMasterAdmin = Boolean(user?.isMasterAdmin) || user?.role === 'master-admin';
 
   const mod = useMemo(() => {
     const direct = sidebarModules.find((m) => m.slug === moduleSlug);
@@ -48,5 +50,6 @@ export function usePermission(moduleSlug: string) {
     can,
     module: mod,
     isSuperAdmin,
+    isMasterAdmin,
   };
 }

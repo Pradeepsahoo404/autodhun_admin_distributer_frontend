@@ -55,12 +55,13 @@ import { formatDateTime } from '@/lib/formatDateTime';
 import { useLegalEntryHighlight, legalEntryRowClass } from '@/hooks/useLegalEntryHighlight';
 import { cn } from '@/lib/utils';
 import type { PaginatedMeta, ProfileLinking } from '@/types';
+import { isElevatedRole } from '@/utils/roles';
 
 const DEFAULT_PAGE_LIMIT = 10;
 
 export default function ProfileLinkingPage() {
   const { user: currentUser } = useAppSelector((s) => s.auth);
-  const isSuperAdmin = currentUser?.role === ROLES.SUPER_ADMIN;
+  const isSuperAdmin = isElevatedRole(currentUser?.role);
   const { canCreate, canUpdate, canDelete } = usePermission('profile-linking');
 
   const [page, setPage] = useState(1);

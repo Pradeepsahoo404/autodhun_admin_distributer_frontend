@@ -9,12 +9,21 @@ export const permissionsApi = baseApi.injectEndpoints({
       query: () => '/permissions/me/sidebar',
       providesTags: ['Sidebar'],
     }),
-    getPermissions: builder.query<ApiSuccess<Permission[]>, { roleId?: string }>({
+    getPermissions: builder.query<
+      ApiSuccess<Permission[]>,
+      { roleId?: string; tenantId?: string }
+    >({
       query: (params) => ({ url: '/permissions', params }),
       providesTags: ['Permissions'],
     }),
-    getPermissionMatrix: builder.query<ApiSuccess<EffectivePermission[]>, { roleId: string }>({
-      query: ({ roleId }) => ({ url: '/permissions/matrix', params: { roleId } }),
+    getPermissionMatrix: builder.query<
+      ApiSuccess<EffectivePermission[]>,
+      { roleId: string; tenantId?: string }
+    >({
+      query: ({ roleId, tenantId }) => ({
+        url: '/permissions/matrix',
+        params: { roleId, ...(tenantId ? { tenantId } : {}) },
+      }),
       providesTags: ['Permissions'],
     }),
     setPermission: builder.mutation<ApiSuccess<Permission>, Record<string, unknown>>({
@@ -23,7 +32,11 @@ export const permissionsApi = baseApi.injectEndpoints({
     }),
     bulkSetPermissions: builder.mutation<
       ApiSuccess<Permission[]>,
-      { roleId: string; permissions: Array<Record<string, unknown>> }
+      {
+        roleId: string;
+        tenantId?: string | null;
+        permissions: Array<Record<string, unknown>>;
+      }
     >({
       query: (body) => ({ url: '/permissions/bulk', method: 'POST', body }),
       invalidatesTags: ['Permissions', 'Sidebar'],

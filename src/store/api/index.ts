@@ -28,6 +28,8 @@ import './labelUpdateApi';
 import './channelApi';
 import './channelLinkingApi';
 import './supportTicketApi';
+import './tenantApi';
+import './masterApi';
 
 export { authApi } from './authApi';
 export {
@@ -104,6 +106,20 @@ export {
   useUpdateSupportTicketStatusMutation,
   useDeleteSupportTicketMutation,
 } from './supportTicketApi';
+
+export {
+  useGetTenantsQuery,
+  useGetTenantByIdQuery,
+  useCreateTenantMutation,
+  useUpdateTenantMutation,
+} from './tenantApi';
+
+export { useGetMasterDashboardQuery } from './masterApi';
+export type {
+  MasterDashboardData,
+  MasterDashboardSummary,
+  MasterDashboardTenantRow,
+} from './masterApi';
 
 export {
   useGetChannelsQuery,

@@ -12,18 +12,19 @@ import { syncUserProfile } from '@/utils/syncUserProfile';
 import { getApiErrorMessage } from '@/services/apiClient';
 import { fetchGoogleIdToken } from '@/features/auth/googleIdToken';
 import { signOut } from 'next-auth/react';
+import { getPostLoginRoute } from '@/utils/postLoginRoute';
 
 /** Finishes Google sign-in after NextAuth OAuth callback. */
 export default function GoogleCompletePage() {
   const router = useRouter();
   const dispatch = useAppDispatch();
-  const { isAuthenticated } = useAppSelector((s) => s.auth);
+  const { isAuthenticated, user } = useAppSelector((s) => s.auth);
   const [googleAuth] = useGoogleAuthMutation();
   const startedRef = useRef(false);
 
   useEffect(() => {
     if (isAuthenticated) {
-      router.replace(ROUTES.DASHBOARD);
+      router.replace(getPostLoginRoute(user));
       return;
     }
     if (startedRef.current) return;
@@ -48,7 +49,7 @@ export default function GoogleCompletePage() {
         await syncUserProfile(dispatch);
         await signOut({ redirect: false });
         toast.success('Signed in with Google');
-        router.replace(ROUTES.DASHBOARD);
+        router.replace(getPostLoginRoute(response.data.user));
       } catch (error) {
         toast.error(getApiErrorMessage(error, 'Google authentication failed'));
         router.replace(ROUTES.LOGIN);
@@ -56,7 +57,7 @@ export default function GoogleCompletePage() {
     };
 
     void complete();
-  }, [dispatch, googleAuth, isAuthenticated, router]);
+  }, [dispatch, googleAuth, isAuthenticated, router, user]);
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-[#0a0a0a] text-white">

@@ -17,6 +17,7 @@ import { useVerifyLoginOtpMutation, useResendOtpMutation, useGetSidebarQuery } f
 import { ROUTES, OTP_PURPOSE } from '@/constants';
 import { getApiErrorMessage } from '@/services/apiClient';
 import { syncUserProfile } from '@/utils/syncUserProfile';
+import { getPostLoginRoute } from '@/utils/postLoginRoute';
 
 export default function VerifyLoginOtpPage() {
   const router = useRouter();
@@ -54,7 +55,7 @@ export default function VerifyLoginOtpPage() {
         }
 
         toast.success('Logged in successfully');
-        router.push(ROUTES.DASHBOARD);
+        router.push(getPostLoginRoute(response.data.user));
       } catch (err) {
         setError(getApiErrorMessage(err, 'Invalid code'));
       } finally {

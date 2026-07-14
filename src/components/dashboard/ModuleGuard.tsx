@@ -6,6 +6,7 @@ import { useAppSelector } from '@/hooks/useAppStore';
 import { useGetSidebarQuery } from '@/store/api';
 import { ALL_MODULE_ROUTES, UNAUTHORIZED_ROUTE } from '@/constants';
 import { buildModuleSlugMap, getRootSlug } from '@/utils/moduleTree';
+import { isElevatedRole } from '@/utils/roles';
 
 /**
  * Client-side module access guard. Child routes inherit access from their
@@ -20,7 +21,7 @@ export function ModuleGuard({ children }: { children: React.ReactNode }) {
   const [checked, setChecked] = useState(false);
 
   const modules = sidebarModules.length > 0 ? sidebarModules : data?.data ?? [];
-  const isSuperAdmin = user?.role === 'super-admin';
+  const isSuperAdmin = isElevatedRole(user?.role);
 
   const matched = [...ALL_MODULE_ROUTES]
     .sort((a, b) => b.route.length - a.route.length)

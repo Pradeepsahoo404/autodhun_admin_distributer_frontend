@@ -6,6 +6,7 @@ import { useAppDispatch, useAppSelector } from '@/hooks/useAppStore';
 import { useGetMeQuery } from '@/store/api';
 import { setUser } from '@/store/slices/authSlice';
 import { ROUTES } from '@/constants';
+import { getPostLoginRoute } from '@/utils/postLoginRoute';
 
 interface AuthGuardProps {
   children: React.ReactNode;
@@ -42,9 +43,9 @@ export function AuthGuard({ children, requireAuth = true }: AuthGuardProps) {
       router.replace(ROUTES.LOGIN);
     }
     if (!requireAuth && isAuthenticated) {
-      router.replace(ROUTES.DASHBOARD);
+      router.replace(getPostLoginRoute(user ?? meData?.data));
     }
-  }, [ready, isAuthenticated, requireAuth, router]);
+  }, [ready, isAuthenticated, requireAuth, router, user, meData?.data]);
 
   if (!ready) return null;
   if (requireAuth && isAuthenticated && meLoading && !user) return null;

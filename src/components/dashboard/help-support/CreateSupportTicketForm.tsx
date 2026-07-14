@@ -23,11 +23,12 @@ import {
   defaultSupportTicketFormValues,
 } from '@/components/dashboard/help-support/SupportTicketCategoryFields';
 import { cn } from '@/lib/utils';
+import { isElevatedRole } from '@/utils/roles';
 
 export function CreateSupportTicketForm() {
   const router = useRouter();
   const { user } = useAppSelector((s) => s.auth);
-  const isSuperAdmin = user?.role === ROLES.SUPER_ADMIN;
+  const isSuperAdmin = isElevatedRole(user?.role);
   const { canCreate } = usePermission('help-support');
   const [createTicket, { isLoading }] = useCreateSupportTicketMutation();
 

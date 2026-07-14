@@ -198,6 +198,24 @@ export const MODULE_PAGES: Record<string, ModulePageDef> = {
     description: 'Submit a new support request',
     icon: 'PlusCircle',
   },
+  '/dashboard/master': {
+    slug: 'master',
+    title: 'Master',
+    description: 'Platform overview and tenant management',
+    icon: 'Crown',
+  },
+  '/dashboard/master/tenants': {
+    slug: 'tenants',
+    title: 'Tenants',
+    description: 'Create and manage organizations',
+    icon: 'Building2',
+  },
+  '/dashboard/master/tenants/create': {
+    slug: 'tenants',
+    title: 'New Tenant',
+    description: 'Provision a tenant and Super Admin',
+    icon: 'PlusCircle',
+  },
 };
 
 export const ALL_MODULE_ROUTES = Object.entries(MODULE_PAGES).map(([route, def]) => ({
