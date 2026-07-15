@@ -14,6 +14,14 @@ const optionalCode = (pattern: RegExp, message: string) =>
     .optional()
     .or(z.literal(''));
 
+const permissionRowSchema = z.object({
+  moduleId: z.string().min(1, 'Module is required'),
+  canView: z.boolean(),
+  canCreate: z.boolean(),
+  canUpdate: z.boolean(),
+  canDelete: z.boolean(),
+});
+
 export const inviteAdminSchema = z.object({
   firstName: requiredNameField('First name'),
   lastName: optionalNameField('Last name'),
@@ -24,6 +32,24 @@ export const inviteAdminSchema = z.object({
     .max(500, 'Message must be at most 500 characters')
     .optional()
     .or(z.literal('')),
+});
+
+export const inviteSubAdminSchema = inviteAdminSchema.extend({
+  permissions: z
+    .array(permissionRowSchema)
+    .min(1, 'At least one module permission is required')
+    .refine((rows) => rows.some((row) => row.canView), {
+      message: 'At least one module must have View access',
+    }),
+});
+
+export const updateSubAdminPermissionsSchema = z.object({
+  permissions: z
+    .array(permissionRowSchema)
+    .min(1, 'At least one module permission is required')
+    .refine((rows) => rows.some((row) => row.canView), {
+      message: 'At least one module must have View access',
+    }),
 });
 
 export const editUserSchema = z.object({
@@ -47,4 +73,6 @@ export const editUserSchema = z.object({
 });
 
 export type InviteAdminFormData = z.infer<typeof inviteAdminSchema>;
+export type InviteSubAdminFormData = z.infer<typeof inviteSubAdminSchema>;
+export type UpdateSubAdminPermissionsFormData = z.infer<typeof updateSubAdminPermissionsSchema>;
 export type EditUserFormData = z.infer<typeof editUserSchema>;

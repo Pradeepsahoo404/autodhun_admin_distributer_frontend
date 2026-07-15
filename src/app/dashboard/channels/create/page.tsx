@@ -14,7 +14,7 @@ import {
 import { usePermission } from '@/hooks/usePermission';
 import { useAppSelector } from '@/hooks/useAppStore';
 import { getApiErrorMessage } from '@/services/apiClient';
-import { DASHBOARD_PAGE, ROLES } from '@/constants';
+import { DASHBOARD_PAGE, isElevatedRole } from '@/constants';
 import { DashboardPageHeader } from '@/components/dashboard/DashboardPageHeader';
 import { DataPagination } from '@/components/common/DataPagination';
 import { TableSearchField } from '@/components/common/TableSearchField';
@@ -56,7 +56,7 @@ const DEFAULT_PAGE_LIMIT = 10;
 
 export default function CreateChannelPage() {
   const { user: currentUser } = useAppSelector((s) => s.auth);
-  const isSuperAdmin = currentUser?.role === ROLES.SUPER_ADMIN;
+  const isElevated = isElevatedRole(currentUser?.role);
   const { canCreate, canUpdate, canDelete } = usePermission('create-channel');
 
   const [page, setPage] = useState(1);
@@ -159,12 +159,11 @@ export default function CreateChannelPage() {
       <DashboardPageHeader
         title="Create Channel"
         description={
-          isSuperAdmin
-            ? 'Review all channels across admins, and activate or deactivate them'
+          isElevated            ? 'Review all channels across admins, and activate or deactivate them'
             : 'Create and manage your distribution channels'
         }
         action={
-          !isSuperAdmin && canCreate ? (
+          !isElevated && canCreate ? (
             <Button
               onClick={() => setCreateOpen(true)}
               className="rounded-xl bg-brand-lime text-black hover:bg-brand-lime-dark"
@@ -180,7 +179,7 @@ export default function CreateChannelPage() {
         <CardHeader className={legalModuleCardHeaderClass}>
           <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
             <CardTitle className="text-white">
-              {isSuperAdmin ? 'All channels' : 'My channels'}
+              {isElevated ? 'All channels' : 'My channels'}
             </CardTitle>
             <div className="flex w-full flex-col items-stretch gap-3 lg:w-auto lg:items-end">
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-end">
@@ -221,9 +220,9 @@ export default function CreateChannelPage() {
           ) : items.length === 0 ? (
             <div className="flex flex-col items-center gap-4 py-12 text-center">
               <p className="text-neutral-500">
-                {isSuperAdmin ? 'No channels found.' : 'You have not created any channels yet.'}
+                {isElevated ? 'No channels found.' : 'You have not created any channels yet.'}
               </p>
-              {!isSuperAdmin && canCreate ? (
+              {!isElevated && canCreate ? (
                 <Button
                   onClick={() => setCreateOpen(true)}
                   className="rounded-xl bg-brand-lime text-black hover:bg-brand-lime-dark"
@@ -233,7 +232,7 @@ export default function CreateChannelPage() {
                 </Button>
               ) : null}
             </div>
-          ) : isSuperAdmin ? (
+          ) : isElevated ? (
             <div className={dashboardTableWrapperClass()}>
               <div className="overflow-x-auto">
                 <table className={cn(dashboardTableClass, 'min-w-[900px]')}>

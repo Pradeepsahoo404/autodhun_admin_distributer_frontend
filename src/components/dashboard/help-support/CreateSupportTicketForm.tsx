@@ -13,7 +13,7 @@ import { useCreateSupportTicketMutation } from '@/store/api';
 import { getApiErrorMessage } from '@/services/apiClient';
 import { usePermission } from '@/hooks/usePermission';
 import { useAppSelector } from '@/hooks/useAppStore';
-import { DASHBOARD_CARD, DASHBOARD_PAGE, DASHBOARD_PAGE_TITLE, ROLES } from '@/constants';
+import { DASHBOARD_CARD, DASHBOARD_PAGE, DASHBOARD_PAGE_TITLE, isElevatedRole } from '@/constants';
 import {
   supportTicketFormSchema,
   type SupportTicketFormData,
@@ -27,15 +27,15 @@ import { cn } from '@/lib/utils';
 export function CreateSupportTicketForm() {
   const router = useRouter();
   const { user } = useAppSelector((s) => s.auth);
-  const isSuperAdmin = user?.role === ROLES.SUPER_ADMIN;
+  const isElevated = isElevatedRole(user?.role);
   const { canCreate } = usePermission('help-support');
   const [createTicket, { isLoading }] = useCreateSupportTicketMutation();
 
   useEffect(() => {
-    if (isSuperAdmin || !canCreate) {
+    if (isElevated || !canCreate) {
       router.replace('/dashboard/help-support');
     }
-  }, [isSuperAdmin, canCreate, router]);
+  }, [isElevated, canCreate, router]);
 
   const {
     register,
@@ -49,7 +49,7 @@ export function CreateSupportTicketForm() {
     defaultValues: defaultSupportTicketFormValues,
   });
 
-  if (isSuperAdmin || !canCreate) {
+  if (isElevated || !canCreate) {
     return null;
   }
 

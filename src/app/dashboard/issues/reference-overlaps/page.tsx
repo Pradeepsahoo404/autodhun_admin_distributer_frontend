@@ -13,8 +13,9 @@ import {
   useUpdateReferenceOverlapStatusMutation,
 } from '@/store/api';
 import { useAppSelector } from '@/hooks/useAppStore';
+import { usePermission } from '@/hooks/usePermission';
 import { getApiErrorMessage } from '@/services/apiClient';
-import { DASHBOARD_PAGE, ROLES } from '@/constants';
+import { DASHBOARD_PAGE, isElevatedRole } from '@/constants';
 import {
   REFERENCE_OVERLAP_OWNERSHIP_FILTER_OPTIONS,
   REFERENCE_OVERLAP_STATUS_FILTER_OPTIONS,
@@ -59,7 +60,12 @@ const DEFAULT_PAGE_LIMIT = 10;
 
 export default function ReferenceOverlapsPage() {
   const { user: currentUser } = useAppSelector((s) => s.auth);
-  const isSuperAdmin = currentUser?.role === ROLES.SUPER_ADMIN;
+  const isElevated = isElevatedRole(currentUser?.role);
+  const { canCreate, canUpdate, canDelete } = usePermission('issues');
+  const canCreateEntry = isElevated && canCreate;
+  const canUpdateEntry = isElevated && canUpdate;
+  const canDeleteEntry = isElevated && canDelete;
+  const showActions = canUpdateEntry || canDeleteEntry;
 
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(DEFAULT_PAGE_LIMIT);
@@ -195,12 +201,12 @@ export default function ReferenceOverlapsPage() {
       <DashboardPageHeader
         title="Reference Overlaps"
         description={
-          isSuperAdmin
+          isElevated
             ? 'Create and assign reference overlaps to admins for ownership review'
             : 'Review assigned reference overlaps and confirm ownership'
         }
         action={
-          isSuperAdmin ? (
+          canCreateEntry ? (
             <Button
               onClick={() => setCreateOpen(true)}
               className="rounded-xl bg-brand-lime text-black hover:bg-brand-lime-dark"
@@ -216,7 +222,7 @@ export default function ReferenceOverlapsPage() {
         <CardHeader className={legalModuleCardHeaderClass}>
           <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
             <CardTitle className="text-white">
-              {isSuperAdmin ? 'All reference overlaps' : 'Assigned to me'}
+              {isElevated ? 'All reference overlaps' : 'Assigned to me'}
             </CardTitle>
             <div className="flex w-full flex-col items-stretch gap-3 lg:w-auto lg:items-end">
               <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-end">
@@ -266,11 +272,11 @@ export default function ReferenceOverlapsPage() {
           ) : items.length === 0 ? (
             <div className="flex flex-col items-center gap-4 py-12 text-center">
               <p className="text-neutral-500">
-                {isSuperAdmin
+                {isElevated
                   ? 'No reference overlaps found.'
                   : 'No reference overlaps assigned to you yet.'}
               </p>
-              {isSuperAdmin ? (
+              {canCreateEntry ? (
                 <Button
                   onClick={() => setCreateOpen(true)}
                   className="rounded-xl bg-brand-lime text-black hover:bg-brand-lime-dark"
@@ -292,11 +298,11 @@ export default function ReferenceOverlapsPage() {
                       <th>ISRC</th>
                       <th>Overlapping asset</th>
                       <th>Label</th>
-                      {isSuperAdmin ? <th>Admin</th> : null}
+                      {isElevated ? <th>Admin</th> : null}
                       <th className={dashboardTableHeadCellStatus}>Status</th>
                       <th>Ownership</th>
                       <th>Date / time</th>
-                      {isSuperAdmin ? <th className={dashboardTableHeadCellActions}>Actions</th> : null}
+                      {showActions ? <th className={dashboardTableHeadCellActions}>Actions</th> : null}
                     </tr>
                   </thead>
                   <tbody className={dashboardTableBodyClass}>
@@ -313,13 +319,13 @@ export default function ReferenceOverlapsPage() {
                         </td>
                         <td className="px-4 py-4 text-neutral-300">{item.overlappingAssetName}</td>
                         <td className="px-4 py-4 text-neutral-300">{item.labelName}</td>
-                        {isSuperAdmin ? (
+                        {isElevated ? (
                           <td className="px-4 py-4">
                             <AdminBadge name={item.assignedTo?.name} />
                           </td>
                         ) : null}
                         <td className={dashboardTableCellStatus}>
-                          {isSuperAdmin ? (
+                          {canUpdateEntry ? (
                             <IssuesStatusToggle
                               checked={item.status === 'active'}
                               loading={statusUpdatingId === item._id}
@@ -342,14 +348,17 @@ export default function ReferenceOverlapsPage() {
                           )}
                         </td>
                         <td className="px-4 py-4">
-                          {renderOwnershipCell(item, isSuperAdmin)}
+                          {renderOwnershipCell(item, isElevated)}
                         </td>
                         <td className={dashboardTableCellMeta}>{formatDateTime(item.createdAt)}</td>
-                        {isSuperAdmin ? (
+                        {showActions ? (
                           <td className={dashboardTableCellActions}>
                             <TableRowActions
-                              onEdit={() => setEditItem(item)}
-                              onDelete={() => setDeleteItem(item)}
+                              canView={false}
+                              canEdit={canUpdateEntry}
+                              canDelete={canDeleteEntry}
+                              onEdit={canUpdateEntry ? () => setEditItem(item) : undefined}
+                              onDelete={canDeleteEntry ? () => setDeleteItem(item) : undefined}
                             />
                           </td>
                         ) : null}
@@ -375,22 +384,24 @@ export default function ReferenceOverlapsPage() {
         </CardContent>
       </Card>
 
-      {isSuperAdmin ? (
-        <>
-          <CreateReferenceOverlapDialog open={createOpen} onClose={() => setCreateOpen(false)} />
-          <EditReferenceOverlapDialog
-            open={Boolean(editItem)}
-            item={editItem}
-            onClose={() => setEditItem(null)}
-          />
-          <DeleteReferenceOverlapDialog
-            open={Boolean(deleteItem)}
-            item={deleteItem}
-            loading={deleting}
-            onClose={() => setDeleteItem(null)}
-            onConfirm={() => void handleDeleteConfirm()}
-          />
-        </>
+      {canCreateEntry ? (
+        <CreateReferenceOverlapDialog open={createOpen} onClose={() => setCreateOpen(false)} />
+      ) : null}
+      {canUpdateEntry ? (
+        <EditReferenceOverlapDialog
+          open={Boolean(editItem)}
+          item={editItem}
+          onClose={() => setEditItem(null)}
+        />
+      ) : null}
+      {canDeleteEntry ? (
+        <DeleteReferenceOverlapDialog
+          open={Boolean(deleteItem)}
+          item={deleteItem}
+          loading={deleting}
+          onClose={() => setDeleteItem(null)}
+          onConfirm={() => void handleDeleteConfirm()}
+        />
       ) : null}
     </div>
   );

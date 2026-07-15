@@ -6,8 +6,9 @@ import { Plus } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useAppSelector } from '@/hooks/useAppStore';
+import { usePermission } from '@/hooks/usePermission';
 import { getApiErrorMessage } from '@/services/apiClient';
-import { DASHBOARD_PAGE, ROLES } from '@/constants';
+import { DASHBOARD_PAGE, isElevatedRole } from '@/constants';
 import {
   ISSUES_ENTRY_OWNERSHIP_FILTER_OPTIONS,
   ISSUES_ENTRY_STATUS_FILTER_OPTIONS,
@@ -57,7 +58,12 @@ interface IssuesAssignedEntryPageProps {
 
 export function IssuesAssignedEntryPage({ config }: IssuesAssignedEntryPageProps) {
   const { user: currentUser } = useAppSelector((s) => s.auth);
-  const isSuperAdmin = currentUser?.role === ROLES.SUPER_ADMIN;
+  const isElevated = isElevatedRole(currentUser?.role);
+  const { canCreate, canUpdate, canDelete } = usePermission('issues');
+  const canCreateEntry = isElevated && canCreate;
+  const canUpdateEntry = isElevated && canUpdate;
+  const canDeleteEntry = isElevated && canDelete;
+  const showActions = canUpdateEntry || canDeleteEntry;
 
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(DEFAULT_PAGE_LIMIT);
@@ -192,9 +198,9 @@ export function IssuesAssignedEntryPage({ config }: IssuesAssignedEntryPageProps
     <div className={cn(DASHBOARD_PAGE, 'space-y-8')}>
       <DashboardPageHeader
         title={config.title}
-        description={isSuperAdmin ? config.superAdminDescription : config.adminDescription}
+        description={isElevated ? config.superAdminDescription : config.adminDescription}
         action={
-          isSuperAdmin ? (
+          canCreateEntry ? (
             <Button
               onClick={() => setCreateOpen(true)}
               className="rounded-xl bg-brand-lime text-black hover:bg-brand-lime-dark"
@@ -210,7 +216,7 @@ export function IssuesAssignedEntryPage({ config }: IssuesAssignedEntryPageProps
         <CardHeader className={legalModuleCardHeaderClass}>
           <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
             <CardTitle className="text-white">
-              {isSuperAdmin ? config.listTitleSuperAdmin : config.listTitleAdmin}
+              {isElevated ? config.listTitleSuperAdmin : config.listTitleAdmin}
             </CardTitle>
             <div className="flex w-full flex-col items-stretch gap-3 lg:w-auto lg:items-end">
               <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-end">
@@ -260,9 +266,9 @@ export function IssuesAssignedEntryPage({ config }: IssuesAssignedEntryPageProps
           ) : items.length === 0 ? (
             <div className="flex flex-col items-center gap-4 py-12 text-center">
               <p className="text-neutral-500">
-                {isSuperAdmin ? config.emptySuperAdmin : config.emptyAdmin}
+                {isElevated ? config.emptySuperAdmin : config.emptyAdmin}
               </p>
-              {isSuperAdmin ? (
+              {canCreateEntry ? (
                 <Button
                   onClick={() => setCreateOpen(true)}
                   className="rounded-xl bg-brand-lime text-black hover:bg-brand-lime-dark"
@@ -284,11 +290,11 @@ export function IssuesAssignedEntryPage({ config }: IssuesAssignedEntryPageProps
                       <th>ISRC</th>
                       <th>Overlapping asset</th>
                       <th>Label</th>
-                      {isSuperAdmin ? <th>Admin</th> : null}
+                      {isElevated ? <th>Admin</th> : null}
                       <th className={dashboardTableHeadCellStatus}>Status</th>
                       <th>Ownership</th>
                       <th>Date / time</th>
-                      {isSuperAdmin ? <th className={dashboardTableHeadCellActions}>Actions</th> : null}
+                      {showActions ? <th className={dashboardTableHeadCellActions}>Actions</th> : null}
                     </tr>
                   </thead>
                   <tbody className={dashboardTableBodyClass}>
@@ -305,13 +311,13 @@ export function IssuesAssignedEntryPage({ config }: IssuesAssignedEntryPageProps
                         </td>
                         <td className="px-4 py-4 text-neutral-300">{item.overlappingAssetName}</td>
                         <td className="px-4 py-4 text-neutral-300">{item.labelName}</td>
-                        {isSuperAdmin ? (
+                        {isElevated ? (
                           <td className="px-4 py-4">
                             <AdminBadge name={item.assignedTo?.name} />
                           </td>
                         ) : null}
                         <td className={dashboardTableCellStatus}>
-                          {isSuperAdmin ? (
+                          {canUpdateEntry ? (
                             <IssuesStatusToggle
                               checked={item.status === 'active'}
                               loading={statusUpdatingId === item._id}
@@ -333,13 +339,16 @@ export function IssuesAssignedEntryPage({ config }: IssuesAssignedEntryPageProps
                             </span>
                           )}
                         </td>
-                        <td className="px-4 py-4">{renderOwnershipCell(item, isSuperAdmin)}</td>
+                        <td className="px-4 py-4">{renderOwnershipCell(item, isElevated)}</td>
                         <td className={dashboardTableCellMeta}>{formatDateTime(item.createdAt)}</td>
-                        {isSuperAdmin ? (
+                        {showActions ? (
                           <td className={dashboardTableCellActions}>
                             <TableRowActions
-                              onEdit={() => setEditItem(item)}
-                              onDelete={() => setDeleteItem(item)}
+                              canView={false}
+                              canEdit={canUpdateEntry}
+                              canDelete={canDeleteEntry}
+                              onEdit={canUpdateEntry ? () => setEditItem(item) : undefined}
+                              onDelete={canDeleteEntry ? () => setDeleteItem(item) : undefined}
                             />
                           </td>
                         ) : null}
@@ -366,35 +375,37 @@ export function IssuesAssignedEntryPage({ config }: IssuesAssignedEntryPageProps
         </CardContent>
       </Card>
 
-      {isSuperAdmin ? (
-        <>
-          <CreateIssuesEntryDialog
-            open={createOpen}
-            onClose={() => setCreateOpen(false)}
-            title={config.createDialogTitle}
-            successMessage={config.createSuccessMessage}
-            formId={config.createFormId}
-            useCreateMutation={config.useCreateMutation}
-          />
-          <EditIssuesEntryDialog
-            open={Boolean(editItem)}
-            item={editItem}
-            onClose={() => setEditItem(null)}
-            title={config.editDialogTitle}
-            successMessage={config.editSuccessMessage}
-            formId={config.editFormId}
-            useUpdateMutation={config.useUpdateMutation}
-          />
-          <DeleteIssuesEntryDialog
-            open={Boolean(deleteItem)}
-            item={deleteItem}
-            loading={deleting}
-            title={config.deleteDialogTitle}
-            message={config.deleteDialogMessage}
-            onClose={() => setDeleteItem(null)}
-            onConfirm={() => void handleDeleteConfirm()}
-          />
-        </>
+      {canCreateEntry ? (
+        <CreateIssuesEntryDialog
+          open={createOpen}
+          onClose={() => setCreateOpen(false)}
+          title={config.createDialogTitle}
+          successMessage={config.createSuccessMessage}
+          formId={config.createFormId}
+          useCreateMutation={config.useCreateMutation}
+        />
+      ) : null}
+      {canUpdateEntry ? (
+        <EditIssuesEntryDialog
+          open={Boolean(editItem)}
+          item={editItem}
+          onClose={() => setEditItem(null)}
+          title={config.editDialogTitle}
+          successMessage={config.editSuccessMessage}
+          formId={config.editFormId}
+          useUpdateMutation={config.useUpdateMutation}
+        />
+      ) : null}
+      {canDeleteEntry ? (
+        <DeleteIssuesEntryDialog
+          open={Boolean(deleteItem)}
+          item={deleteItem}
+          loading={deleting}
+          title={config.deleteDialogTitle}
+          message={config.deleteDialogMessage}
+          onClose={() => setDeleteItem(null)}
+          onConfirm={() => void handleDeleteConfirm()}
+        />
       ) : null}
     </div>
   );

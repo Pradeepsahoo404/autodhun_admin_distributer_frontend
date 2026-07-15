@@ -6,7 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
 import { AppModal, modalFormClass } from '@/components/common/AppModal';
 import { ModalFormFooter } from '@/components/common/ModalFormFooter';
-import { useGetUsersQuery } from '@/store/api';
+import { useGetIssueAssigneesQuery } from '@/store/api';
 import { getApiErrorMessage } from '@/services/apiClient';
 import {
   issuesEntryFormSchema,
@@ -39,10 +39,9 @@ export function EditIssuesEntryDialog({
   useUpdateMutation,
 }: EditIssuesEntryDialogProps) {
   const [updateEntry, { isLoading }] = useUpdateMutation();
-  const { data: usersData, isLoading: adminsLoading } = useGetUsersQuery(
-    { page: 1, limit: 100, status: 'active' },
-    { skip: !open },
-  );
+  const { data: usersData, isLoading: adminsLoading } = useGetIssueAssigneesQuery(undefined, {
+    skip: !open,
+  });
   const admins = usersData?.data ?? [];
 
   const {

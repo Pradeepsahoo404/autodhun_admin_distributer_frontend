@@ -21,6 +21,10 @@ export const ROUTES = {
 
   DASHBOARD: '/dashboard',
 
+  SUB_ADMINS: '/dashboard/sub-admins',
+
+  SUB_ADMINS_CREATE: '/dashboard/sub-admins/create',
+
   SETTINGS: '/dashboard/settings',
 
   PROFILE: '/dashboard/profile',
@@ -57,9 +61,16 @@ export const ROLES = {
 
   SUPER_ADMIN: 'super-admin',
 
+  SUB_ADMIN: 'sub-admin',
+
   ADMIN: 'admin',
 
 } as const;
+
+/** Super Admin and Sub Admin see broader list scope and creator badges in the UI. */
+export function isElevatedRole(role: string | undefined): boolean {
+  return role === ROLES.SUPER_ADMIN || role === ROLES.SUB_ADMIN;
+}
 
 
 
@@ -107,6 +118,8 @@ export const ALL_MODULE_ROUTES: Array<{ route: string; slug: string }> = [
   { route: '/dashboard/profile', slug: 'settings' },
 
   { route: '/dashboard/users', slug: 'users' },
+
+  { route: '/dashboard/sub-admins', slug: 'sub-admins' },
 
   { route: '/dashboard/roles', slug: 'roles' },
 

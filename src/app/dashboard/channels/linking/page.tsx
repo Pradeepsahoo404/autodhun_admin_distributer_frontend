@@ -14,7 +14,7 @@ import {
 import { usePermission } from '@/hooks/usePermission';
 import { useAppSelector } from '@/hooks/useAppStore';
 import { getApiErrorMessage } from '@/services/apiClient';
-import { DASHBOARD_PAGE, ROLES } from '@/constants';
+import { DASHBOARD_PAGE, isElevatedRole } from '@/constants';
 import { DashboardPageHeader } from '@/components/dashboard/DashboardPageHeader';
 import { DataPagination } from '@/components/common/DataPagination';
 import { TableSearchField } from '@/components/common/TableSearchField';
@@ -70,7 +70,7 @@ function formatViews(value: number): string {
 
 export default function ChannelLinkingPage() {
   const { user: currentUser } = useAppSelector((s) => s.auth);
-  const isSuperAdmin = currentUser?.role === ROLES.SUPER_ADMIN;
+  const isElevated = isElevatedRole(currentUser?.role);
   const { canCreate, canUpdate, canDelete } = usePermission('channel-linking');
 
   const [page, setPage] = useState(1);
@@ -175,12 +175,11 @@ export default function ChannelLinkingPage() {
       <DashboardPageHeader
         title="Linking"
         description={
-          isSuperAdmin
-            ? 'Review all channel linking submissions, approve or reject them, and manage entries'
+          isElevated            ? 'Review all channel linking submissions, approve or reject them, and manage entries'
             : 'Submit channel linking requests for review'
         }
         action={
-          !isSuperAdmin && canCreate ? (
+          !isElevated && canCreate ? (
             <Button
               onClick={() => setCreateOpen(true)}
               className="rounded-xl bg-brand-lime text-black hover:bg-brand-lime-dark"
@@ -196,7 +195,7 @@ export default function ChannelLinkingPage() {
         <CardHeader className={legalModuleCardHeaderClass}>
           <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
             <CardTitle className="text-white">
-              {isSuperAdmin ? 'All channel linking' : 'My channel linking'}
+              {isElevated ? 'All channel linking' : 'My channel linking'}
             </CardTitle>
             <div className="flex w-full flex-col items-stretch gap-3 lg:w-auto lg:items-end">
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-end">
@@ -237,11 +236,10 @@ export default function ChannelLinkingPage() {
           ) : items.length === 0 ? (
             <div className="flex flex-col items-center gap-4 py-12 text-center">
               <p className="text-neutral-500">
-                {isSuperAdmin
-                  ? 'No channel linking entries found.'
+                {isElevated                  ? 'No channel linking entries found.'
                   : 'You have not submitted any channel linking entries yet.'}
               </p>
-              {!isSuperAdmin && canCreate ? (
+              {!isElevated && canCreate ? (
                 <Button
                   onClick={() => setCreateOpen(true)}
                   className="rounded-xl bg-brand-lime text-black hover:bg-brand-lime-dark"
@@ -251,7 +249,7 @@ export default function ChannelLinkingPage() {
                 </Button>
               ) : null}
             </div>
-          ) : isSuperAdmin ? (
+          ) : isElevated ? (
             <div className={dashboardTableWrapperClass()}>
               <div className="overflow-x-auto">
                 <table className={cn(dashboardTableClass, 'min-w-[1100px]')}>

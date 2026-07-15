@@ -14,7 +14,7 @@ import {
 import { usePermission } from '@/hooks/usePermission';
 import { useAppSelector } from '@/hooks/useAppStore';
 import { getApiErrorMessage } from '@/services/apiClient';
-import { DASHBOARD_PAGE, ROLES } from '@/constants';
+import { DASHBOARD_PAGE, isElevatedRole } from '@/constants';
 import { DashboardPageHeader } from '@/components/dashboard/DashboardPageHeader';
 import { DataPagination } from '@/components/common/DataPagination';
 import { TableSearchField } from '@/components/common/TableSearchField';
@@ -60,7 +60,7 @@ const DEFAULT_PAGE_LIMIT = 10;
 
 export default function YoutubeClaimReleasePage() {
   const { user: currentUser } = useAppSelector((s) => s.auth);
-  const isSuperAdmin = currentUser?.role === ROLES.SUPER_ADMIN;
+  const isElevated = isElevatedRole(currentUser?.role);
   const { canCreate, canUpdate, canDelete } = usePermission('youtube-claim-release');
 
   const [page, setPage] = useState(1);
@@ -164,12 +164,11 @@ export default function YoutubeClaimReleasePage() {
       <DashboardPageHeader
         title="Youtube Claim Release"
         description={
-          isSuperAdmin
-            ? 'Review all claim releases, manage in-progress entries, and activate or deactivate them'
+          isElevated            ? 'Review all claim releases, manage in-progress entries, and activate or deactivate them'
             : 'Create and manage your claim release requests'
         }
         action={
-          !isSuperAdmin && canCreate ? (
+          !isElevated && canCreate ? (
             <Button
               onClick={() => setCreateOpen(true)}
               className="rounded-xl bg-brand-lime text-black hover:bg-brand-lime-dark"
@@ -185,7 +184,7 @@ export default function YoutubeClaimReleasePage() {
         <CardHeader className={legalModuleCardHeaderClass}>
           <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
             <CardTitle className="text-white">
-              {isSuperAdmin ? 'All claim releases' : 'My claim releases'}
+              {isElevated ? 'All claim releases' : 'My claim releases'}
             </CardTitle>
             <div className="flex w-full flex-col items-stretch gap-3 lg:w-auto lg:items-end">
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-end">
@@ -226,9 +225,9 @@ export default function YoutubeClaimReleasePage() {
           ) : items.length === 0 ? (
             <div className="flex flex-col items-center gap-4 py-12 text-center">
               <p className="text-neutral-500">
-                {isSuperAdmin ? 'No claim releases found.' : 'You have not created any claim releases yet.'}
+                {isElevated ? 'No claim releases found.' : 'You have not created any claim releases yet.'}
               </p>
-              {!isSuperAdmin && canCreate ? (
+              {!isElevated && canCreate ? (
                 <Button
                   onClick={() => setCreateOpen(true)}
                   className="rounded-xl bg-brand-lime text-black hover:bg-brand-lime-dark"
@@ -238,7 +237,7 @@ export default function YoutubeClaimReleasePage() {
                 </Button>
               ) : null}
             </div>
-          ) : isSuperAdmin ? (
+          ) : isElevated ? (
             <div className={dashboardTableWrapperClass()}>
               <div className="overflow-x-auto">
                 <table className={cn(dashboardTableClass, 'min-w-[1000px]')}>

@@ -264,6 +264,7 @@ export interface User {
   avatarUrl?: string;
   profile?: UserProfile;
   bankDetails?: UserBankDetails;
+  createdBy?: { _id: string; name: string; email: string };
 }
 
 export interface AdminCreationStats {

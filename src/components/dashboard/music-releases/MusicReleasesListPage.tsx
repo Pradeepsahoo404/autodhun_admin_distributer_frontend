@@ -17,7 +17,7 @@ import {
 import { ExportDateRangeBar } from '@/components/common/ExportDateRangeBar';
 import { useAppSelector } from '@/hooks/useAppStore';
 import { getApiErrorMessage } from '@/services/apiClient';
-import { DASHBOARD_PAGE, ROLES } from '@/constants';
+import { DASHBOARD_PAGE, isElevatedRole } from '@/constants';
 import {
   ASSETS_OVERVIEW_STATUS_FILTER_OPTIONS,
   ASSETS_OVERVIEW_STATUS_SELECT_OPTIONS,
@@ -165,8 +165,8 @@ export function MusicReleasesListPage({ context }: MusicReleasesListPageProps) {
   const config = PAGE_CONFIG[context];
   const router = useRouter();
   const { user: currentUser } = useAppSelector((s) => s.auth);
-  const isSuperAdmin = currentUser?.role === ROLES.SUPER_ADMIN;
-  const showBulkSelect = config.showStatusControl && isSuperAdmin;
+  const canControlStatus = isElevatedRole(currentUser?.role);
+  const showBulkSelect = config.showStatusControl && canControlStatus;
 
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(DEFAULT_PAGE_LIMIT);
@@ -593,7 +593,7 @@ export function MusicReleasesListPage({ context }: MusicReleasesListPageProps) {
                             )}
                           </td>
                           <td className={dashboardTableCellStatusControl}>
-                            {config.showStatusControl && isSuperAdmin ? (
+                            {config.showStatusControl && canControlStatus ? (
                               <ReleaseStatusSelect
                                 value={item.status}
                                 onChange={(status) => handleStatusChange(item, status)}

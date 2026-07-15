@@ -5,10 +5,10 @@ const BANK_NAME_PATTERN = /^[A-Za-z][A-Za-z\s.&'-]*$/;
 const ACCOUNT_NUMBER_PATTERN = /^\d{9,18}$/;
 const IFSC_PATTERN = /^[A-Za-z]{4}0[A-Za-z0-9]{6}$/;
 
-/** True when required bank details are present (Super Admin is always complete). */
+/** True when required bank details are present (elevated accounts are always complete). */
 export function isProfileComplete(user: AuthUser | null | undefined): boolean {
   if (!user) return true;
-  if (user.role === ROLES.SUPER_ADMIN) return true;
+  if (user.role === ROLES.SUPER_ADMIN || user.role === ROLES.SUB_ADMIN) return true;
   if (user.profileCompleted === true) return true;
 
   const bank = user.bankDetails;

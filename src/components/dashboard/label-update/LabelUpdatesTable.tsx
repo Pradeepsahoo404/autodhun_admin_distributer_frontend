@@ -36,7 +36,7 @@ interface LabelUpdatesTableProps {
 
 export function LabelUpdatesTable({
   title = 'Label Update History',
-  description = 'Records of label name changes made by Super Admin.',
+  description = 'Records of label name changes.',
   compact = false,
   className,
 }: LabelUpdatesTableProps) {

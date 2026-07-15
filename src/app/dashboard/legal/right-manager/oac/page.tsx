@@ -14,7 +14,7 @@ import {
 import { usePermission } from '@/hooks/usePermission';
 import { useAppSelector } from '@/hooks/useAppStore';
 import { getApiErrorMessage } from '@/services/apiClient';
-import { DASHBOARD_PAGE, ROLES } from '@/constants';
+import { DASHBOARD_PAGE, isElevatedRole } from '@/constants';
 import { DashboardPageHeader } from '@/components/dashboard/DashboardPageHeader';
 import { DataPagination } from '@/components/common/DataPagination';
 import { TableSearchField } from '@/components/common/TableSearchField';
@@ -60,7 +60,7 @@ const DEFAULT_PAGE_LIMIT = 10;
 
 export default function OacPage() {
   const { user: currentUser } = useAppSelector((s) => s.auth);
-  const isSuperAdmin = currentUser?.role === ROLES.SUPER_ADMIN;
+  const isElevated = isElevatedRole(currentUser?.role);
   const { canCreate, canUpdate, canDelete } = usePermission('oac');
 
   const [page, setPage] = useState(1);
@@ -164,12 +164,11 @@ export default function OacPage() {
       <DashboardPageHeader
         title="OAC"
         description={
-          isSuperAdmin
-            ? 'Review all official artist channel entries, manage in-progress entries, and activate or deactivate them'
+          isElevated            ? 'Review all official artist channel entries, manage in-progress entries, and activate or deactivate them'
             : 'Create and manage your official artist channel requests'
         }
         action={
-          !isSuperAdmin && canCreate ? (
+          !isElevated && canCreate ? (
             <Button
               onClick={() => setCreateOpen(true)}
               className="rounded-xl bg-brand-lime text-black hover:bg-brand-lime-dark"
@@ -185,7 +184,7 @@ export default function OacPage() {
         <CardHeader className={legalModuleCardHeaderClass}>
           <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
             <CardTitle className="text-white">
-              {isSuperAdmin ? 'All OAC entries' : 'My OAC entries'}
+              {isElevated ? 'All OAC entries' : 'My OAC entries'}
             </CardTitle>
             <div className="flex w-full flex-col items-stretch gap-3 lg:w-auto lg:items-end">
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-end">
@@ -226,9 +225,9 @@ export default function OacPage() {
           ) : items.length === 0 ? (
             <div className="flex flex-col items-center gap-4 py-12 text-center">
               <p className="text-neutral-500">
-                {isSuperAdmin ? 'No OAC entries found.' : 'You have not created any OAC entries yet.'}
+                {isElevated ? 'No OAC entries found.' : 'You have not created any OAC entries yet.'}
               </p>
-              {!isSuperAdmin && canCreate ? (
+              {!isElevated && canCreate ? (
                 <Button
                   onClick={() => setCreateOpen(true)}
                   className="rounded-xl bg-brand-lime text-black hover:bg-brand-lime-dark"
@@ -238,7 +237,7 @@ export default function OacPage() {
                 </Button>
               ) : null}
             </div>
-          ) : isSuperAdmin ? (
+          ) : isElevated ? (
             <div className={dashboardTableWrapperClass()}>
               <div className="overflow-x-auto">
                 <table className={cn(dashboardTableClass, 'min-w-[1100px]')}>

@@ -18,7 +18,7 @@ import {
 import { getApiErrorMessage } from '@/services/apiClient';
 import { usePermission } from '@/hooks/usePermission';
 import { useAppSelector } from '@/hooks/useAppStore';
-import { DASHBOARD_CARD, DASHBOARD_PAGE, DASHBOARD_PAGE_TITLE, ROLES } from '@/constants';
+import { DASHBOARD_CARD, DASHBOARD_PAGE, DASHBOARD_PAGE_TITLE, isElevatedRole } from '@/constants';
 import {
   SUPPORT_TICKET_STATUS,
   SUPPORT_TICKET_STATUS_LABELS,
@@ -66,7 +66,7 @@ export function SupportTicketDetailView({ ticketId }: SupportTicketDetailViewPro
   const initialEdit = searchParams.get('mode') === 'edit';
 
   const { user: currentUser } = useAppSelector((s) => s.auth);
-  const isSuperAdmin = currentUser?.role === ROLES.SUPER_ADMIN;
+  const isElevated = isElevatedRole(currentUser?.role);
   const { canUpdate, canDelete } = usePermission('help-support');
 
   const { data, isLoading, isError } = useGetSupportTicketByIdQuery(ticketId);
@@ -84,17 +84,18 @@ export function SupportTicketDetailView({ ticketId }: SupportTicketDetailViewPro
 
   const canEditContent = useMemo(() => {
     if (!ticket) return false;
-    if (isSuperAdmin) return canUpdate;
+    if (isElevated) return canUpdate;
     return canUpdate && canAdminEditSupportTicket(ticket.status);
-  }, [ticket, isSuperAdmin, canUpdate]);
+  }, [ticket, isElevated, canUpdate]);
 
   const canDeleteTicket = useMemo(() => {
     if (!ticket) return false;
-    if (isSuperAdmin) return canDelete;
+    if (isElevated) return canDelete;
     return canDelete && canAdminDeleteSupportTicket(ticket.status);
-  }, [ticket, isSuperAdmin, canDelete]);
+  }, [ticket, isElevated, canDelete]);
 
-  const canManageStatus = isSuperAdmin && ticket && ticket.status !== SUPPORT_TICKET_STATUS.CLOSED;
+  const canManageStatus =
+    isElevated && canUpdate && Boolean(ticket) && ticket!.status !== SUPPORT_TICKET_STATUS.CLOSED;
 
   const contentForm = useForm<SupportTicketFormData>({
     resolver: zodResolver(supportTicketFormSchema),
@@ -190,7 +191,7 @@ export function SupportTicketDetailView({ ticketId }: SupportTicketDetailViewPro
         <div className="min-w-0">
           <div className="mb-2 flex flex-wrap items-center gap-2">
             <span className="font-mono text-sm text-neutral-500">#{ticket.ticketNumber}</span>
-            {isSuperAdmin && ticket.createdBy ? <AdminBadge name={ticket.createdBy.name} /> : null}
+            {isElevated && ticket.createdBy ? <AdminBadge name={ticket.createdBy.name} /> : null}
           </div>
           <h1 className={cn(DASHBOARD_PAGE_TITLE, 'break-words')}>{ticket.subject}</h1>
           <div className="mt-3 flex flex-wrap items-center gap-2">

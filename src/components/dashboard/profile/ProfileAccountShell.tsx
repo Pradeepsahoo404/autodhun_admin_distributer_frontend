@@ -18,11 +18,11 @@ export function ProfileAccountShell({
   generalHref = ROUTES.PROFILE,
 }: ProfileAccountShellProps) {
   const pathname = usePathname();
-  const { isSuperAdmin, canManagePassword } = useAuthAccount();
+  const { isSuperAdmin, isElevated, canManagePassword } = useAuthAccount();
 
   const tabs = [
     { label: 'General', href: generalHref },
-    ...(!isSuperAdmin ? [{ label: 'Bank Details', href: ROUTES.PROFILE_BANK_DETAILS }] : []),
+    ...(!isElevated ? [{ label: 'Bank Details', href: ROUTES.PROFILE_BANK_DETAILS }] : []),
     ...(canManagePassword
       ? [
           { label: 'Change Password', href: ROUTES.CHANGE_PASSWORD },

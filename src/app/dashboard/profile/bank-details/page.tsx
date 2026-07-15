@@ -19,7 +19,8 @@ export default function BankDetailsPage() {
   const router = useRouter();
   const { user } = useAppSelector((s) => s.auth);
   const [updateBankDetails, { isLoading }] = useUpdateBankDetailsMutation();
-  const isSuperAdmin = user?.role === ROLES.SUPER_ADMIN;
+  const isElevated =
+    user?.role === ROLES.SUPER_ADMIN || user?.role === ROLES.SUB_ADMIN;
 
   const {
     register,
@@ -38,10 +39,10 @@ export default function BankDetailsPage() {
   });
 
   useEffect(() => {
-    if (isSuperAdmin) {
+    if (isElevated) {
       router.replace(ROUTES.PROFILE);
     }
-  }, [isSuperAdmin, router]);
+  }, [isElevated, router]);
 
   useEffect(() => {
     if (!user) return;
@@ -67,7 +68,7 @@ export default function BankDetailsPage() {
     }
   };
 
-  if (isSuperAdmin) return null;
+  if (isElevated) return null;
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">

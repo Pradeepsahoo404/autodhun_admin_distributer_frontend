@@ -22,7 +22,7 @@ export function LabelTransferPage() {
 
       <LabelUpdatesTable
         title="Recent Label Updates"
-        description="Label name changes made by Super Admin from this page."
+        description="Label name changes made from this page."
         compact
       />
 

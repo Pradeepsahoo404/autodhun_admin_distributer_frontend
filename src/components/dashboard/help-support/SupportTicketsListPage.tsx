@@ -17,7 +17,7 @@ import { DeleteSupportTicketDialog } from '@/components/dashboard/help-support/D
 import { useDeleteSupportTicketMutation, useGetSupportTicketsQuery } from '@/store/api';
 import { usePermission } from '@/hooks/usePermission';
 import { useAppSelector } from '@/hooks/useAppStore';
-import { DASHBOARD_PAGE, ROLES } from '@/constants';
+import { DASHBOARD_PAGE, isElevatedRole } from '@/constants';
 import {
   SUPPORT_TICKET_CASE_FILTER,
   SUPPORT_TICKET_CASE_FILTER_OPTIONS,
@@ -60,7 +60,7 @@ function CaseFilterPill({
 
 function SupportTicketCard({
   ticket,
-  isSuperAdmin,
+  isElevated,
   canUpdate,
   canDelete,
   onView,
@@ -68,17 +68,17 @@ function SupportTicketCard({
   onDelete,
 }: {
   ticket: SupportTicket;
-  isSuperAdmin: boolean;
+  isElevated: boolean;
   canUpdate: boolean;
   canDelete: boolean;
   onView: (ticket: SupportTicket) => void;
   onEdit: (ticket: SupportTicket) => void;
   onDelete: (ticket: SupportTicket) => void;
 }) {
-  const showEdit = isSuperAdmin
+  const showEdit = isElevated
     ? canUpdate
     : canUpdate && canAdminEditSupportTicket(ticket.status);
-  const showDelete = isSuperAdmin
+  const showDelete = isElevated
     ? canDelete
     : canDelete && canAdminDeleteSupportTicket(ticket.status);
 
@@ -88,7 +88,7 @@ function SupportTicketCard({
         <div className="min-w-0 flex-1 space-y-3">
           <div className="flex flex-wrap items-center gap-2">
             <span className="font-mono text-xs text-neutral-500">#{ticket.ticketNumber}</span>
-            {isSuperAdmin && ticket.createdBy ? <AdminBadge name={ticket.createdBy.name} /> : null}
+            {isElevated && ticket.createdBy ? <AdminBadge name={ticket.createdBy.name} /> : null}
           </div>
 
           <h3 className="text-base font-semibold leading-snug text-white">{ticket.subject}</h3>
@@ -125,9 +125,9 @@ function SupportTicketCard({
 export function SupportTicketsListPage() {
   const router = useRouter();
   const { user: currentUser } = useAppSelector((s) => s.auth);
-  const isSuperAdmin = currentUser?.role === ROLES.SUPER_ADMIN;
+  const isElevated = isElevatedRole(currentUser?.role);
   const { canCreate, canUpdate, canDelete } = usePermission('help-support');
-  const canSubmitRequest = !isSuperAdmin && canCreate;
+  const canSubmitRequest = !isElevated && canCreate;
 
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(DEFAULT_PAGE_LIMIT);
@@ -184,7 +184,7 @@ export function SupportTicketsListPage() {
       <DashboardPageHeader
         title="Support Center"
         description={
-          isSuperAdmin
+          isElevated
             ? 'Monitor and resolve support requests submitted by admins.'
             : 'Find the status of your tickets here.'
         }
@@ -205,7 +205,7 @@ export function SupportTicketsListPage() {
         <CardHeader className={legalModuleCardHeaderClass}>
           <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
             <CardTitle className="text-white">
-              {isSuperAdmin ? 'All support requests' : 'My support requests'}
+              {isElevated ? 'All support requests' : 'My support requests'}
             </CardTitle>
             <div className="flex w-full flex-col gap-3 lg:flex-row lg:items-center lg:justify-end">
               <TableSearchField
@@ -237,7 +237,7 @@ export function SupportTicketsListPage() {
           ) : items.length === 0 ? (
             <div className="flex flex-col items-center gap-4 py-16 text-center">
               <p className="text-neutral-500">
-                {isSuperAdmin
+                {isElevated
                   ? 'No support tickets found.'
                   : 'You have not created any support requests yet.'}
               </p>
@@ -257,7 +257,7 @@ export function SupportTicketsListPage() {
                 <SupportTicketCard
                   key={ticket._id}
                   ticket={ticket}
-                  isSuperAdmin={isSuperAdmin}
+                  isElevated={isElevated}
                   canUpdate={canUpdate}
                   canDelete={canDelete}
                   onView={handleView}

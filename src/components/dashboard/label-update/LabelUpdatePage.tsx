@@ -9,7 +9,7 @@ export function LabelUpdatePage() {
     <div className={DASHBOARD_PAGE}>
       <DashboardPageHeader
         title="Label Update"
-        description="View a complete history of label name changes made by Super Admin for future reference."
+        description="View a complete history of label name changes for future reference."
       />
 
       <LabelUpdatesTable />

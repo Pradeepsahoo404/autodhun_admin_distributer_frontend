@@ -54,10 +54,15 @@ export { useGetDashboardQuery } from './dashboardApi';
 
 export {
   useGetUsersQuery,
+  useGetIssueAssigneesQuery,
   useGetUserByIdQuery,
   useGetAdminCreationStatsQuery,
   useCreateUserMutation,
   useInviteAdminMutation,
+  useGetSubAdminsQuery,
+  useInviteSubAdminMutation,
+  useGetSubAdminPermissionsQuery,
+  useUpdateSubAdminPermissionsMutation,
   useResendInviteMutation,
   useUpdateUserMutation,
   useDeleteUserMutation,

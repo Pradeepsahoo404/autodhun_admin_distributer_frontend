@@ -198,6 +198,12 @@ export const MODULE_PAGES: Record<string, ModulePageDef> = {
     description: 'Submit a new support request',
     icon: 'PlusCircle',
   },
+  '/dashboard/sub-admins': {
+    slug: 'sub-admins',
+    title: 'Sub Admins',
+    description: 'Invite and manage Sub Admins with custom module permissions',
+    icon: 'UserCog',
+  },
 };
 
 export const ALL_MODULE_ROUTES = Object.entries(MODULE_PAGES).map(([route, def]) => ({

@@ -6,7 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
 import { AppModal, modalFormClass } from '@/components/common/AppModal';
 import { ModalFormFooter } from '@/components/common/ModalFormFooter';
-import { useGetUsersQuery, useUpdateReferenceOverlapMutation } from '@/store/api';
+import { useGetIssueAssigneesQuery, useUpdateReferenceOverlapMutation } from '@/store/api';
 import { getApiErrorMessage } from '@/services/apiClient';
 import {
   onReferenceOverlapFormInvalid,
@@ -24,10 +24,9 @@ interface EditReferenceOverlapDialogProps {
 
 export function EditReferenceOverlapDialog({ open, item, onClose }: EditReferenceOverlapDialogProps) {
   const [updateEntry, { isLoading }] = useUpdateReferenceOverlapMutation();
-  const { data: usersData, isLoading: adminsLoading } = useGetUsersQuery(
-    { page: 1, limit: 100, status: 'active' },
-    { skip: !open },
-  );
+  const { data: usersData, isLoading: adminsLoading } = useGetIssueAssigneesQuery(undefined, {
+    skip: !open,
+  });
   const admins = usersData?.data ?? [];
 
   const {

@@ -14,7 +14,7 @@ import {
 import { usePermission } from '@/hooks/usePermission';
 import { useAppSelector } from '@/hooks/useAppStore';
 import { getApiErrorMessage } from '@/services/apiClient';
-import { DASHBOARD_PAGE, ROLES } from '@/constants';
+import { DASHBOARD_PAGE, isElevatedRole } from '@/constants';
 import { DashboardPageHeader } from '@/components/dashboard/DashboardPageHeader';
 import { DataPagination } from '@/components/common/DataPagination';
 import { TableSearchField } from '@/components/common/TableSearchField';
@@ -58,7 +58,7 @@ const DEFAULT_PAGE_LIMIT = 10;
 
 export default function AllowlistPage() {
   const { user: currentUser } = useAppSelector((s) => s.auth);
-  const isSuperAdmin = currentUser?.role === ROLES.SUPER_ADMIN;
+  const isElevated = isElevatedRole(currentUser?.role);
   const { canCreate, canUpdate, canDelete } = usePermission('allowlist');
 
   const [page, setPage] = useState(1);
@@ -162,12 +162,11 @@ export default function AllowlistPage() {
       <DashboardPageHeader
         title="Allowlist"
         description={
-          isSuperAdmin
-            ? 'Review all allowlist entries, manage in-progress entries, and activate or deactivate them'
+          isElevated            ? 'Review all allowlist entries, manage in-progress entries, and activate or deactivate them'
             : 'Create and manage your allowlist requests'
         }
         action={
-          !isSuperAdmin && canCreate ? (
+          !isElevated && canCreate ? (
             <Button
               onClick={() => setCreateOpen(true)}
               className="rounded-xl bg-brand-lime text-black hover:bg-brand-lime-dark"
@@ -183,7 +182,7 @@ export default function AllowlistPage() {
         <CardHeader className={legalModuleCardHeaderClass}>
           <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
             <CardTitle className="text-white">
-              {isSuperAdmin ? 'All allowlist entries' : 'My allowlist entries'}
+              {isElevated ? 'All allowlist entries' : 'My allowlist entries'}
             </CardTitle>
             <div className="flex w-full flex-col items-stretch gap-3 lg:w-auto lg:items-end">
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-end">
@@ -224,9 +223,9 @@ export default function AllowlistPage() {
           ) : items.length === 0 ? (
             <div className="flex flex-col items-center gap-4 py-12 text-center">
               <p className="text-neutral-500">
-                {isSuperAdmin ? 'No allowlist entries found.' : 'You have not created any allowlist entries yet.'}
+                {isElevated ? 'No allowlist entries found.' : 'You have not created any allowlist entries yet.'}
               </p>
-              {!isSuperAdmin && canCreate ? (
+              {!isElevated && canCreate ? (
                 <Button
                   onClick={() => setCreateOpen(true)}
                   className="rounded-xl bg-brand-lime text-black hover:bg-brand-lime-dark"
@@ -236,7 +235,7 @@ export default function AllowlistPage() {
                 </Button>
               ) : null}
             </div>
-          ) : isSuperAdmin ? (
+          ) : isElevated ? (
             <div className={dashboardTableWrapperClass()}>
               <div className="overflow-x-auto">
                 <table className={cn(dashboardTableClass, 'min-w-[800px]')}>
