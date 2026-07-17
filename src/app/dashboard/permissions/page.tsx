@@ -55,7 +55,12 @@ export default function PermissionsPage() {
   const { data: rolesData } = useGetRolesQuery({ all: 'true' });
   const { refetch: refetchSidebar } = useGetSidebarQuery();
 
-  const roles = useMemo(() => rolesData?.data ?? [], [rolesData]);
+  // Sub Admin access is granted per-user at creation time, not on this
+  // role-level matrix (the API rejects editing it), so it's excluded here.
+  const roles = useMemo(
+    () => (rolesData?.data ?? []).filter((role) => role.slug !== ROLES.SUB_ADMIN),
+    [rolesData],
+  );
   const roleOptions = useMemo(
     () => roles.map((role) => ({ value: role._id, label: role.name })),
     [roles],
